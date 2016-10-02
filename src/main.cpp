@@ -4,8 +4,8 @@
 int main(int argc, char** args) {
   std::cout << "Happy dappy" << std::endl;
 
-  //P p2;
-  //p2.test();
+  Parser p;
+  p.parse("hello world");
 
   return 0;
 }

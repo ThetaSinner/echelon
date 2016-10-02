@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.6.2)
 
 # Set the project name
 project(eager-lilac-mayfly)
@@ -19,6 +19,8 @@ include_directories(include)
 # Create an executable from the main file.
 set(elm-src "src/main.cpp")
 add_executable(eager-lilac-mayfly ${elm-src})
+
+target_compile_features(eager-lilac-mayfly PRIVATE cxx_range_for)
 
 # Link the parser to the executable
 add_subdirectory(src/parser)

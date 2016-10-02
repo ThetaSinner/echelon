@@ -2,11 +2,13 @@
 #define ELM_LIBPARSE_P_INCLUDED
 
 #include <iostream>
+#include <string>
+#include <vector>
 
-class P
+class Parser
 {
 public:
-  void test();
+  void parse(std::string in);
 };
 
 #endif
