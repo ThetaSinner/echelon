@@ -23,3 +23,14 @@ add_executable(eager-lilac-mayfly ${elm-src})
 # Link the parser to the executable
 add_subdirectory(src/parser)
 target_link_libraries(eager-lilac-mayfly elm_lib_parser)
+
+find_package(CxxTest)
+if (CXXTEST_FOUND)
+  include_directories(${CXXTEST_INCLUDE_DIR})
+  enable_testing()
+  file(GLOB elm-test-src "${CMAKE_CURRENT_SOURCE_DIR}/test/*.hpp")
+  CXXTEST_ADD_TEST(elm_test test_runner.cpp ${elm-test-src})
+  #target_link_libraries(unittest_foo foo) # as needed
+else()
+  message("CxxTest not found.")
+endif()
