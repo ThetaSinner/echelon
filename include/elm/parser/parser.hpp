@@ -4,11 +4,12 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 class Parser
 {
 public:
-  void parse(std::string in);
+  std::vector<std::string> parse(std::string in);
 };
 
 #endif

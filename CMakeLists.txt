@@ -32,7 +32,8 @@ if (CXXTEST_FOUND)
   enable_testing()
   file(GLOB elm-test-src "${CMAKE_CURRENT_SOURCE_DIR}/test/*.hpp")
   CXXTEST_ADD_TEST(elm_test test_runner.cpp ${elm-test-src})
-  #target_link_libraries(unittest_foo foo) # as needed
+  target_compile_features(elm_test PRIVATE cxx_range_for)
+  target_link_libraries(elm_test elm_lib_parser) # as needed
 else()
   message("CxxTest not found.")
 endif()

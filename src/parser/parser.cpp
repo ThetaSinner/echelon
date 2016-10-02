@@ -24,7 +24,7 @@ bool is_number(char in) {
   return 48 <= in && in <= 57;
 }
 
-void Parser::parse(std::string in) {
+std::vector<std::string> Parser::parse(std::string in) {
   std::cout << "Parsing string: " << in << std::endl;
 
   std::vector<std::string> tokens;
@@ -71,8 +71,8 @@ void Parser::parse(std::string in) {
       continue;
     }
 
-    std::cout << "Warn: unhandled character" << current_char;
-    str_pos++;
+    std::string err = "Unhandled character + [" + std::string(1, current_char) + "]";
+    throw std::domain_error(err);
   }
 
   int token_num = 0;
@@ -80,4 +80,6 @@ void Parser::parse(std::string in) {
     std::cout << token_num << " " << i << "\n";
     token_num++;
   }
+
+  return tokens;
 }
