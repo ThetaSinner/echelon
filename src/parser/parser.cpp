@@ -20,6 +20,10 @@ bool is_whitespace(char in) {
   return in == ' ' || in == '\n';
 }
 
+bool is_number(char in) {
+  return 48 <= in && in <= 57;
+}
+
 void Parser::parse(std::string in) {
   std::cout << "Parsing string: " << in << std::endl;
 
@@ -39,7 +43,23 @@ void Parser::parse(std::string in) {
       int offset = 1;
       while (str_pos + offset < in_len) {
         char check_char = in.at(str_pos + offset);
-        if (!is_letter(check_char) && !is_underscore(check_char)) {
+        if (!is_letter(check_char) && !is_underscore(check_char) && !is_number(check_char)) {
+          break;
+        }
+
+        offset++;
+      }
+
+      tokens.push_back(in.substr(str_pos, offset));
+      str_pos += offset;
+      continue;
+    }
+
+    if (is_number(current_char)) {
+      int offset = 1;
+      while (str_pos + offset < in_len) {
+        char check_char = in.at(str_pos + offset);
+        if (!is_number(check_char)) {
           break;
         }
 
