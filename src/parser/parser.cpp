@@ -1,5 +1,5 @@
-#include "parser.hpp"
+#include "elm/parser/parser.hpp"
 
-void Parser::test() {
-  std::cout << "parser" << std::endl;
+void P::test() {
+  std::cout << "Hello from lib" << std::endl;
 }

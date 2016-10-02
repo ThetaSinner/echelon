@@ -1,11 +1,11 @@
 #include <iostream>
-#include "parser/parser.hpp"
+#include "elm/parser/parser.hpp"
 
 int main(int argc, char** args) {
   std::cout << "Happy dappy" << std::endl;
 
-  Parser p;
-  p.test();
+  //P p2;
+  //p2.test();
 
   return 0;
 }
