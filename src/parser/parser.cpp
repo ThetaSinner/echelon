@@ -24,6 +24,42 @@ bool is_number(char in) {
   return 48 <= in && in <= 57;
 }
 
+bool is_block_delim_start(char in) {
+  return in == '{';
+}
+
+bool is_block_delim_stop(char in) {
+  return in == '}';
+}
+
+bool is_block_delim(char in) {
+  return is_block_delim_start(in) || is_block_delim_stop(in);
+}
+
+bool is_paren_start(char in) {
+  return in == '(';
+}
+
+bool is_paren_stop(char in) {
+  return in == ')';
+}
+
+bool is_paren(char in) {
+  return is_paren_start(in) || is_paren_stop(in);
+}
+
+bool is_sq_bracket_start(char in) {
+  return in == '[';
+}
+
+bool is_sq_bracket_stop(char in) {
+  return in == ']';
+}
+
+bool is_sq_bracket(char in) {
+  return is_sq_bracket_start(in) || is_sq_bracket_stop(in);
+}
+
 std::vector<std::string> Parser::parse(std::string in) {
   std::cout << "Parsing string: " << in << std::endl;
 
@@ -69,6 +105,21 @@ std::vector<std::string> Parser::parse(std::string in) {
       tokens.push_back(in.substr(str_pos, offset));
       str_pos += offset;
       continue;
+    }
+
+    if (is_block_delim(current_char)) {
+      tokens.push_back(in.substr(str_pos, 1));
+      str_pos++;
+    }
+
+    if (is_paren(current_char)) {
+      tokens.push_back(in.substr(str_pos, 1));
+      str_pos++;
+    }
+
+    if (is_sq_bracket(current_char)) {
+      tokens.push_back(in.substr(str_pos, 1));
+      str_pos++;
     }
 
     std::string err = "Unhandled character + [" + std::string(1, current_char) + "]";
