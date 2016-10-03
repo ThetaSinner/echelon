@@ -57,4 +57,31 @@ public:
       TS_ASSERT_EQUALS("123", res.at(0));
       TS_ASSERT_EQUALS("456", res.at(1));
     }
+
+    void testAssignmentOperator(void) {
+      Parser p;
+      auto res = p.parse("=");
+
+      TS_ASSERT_EQUALS(1, res.size());
+      TS_ASSERT_EQUALS("=", res.at(0));
+    }
+
+    void testEqualityOperator(void) {
+      Parser p;
+      auto res = p.parse("==");
+
+      TS_ASSERT_EQUALS(1, res.size());
+      TS_ASSERT_EQUALS("==", res.at(0));
+    }
+
+    void testEqualityAndAssignmentOperators(void) {
+      Parser p;
+      auto res = p.parse("== = = ==");
+
+      TS_ASSERT_EQUALS(4, res.size());
+      TS_ASSERT_EQUALS("==", res.at(0));
+      TS_ASSERT_EQUALS("=", res.at(1));
+      TS_ASSERT_EQUALS("=", res.at(2));
+      TS_ASSERT_EQUALS("==", res.at(3));
+    }
 };
