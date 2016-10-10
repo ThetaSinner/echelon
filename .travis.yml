@@ -5,4 +5,10 @@ before_install:
 
 env: CXXTEST=/usr/include
 
+script:
+  - ./build.sh
+
+compiler:
+  - gcc
+
 language: cpp
