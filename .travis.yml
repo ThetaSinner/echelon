@@ -1,25 +1,27 @@
 before_install:
   - echo | sudo apt-add-repository ppa:dhart/ppa
   - sudo apt-get -qq update
+
+install:
   - sudo apt-get install -y cxxtest
 
-addons:
-  apt:
-    sources:
-      - george-edison55-precise-backports
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-5
-      - cmake
-      - cmake-data
-
-env: 
-    - CXXTEST=/usr/include COMPILER=g++-5
+matrix:
+  include:
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - george-edison55-precise-backports
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+            - cmake
+            - cmake-data
+      env: COMPILER=g++-5 CXXTEST=/usr/include
 
 script:
-  - ./build.sh
-
-compiler:
-  - gcc
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
 
 language: cpp
