@@ -15,8 +15,8 @@ addons:
       - cmake-data
 
 env: 
-	CXXTEST=/usr/include
-	COMPILER=g++-5
+	- CXXTEST=/usr/include
+	- COMPILER=g++-5
 
 script:
   - ./build.sh
