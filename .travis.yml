@@ -8,14 +8,15 @@ addons:
     sources:
       - george-edison55-precise-backports
       - ubuntu-toolchain-r-test
-	  - llvm-toolchain-precise-3.6
     packages:
       - gcc-5
       - g++-5
       - cmake
       - cmake-data
 
-env: CXXTEST=/usr/include
+env: 
+	CXXTEST=/usr/include
+	COMPILER=g++-5
 
 script:
   - ./build.sh
