@@ -9,14 +9,12 @@ addons:
       - george-edison55-precise-backports
       - ubuntu-toolchain-r-test
     packages:
-      - gcc-5
       - g++-5
       - cmake
       - cmake-data
 
 env: 
-    - CXXTEST=/usr/include
-    - COMPILER=g++-5
+    - CXXTEST=/usr/include COMPILER=g++-5
 
 script:
   - ./build.sh
