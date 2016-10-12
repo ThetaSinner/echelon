@@ -1,5 +1,5 @@
 #include <cxxtest/TestSuite.h>
-#include "elm/parser/parser.hpp"
+#include "elm/parser/tokenizer.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -33,8 +33,8 @@ public:
     void test_Fundamentals_Types(void) {
       std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/types.elm";
 
-      Parser p;
-      auto res = p.parse(getFileContents(file));
+      Tokenizer t;
+      auto res = t.tokenize(getFileContents(file));
 
       TS_ASSERT_EQUALS(4, res.size());
       TS_ASSERT_EQUALS("type", res.at(0));
