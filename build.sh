@@ -2,6 +2,4 @@ rm -rf build
 mkdir build
 cd build
 cmake ..
-make
-cd bin
-./elm_test
+make && cd bin && ./elm_test
