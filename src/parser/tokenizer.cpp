@@ -4,17 +4,21 @@
 #include "tokenizer-impl/character-query.hpp"
 #include "tokenizer-impl/extractor-for-equality.hpp"
 #include "tokenizer-impl/extractor-for-assignment.hpp"
+#include "tokenizer-impl/extractor-for-line-comment.hpp"
+#include "tokenizer-impl/extractor-for-multi-line-comment.hpp"
 
 void emit() {
   std::cout << "emitting\n";
 }
 
 std::vector<std::string> Tokenizer::tokenize(std::string in) {
-  std::cout << "Tokenizing string: " << in << std::endl;
+  //std::cout << "Tokenizing string: " << in << std::endl;
 
   std::vector<Extractor*> extractors;
   extractors.push_back(new EqualityExtractor());
   extractors.push_back(new AssignmentExtractor());
+  extractors.push_back(new LineCommentExtractor());
+  extractors.push_back(new MultiLineCommentExtractor());
 
   std::vector<std::string> tokens;
 
@@ -98,21 +102,15 @@ std::vector<std::string> Tokenizer::tokenize(std::string in) {
         }
       }
 
-      std::cout << "Selected " << selected << std::endl;
+      //std::cout << "Selected [" << selected << "]" << std::endl;
       tokens.push_back(selected);
       str_pos += selected.size();
       continue;
     }
 
 
-    std::string err = "Unhandled character + [" + std::string(1, current_char) + "]";
+    std::string err = "Unhandled character + [" + std::string(1, current_char) + "] rest is [" + in.substr(str_pos);
     throw std::domain_error(err);
-  }
-
-  int token_num = 0;
-  for (auto &i : tokens) {
-    std::cout << token_num << " " << i << "\n";
-    token_num++;
   }
 
   return tokens;

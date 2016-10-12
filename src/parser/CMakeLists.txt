@@ -6,7 +6,9 @@ add_library(elm_lib_parser
   tokenizer-impl/character-query.cpp
   tokenizer-impl/parse-data.cpp
   tokenizer-impl/extractor-for-assignment.cpp
-  tokenizer-impl/extractor-for-equality.cpp)
+  tokenizer-impl/extractor-for-equality.cpp
+  tokenizer-impl/extractor-for-line-comment
+  tokenizer-impl/extractor-for-multi-line-comment)
 
 include_directories(tokenizer-impl)
 

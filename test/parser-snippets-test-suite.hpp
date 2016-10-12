@@ -42,4 +42,16 @@ public:
       TS_ASSERT_EQUALS("{", res.at(2));
       TS_ASSERT_EQUALS("}", res.at(3));
     }
+
+    void test_Fundamentals_Comment(void) {
+      std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/comment.elm";
+
+      Tokenizer t;
+      auto res = t.tokenize(getFileContents(file));
+
+      TS_ASSERT_EQUALS(3, res.size());
+      TS_ASSERT_EQUALS("// Single line comment", res.at(0));
+      TS_ASSERT_EQUALS("/**/", res.at(1));
+      TS_ASSERT_EQUALS("/*\n * Multi-line comment\n */", res.at(2));
+    }
 };
