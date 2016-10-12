@@ -7,8 +7,6 @@
 #include <stdexcept>
 #include <map>
 
-#include <elm/parser/character-query.hpp>
-
 class Tokenizer
 {
 public:

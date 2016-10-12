@@ -1,83 +1,13 @@
 #include "elm/parser/tokenizer.hpp"
 
 #include "elm/optional.hpp"
+#include "tokenizer-impl/character-query.hpp"
+#include "tokenizer-impl/extractor-for-equality.hpp"
+#include "tokenizer-impl/extractor-for-assignment.hpp"
 
 void emit() {
   std::cout << "emitting\n";
 }
-
-class ParseData {
-private:
-  std::string parse_str;
-  int parse_pos = 0;
-  int parse_len = 0;
-public:
-  ParseData(std::string parse_str, int parse_pos) {
-    this->parse_str = parse_str;
-    this->parse_pos = parse_pos;
-    this->parse_len = parse_str.size();
-  }
-
-  std::string getParseStr() {
-    return parse_str;
-  }
-
-  int getParsePos() {
-    return parse_pos;
-  }
-
-  void setParsePos(int parse_pos) {
-    this->parse_pos = parse_pos;
-  }
-
-  int getParseLen() {
-    return parse_len;
-  }
-
-  bool hasNext() {
-    return getParsePos() + 1 < getParseLen();
-  }
-
-  char getCurrent() {
-    return parse_str.at(parse_pos);
-  }
-
-  char getNext() {
-    return parse_str.at(parse_pos + 1);
-  }
-};
-
-class Extractor {
-public:
-  virtual bool is_applicable(char apply_char) = 0;
-  virtual Optional<std::string> extract(ParseData parseData) = 0;
-};
-
-class EqualityExtractor : public Extractor {
-public:
-  bool is_applicable(char apply_char) override {
-    return apply_char == '=';
-  };
-
-  Optional<std::string> extract(ParseData parseData) override {
-    if (parseData.hasNext() && parseData.getNext() == '=') {
-      return Optional<std::string>::of(parseData.getParseStr().substr(parseData.getParsePos(), 2));
-    }
-
-    return Optional<std::string>::absent();
-  };
-};
-
-class AssignmentExtractor : public Extractor {
-public:
-  bool is_applicable(char apply_char) override {
-    return apply_char == '=';
-  };
-
-  Optional<std::string> extract(ParseData parseData) override {
-    return Optional<std::string>::of(std::string(1, parseData.getCurrent()));
-  };
-};
 
 std::vector<std::string> Tokenizer::tokenize(std::string in) {
   std::cout << "Tokenizing string: " << in << std::endl;

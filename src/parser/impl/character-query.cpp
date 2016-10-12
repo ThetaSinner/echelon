@@ -1,4 +1,4 @@
-#include <elm/parser/character-query.hpp>
+#include "character-query.hpp"
 
 bool CharacterQuery::is_lower_case_letter(char in) {
   return 97 <= in && in <= 122;
