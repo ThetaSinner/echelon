@@ -3,4 +3,5 @@ mkdir build
 cd build
 cmake ..
 make
-make test
+cd bin
+./elm_test
