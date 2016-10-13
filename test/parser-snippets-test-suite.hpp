@@ -54,7 +54,7 @@ public:
       TS_ASSERT_EQUALS("/**/", res.at(1));
       TS_ASSERT_EQUALS("/*\n * Multi-line comment\n */", res.at(2));
     }
-	
+
 	void test_Fundamentals_Enum(void) {
 		std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/enum.elm";
 
@@ -68,5 +68,24 @@ public:
 	  TS_ASSERT_EQUALS("EnumConstOne", res.at(3));
 	  TS_ASSERT_EQUALS("EnumConstTwo", res.at(4));
 	  TS_ASSERT_EQUALS("}", res.at(5));
+	}
+
+  void test_Fundamentals_variable(void) {
+    std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/variable.elm";
+
+    Tokenizer t;
+    auto res = t.tokenize(getFileContents(file));
+
+    TS_ASSERT_EQUALS(10, res.size());
+    TS_ASSERT_EQUALS("myVar", res.at(0));
+    TS_ASSERT_EQUALS("=", res.at(1));
+    TS_ASSERT_EQUALS("2", res.at(2));
+    TS_ASSERT_EQUALS("myString", res.at(3));
+    TS_ASSERT_EQUALS("=", res.at(4));
+    TS_ASSERT_EQUALS("\"Hello, Strings\"", res.at(5));
+    TS_ASSERT_EQUALS("integer", res.at(6));
+    TS_ASSERT_EQUALS("myInt", res.at(7));
+    TS_ASSERT_EQUALS("=", res.at(8));
+    TS_ASSERT_EQUALS("60", res.at(9));
 	}
 };

@@ -24,6 +24,10 @@ bool CharacterQuery::is_line_break(char in) {
   return in == '\n';
 }
 
+bool CharacterQuery::is_string_delim(char in) {
+	return in == '"';
+}
+
 bool CharacterQuery::is_number(char in) {
   return 48 <= in && in <= 57;
 }

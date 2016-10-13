@@ -6,10 +6,7 @@
 #include "tokenizer-impl/extractor-for-assignment.hpp"
 #include "tokenizer-impl/extractor-for-line-comment.hpp"
 #include "tokenizer-impl/extractor-for-multi-line-comment.hpp"
-
-void emit() {
-  std::cout << "emitting\n";
-}
+#include "tokenizer-impl/extractor-for-strings.hpp"
 
 std::vector<std::string> Tokenizer::tokenize(std::string in) {
   //std::cout << "Tokenizing string: " << in << std::endl;
@@ -19,7 +16,8 @@ std::vector<std::string> Tokenizer::tokenize(std::string in) {
   extractors.push_back(new AssignmentExtractor());
   extractors.push_back(new LineCommentExtractor());
   extractors.push_back(new MultiLineCommentExtractor());
-
+  extractors.push_back(new StringExtractor());
+  
   std::vector<std::string> tokens;
 
   long str_pos = 0;
