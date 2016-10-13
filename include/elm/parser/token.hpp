@@ -10,6 +10,7 @@ private:
   TokenTypeEnum type;
 
 public:
+  Token() {}
   Token(std::string data, TokenTypeEnum type);
 
   std::string getData();

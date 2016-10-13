@@ -2,7 +2,16 @@
 #define TOKEN_ENUM_HPP_INCLUDED
 
 enum class TokenTypeEnum {
-  String
+  String,
+  Identifier,
+  Integer,
+  BlockDelim,
+  Paren,
+  SqBracket,
+  Assign,
+  Equality,
+  LineComment,
+  MultiLineComment
 };
 
 #endif

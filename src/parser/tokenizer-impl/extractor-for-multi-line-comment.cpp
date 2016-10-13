@@ -6,7 +6,7 @@ bool MultiLineCommentExtractor::is_applicable(char apply_char) {
   return apply_char == '/';
 }
 
-Optional<std::string> MultiLineCommentExtractor::extract(ParseData parseData) {
+Optional<Token> MultiLineCommentExtractor::extract(ParseData parseData) {
   if (parseData.hasNext() && parseData.getNext() == '*') {
     int offset = 3;
     while (parseData.getParsePos() + offset < parseData.getParseLen()) {
@@ -19,8 +19,8 @@ Optional<std::string> MultiLineCommentExtractor::extract(ParseData parseData) {
       offset++;
     }
 
-    return Optional<std::string>::of(parseData.getParseStr().substr(parseData.getParsePos(), offset + 1));
+    return Optional<Token>::of(Token(parseData.getParseStr().substr(parseData.getParsePos(), offset + 1), TokenTypeEnum::MultiLineComment));
   }
 
-  return Optional<std::string>::absent();
+  return Optional<Token>::absent();
 }

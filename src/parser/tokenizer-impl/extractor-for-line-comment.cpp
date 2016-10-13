@@ -6,7 +6,7 @@ bool LineCommentExtractor::is_applicable(char apply_char) {
   return apply_char == '/';
 }
 
-Optional<std::string> LineCommentExtractor::extract(ParseData parseData) {
+Optional<Token> LineCommentExtractor::extract(ParseData parseData) {
   if (parseData.hasNext() && parseData.getNext() == '/') {
     int offset = 2;
     while (parseData.getParsePos() + offset < parseData.getParseLen()) {
@@ -16,8 +16,8 @@ Optional<std::string> LineCommentExtractor::extract(ParseData parseData) {
       offset++;
     }
 
-    return Optional<std::string>::of(parseData.getParseStr().substr(parseData.getParsePos(), offset));
+    return Optional<Token>::of(Token(parseData.getParseStr().substr(parseData.getParsePos(), offset), TokenTypeEnum::LineComment));
   }
 
-  return Optional<std::string>::absent();
+  return Optional<Token>::absent();
 }

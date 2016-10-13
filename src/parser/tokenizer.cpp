@@ -1,4 +1,4 @@
-#include <elm/parser/tokenizer.hpp
+#include <elm/parser/tokenizer.hpp>
 
 #include <elm/optional.hpp>
 #include <elm/parser/token.hpp>
@@ -10,7 +10,7 @@
 #include "tokenizer-impl/extractor-for-multi-line-comment.hpp"
 #include "tokenizer-impl/extractor-for-strings.hpp"
 
-std::vector<std::string> Tokenizer::tokenize(std::string in) {
+std::vector<Token> Tokenizer::tokenize(std::string in) {
   //std::cout << "Tokenizing string: " << in << std::endl;
 
   std::vector<Extractor*> extractors;
@@ -20,7 +20,7 @@ std::vector<std::string> Tokenizer::tokenize(std::string in) {
   extractors.push_back(new MultiLineCommentExtractor());
   extractors.push_back(new StringExtractor());
 
-  std::vector<std::string> tokens;
+  std::vector<Token> tokens;
 
   long str_pos = 0;
   long in_len = in.size();
@@ -43,7 +43,7 @@ std::vector<std::string> Tokenizer::tokenize(std::string in) {
         offset++;
       }
 
-      tokens.push_back(in.substr(str_pos, offset));
+      tokens.push_back(Token(in.substr(str_pos, offset), TokenTypeEnum::Identifier));
       str_pos += offset;
       continue;
     }
@@ -59,30 +59,30 @@ std::vector<std::string> Tokenizer::tokenize(std::string in) {
         offset++;
       }
 
-      tokens.push_back(in.substr(str_pos, offset));
+      tokens.push_back(Token(in.substr(str_pos, offset), TokenTypeEnum::Integer));
       str_pos += offset;
       continue;
     }
 
     if (CharacterQuery::is_block_delim(current_char)) {
-      tokens.push_back(in.substr(str_pos, 1));
+      tokens.push_back(Token(in.substr(str_pos, 1), TokenTypeEnum::BlockDelim));
       str_pos++;
       continue;
     }
 
     if (CharacterQuery::is_paren(current_char)) {
-      tokens.push_back(in.substr(str_pos, 1));
+      tokens.push_back(Token(in.substr(str_pos, 1), TokenTypeEnum::Paren));
       str_pos++;
       continue;
     }
 
     if (CharacterQuery::is_sq_bracket(current_char)) {
-      tokens.push_back(in.substr(str_pos, 1));
+      tokens.push_back(Token(in.substr(str_pos, 1), TokenTypeEnum::SqBracket));
       str_pos++;
       continue;
     }
 
-    std::vector<std::string> extracted;
+    std::vector<Token> extracted;
 
     ParseData parseData(in, str_pos);
     for (auto& extractor : extractors) {
@@ -95,16 +95,16 @@ std::vector<std::string> Tokenizer::tokenize(std::string in) {
     }
 
     if (extracted.size()) {
-      std::string selected = extracted.at(0);
+      Token selected = extracted.at(0);
       for (auto& ex : extracted) {
-        if (ex.size() > selected.size()) {
+        if (ex.getData().size() > selected.getData().size()) {
           selected = ex;
         }
       }
 
       //std::cout << "Selected [" << selected << "]" << std::endl;
       tokens.push_back(selected);
-      str_pos += selected.size();
+      str_pos += selected.getData().size();
       continue;
     }
 

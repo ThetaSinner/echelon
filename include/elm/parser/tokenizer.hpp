@@ -6,11 +6,12 @@
 #include <vector>
 #include <stdexcept>
 #include <map>
+#include <elm/parser/token.hpp>
 
 class Tokenizer
 {
 public:
-  std::vector<std::string> tokenize(std::string in);
+  std::vector<Token> tokenize(std::string in);
 };
 
 #endif

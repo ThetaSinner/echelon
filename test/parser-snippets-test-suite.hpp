@@ -37,10 +37,10 @@ public:
       auto res = t.tokenize(getFileContents(file));
 
       TS_ASSERT_EQUALS(4, res.size());
-      TS_ASSERT_EQUALS("type", res.at(0));
-      TS_ASSERT_EQUALS("MyType", res.at(1));
-      TS_ASSERT_EQUALS("{", res.at(2));
-      TS_ASSERT_EQUALS("}", res.at(3));
+      TS_ASSERT_EQUALS("type", res.at(0).getData());
+      TS_ASSERT_EQUALS("MyType", res.at(1).getData());
+      TS_ASSERT_EQUALS("{", res.at(2).getData());
+      TS_ASSERT_EQUALS("}", res.at(3).getData());
     }
 
     void test_Fundamentals_Comment(void) {
@@ -50,9 +50,9 @@ public:
       auto res = t.tokenize(getFileContents(file));
 
       TS_ASSERT_EQUALS(3, res.size());
-      TS_ASSERT_EQUALS("// Single line comment", res.at(0));
-      TS_ASSERT_EQUALS("/**/", res.at(1));
-      TS_ASSERT_EQUALS("/*\n * Multi-line comment\n */", res.at(2));
+      TS_ASSERT_EQUALS("// Single line comment", res.at(0).getData());
+      TS_ASSERT_EQUALS("/**/", res.at(1).getData());
+      TS_ASSERT_EQUALS("/*\n * Multi-line comment\n */", res.at(2).getData());
     }
 
 	void test_Fundamentals_Enum(void) {
@@ -62,12 +62,12 @@ public:
       auto res = t.tokenize(getFileContents(file));
 
       TS_ASSERT_EQUALS(6, res.size());
-      TS_ASSERT_EQUALS("enum", res.at(0));
-      TS_ASSERT_EQUALS("MyEnum", res.at(1));
-      TS_ASSERT_EQUALS("{", res.at(2));
-	  TS_ASSERT_EQUALS("EnumConstOne", res.at(3));
-	  TS_ASSERT_EQUALS("EnumConstTwo", res.at(4));
-	  TS_ASSERT_EQUALS("}", res.at(5));
+      TS_ASSERT_EQUALS("enum", res.at(0).getData());
+      TS_ASSERT_EQUALS("MyEnum", res.at(1).getData());
+      TS_ASSERT_EQUALS("{", res.at(2).getData());
+	  TS_ASSERT_EQUALS("EnumConstOne", res.at(3).getData());
+	  TS_ASSERT_EQUALS("EnumConstTwo", res.at(4).getData());
+	  TS_ASSERT_EQUALS("}", res.at(5).getData());
 	}
 
   void test_Fundamentals_variable(void) {
@@ -77,15 +77,15 @@ public:
     auto res = t.tokenize(getFileContents(file));
 
     TS_ASSERT_EQUALS(10, res.size());
-    TS_ASSERT_EQUALS("myVar", res.at(0));
-    TS_ASSERT_EQUALS("=", res.at(1));
-    TS_ASSERT_EQUALS("2", res.at(2));
-    TS_ASSERT_EQUALS("myString", res.at(3));
-    TS_ASSERT_EQUALS("=", res.at(4));
-    TS_ASSERT_EQUALS("\"Hello, Strings\"", res.at(5));
-    TS_ASSERT_EQUALS("integer", res.at(6));
-    TS_ASSERT_EQUALS("myInt", res.at(7));
-    TS_ASSERT_EQUALS("=", res.at(8));
-    TS_ASSERT_EQUALS("60", res.at(9));
+    TS_ASSERT_EQUALS("myVar", res.at(0).getData());
+    TS_ASSERT_EQUALS("=", res.at(1).getData());
+    TS_ASSERT_EQUALS("2", res.at(2).getData());
+    TS_ASSERT_EQUALS("myString", res.at(3).getData());
+    TS_ASSERT_EQUALS("=", res.at(4).getData());
+    TS_ASSERT_EQUALS("\"Hello, Strings\"", res.at(5).getData());
+    TS_ASSERT_EQUALS("integer", res.at(6).getData());
+    TS_ASSERT_EQUALS("myInt", res.at(7).getData());
+    TS_ASSERT_EQUALS("=", res.at(8).getData());
+    TS_ASSERT_EQUALS("60", res.at(9).getData());
 	}
 };

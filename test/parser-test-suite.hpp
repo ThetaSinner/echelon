@@ -9,7 +9,7 @@ public:
       auto res = t.tokenize("teststr");
 
       TS_ASSERT_EQUALS(1, res.size());
-      TS_ASSERT_EQUALS("teststr", res.at(0));
+      TS_ASSERT_EQUALS("teststr", res.at(0).getData());
     }
 
     void testTwoStringsOfLowerCaseLetters(void) {
@@ -17,8 +17,8 @@ public:
       auto res = t.tokenize("test str");
 
       TS_ASSERT_EQUALS(2, res.size());
-      TS_ASSERT_EQUALS("test", res.at(0));
-      TS_ASSERT_EQUALS("str", res.at(1));
+      TS_ASSERT_EQUALS("test", res.at(0).getData());
+      TS_ASSERT_EQUALS("str", res.at(1).getData());
     }
 
     void testUnderscoreInIdentifier(void) {
@@ -26,7 +26,7 @@ public:
       auto res = t.tokenize("test_str");
 
       TS_ASSERT_EQUALS(1, res.size());
-      TS_ASSERT_EQUALS("test_str", res.at(0))
+      TS_ASSERT_EQUALS("test_str", res.at(0).getData())
     }
 
     void testUnderscoreAtStartOfIdentifier(void) {
@@ -46,7 +46,7 @@ public:
       auto res = t.tokenize("123456");
 
       TS_ASSERT_EQUALS(1, res.size());
-      TS_ASSERT_EQUALS("123456", res.at(0));
+      TS_ASSERT_EQUALS("123456", res.at(0).getData());
     }
 
     void testTwoStringsOfNumbers(void) {
@@ -54,8 +54,8 @@ public:
       auto res = t.tokenize("123 456");
 
       TS_ASSERT_EQUALS(2, res.size());
-      TS_ASSERT_EQUALS("123", res.at(0));
-      TS_ASSERT_EQUALS("456", res.at(1));
+      TS_ASSERT_EQUALS("123", res.at(0).getData());
+      TS_ASSERT_EQUALS("456", res.at(1).getData());
     }
 
     void testAssignmentOperator(void) {
@@ -63,7 +63,7 @@ public:
       auto res = t.tokenize("=");
 
       TS_ASSERT_EQUALS(1, res.size());
-      TS_ASSERT_EQUALS("=", res.at(0));
+      TS_ASSERT_EQUALS("=", res.at(0).getData());
     }
 
     void testEqualityOperator(void) {
@@ -71,7 +71,7 @@ public:
       auto res = t.tokenize("==");
 
       TS_ASSERT_EQUALS(1, res.size());
-      TS_ASSERT_EQUALS("==", res.at(0));
+      TS_ASSERT_EQUALS("==", res.at(0).getData());
     }
 
     void testEqualityAndAssignmentOperators(void) {
@@ -79,9 +79,9 @@ public:
       auto res = t.tokenize("== = = ==");
 
       TS_ASSERT_EQUALS(4, res.size());
-      TS_ASSERT_EQUALS("==", res.at(0));
-      TS_ASSERT_EQUALS("=", res.at(1));
-      TS_ASSERT_EQUALS("=", res.at(2));
-      TS_ASSERT_EQUALS("==", res.at(3));
+      TS_ASSERT_EQUALS("==", res.at(0).getData());
+      TS_ASSERT_EQUALS("=", res.at(1).getData());
+      TS_ASSERT_EQUALS("=", res.at(2).getData());
+      TS_ASSERT_EQUALS("==", res.at(3).getData());
     }
 };
