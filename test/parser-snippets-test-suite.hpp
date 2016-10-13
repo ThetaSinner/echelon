@@ -54,4 +54,19 @@ public:
       TS_ASSERT_EQUALS("/**/", res.at(1));
       TS_ASSERT_EQUALS("/*\n * Multi-line comment\n */", res.at(2));
     }
+	
+	void test_Fundamentals_Enum(void) {
+		std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/enum.elm";
+
+      Tokenizer t;
+      auto res = t.tokenize(getFileContents(file));
+
+      TS_ASSERT_EQUALS(6, res.size());
+      TS_ASSERT_EQUALS("enum", res.at(0));
+      TS_ASSERT_EQUALS("MyEnum", res.at(1));
+      TS_ASSERT_EQUALS("{", res.at(2));
+	  TS_ASSERT_EQUALS("EnumConstOne", res.at(3));
+	  TS_ASSERT_EQUALS("EnumConstTwo", res.at(4));
+	  TS_ASSERT_EQUALS("}", res.at(5));
+	}
 };
