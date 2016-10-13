@@ -1,6 +1,8 @@
-#include "elm/parser/tokenizer.hpp"
+#include <elm/parser/tokenizer.hpp
 
-#include "elm/optional.hpp"
+#include <elm/optional.hpp>
+#include <elm/parser/token.hpp>
+
 #include "tokenizer-impl/character-query.hpp"
 #include "tokenizer-impl/extractor-for-equality.hpp"
 #include "tokenizer-impl/extractor-for-assignment.hpp"
@@ -17,7 +19,7 @@ std::vector<std::string> Tokenizer::tokenize(std::string in) {
   extractors.push_back(new LineCommentExtractor());
   extractors.push_back(new MultiLineCommentExtractor());
   extractors.push_back(new StringExtractor());
-  
+
   std::vector<std::string> tokens;
 
   long str_pos = 0;

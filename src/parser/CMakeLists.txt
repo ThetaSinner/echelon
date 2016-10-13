@@ -3,6 +3,7 @@
 add_library(elm_lib_parser
   tokenizer.cpp
   parser.cpp
+  token.cpp
   tokenizer-impl/character-query.cpp
   tokenizer-impl/parse-data.cpp
   tokenizer-impl/extractor-for-assignment.cpp
@@ -13,4 +14,4 @@ add_library(elm_lib_parser
 
 include_directories(tokenizer-impl)
 
-target_compile_features(elm_lib_parser PRIVATE cxx_range_for)
+target_compile_features(elm_lib_parser PRIVATE cxx_range_for cxx_strong_enums)
