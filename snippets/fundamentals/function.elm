@@ -1,14 +1,14 @@
-myFunction {
+function myFunction {
 }
 
-myParamFunction(string a, integer b) {
+function myParamFunction(string a, integer b) {
 }
 
-myDynamicParamFunction(a, b) {
+function myDynamicParamFunction(a, b) {
 }
 
-myMixedParamFunction(string a, b) {
+function myMixedParamFunction(string a, b) {
 }
 
-myReturnsNumberFunction(integer x, integer y) -> string {
+function myReturnsNumberFunction(integer x, integer y) -> string {
 }

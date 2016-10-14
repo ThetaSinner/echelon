@@ -1,7 +1,7 @@
 type MyType {
-  myMethod(string s, string t) -> integer {
+  function myMethod(string s, string t) -> integer {
   }
 
-  myAnyReturnMethod(integer k) {
+  function myAnyReturnMethod(integer k) {
   }
 }
