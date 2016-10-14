@@ -25,6 +25,9 @@ target_compile_features(eager-lilac-mayfly PRIVATE cxx_range_for)
 # Link the parser to the executable
 add_subdirectory(src/parser)
 target_link_libraries(eager-lilac-mayfly elm_lib_parser)
+# Link the ast to the executable
+add_subdirectory(src/ast)
+target_link_libraries(eager-lilac-mayfly elm_lib_ast)
 
 find_package(CxxTest)
 if (CXXTEST_FOUND)
@@ -33,7 +36,8 @@ if (CXXTEST_FOUND)
   file(GLOB elm-test-src "${CMAKE_CURRENT_SOURCE_DIR}/test/*.hpp")
   CXXTEST_ADD_TEST(elm_test test_runner.cpp ${elm-test-src})
   target_compile_features(elm_test PRIVATE cxx_range_for)
-  target_link_libraries(elm_test elm_lib_parser) # as needed
+  target_link_libraries(elm_test elm_lib_parser)
+  target_link_libraries(elm_test elm_lib_ast)
 else()
   message("CxxTest not found.")
 endif()

@@ -9,7 +9,13 @@ private:
   AstNodeType type;
   std::vector<AstNode*> children;
 public:
-
+  int getChildCount();
+  
+  void putChild(AstNode* child);
+  AstNode* getChild(int index);
+  
+  void setType(AstNodeType type);
+  AstNodeType getType();
 };
 
 #endif
