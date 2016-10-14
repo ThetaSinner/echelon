@@ -1,4 +1,4 @@
-trait MyTrait {
+behaviour MyBehaviour {
   function myTraitMethod(string, integer) -> string
 }
 
@@ -8,7 +8,7 @@ type MyType {
   }
 }
 
-MyType has MyTrait {
+MyType does MyBehaviour {
   myTraitMethod {
     // do something traity.
   }
