@@ -1,6 +1,6 @@
 #include <cxxtest/TestSuite.h>
-#include <elm/ast/AstNode.hpp>
-#include <elm/ast/AstNodeType.hpp>
+#include <echelon/ast/AstNode.hpp>
+#include <echelon/ast/AstNodeType.hpp>
 
 #include <fstream>
 #include <sstream>

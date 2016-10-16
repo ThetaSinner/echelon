@@ -1,7 +1,7 @@
 #ifndef AST_NODE_HPP_INCLUDED
 #define AST_NODE_HPP_INCLUDED
 
-#include <elm/ast/AstNodeType.hpp>
+#include <echelon/ast/AstNodeType.hpp>
 #include <vector>
 
 class AstNode {
@@ -10,10 +10,10 @@ private:
   std::vector<AstNode*> children;
 public:
   int getChildCount();
-  
+
   void putChild(AstNode* child);
   AstNode* getChild(int index);
-  
+
   void setType(AstNodeType type);
   AstNodeType getType();
 };

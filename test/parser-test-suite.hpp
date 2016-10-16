@@ -1,5 +1,5 @@
 #include <cxxtest/TestSuite.h>
-#include "elm/parser/tokenizer.hpp"
+#include "echelon/parser/tokenizer.hpp"
 
 class ParserTestSuite : public CxxTest::TestSuite
 {

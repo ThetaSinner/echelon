@@ -2,7 +2,7 @@
 #define TOKEN_HPP_INCLUDED
 
 #include <string>
-#include <elm/parser/token-type-enum.hpp>
+#include <echelon/parser/token-type-enum.hpp>
 
 class Token {
 private:

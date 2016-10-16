@@ -1,5 +1,5 @@
 #include <cxxtest/TestSuite.h>
-#include "elm/parser/tokenizer.hpp"
+#include "echelon/parser/tokenizer.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -31,7 +31,7 @@ private:
 
 public:
     void test_Fundamentals_Types(void) {
-      std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/types.elm";
+      std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/types.ech";
 
       Tokenizer t;
       auto res = t.tokenize(getFileContents(file));
@@ -44,7 +44,7 @@ public:
     }
 
     void test_Fundamentals_Comment(void) {
-      std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/comment.elm";
+      std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/comment.ech";
 
       Tokenizer t;
       auto res = t.tokenize(getFileContents(file));
@@ -56,7 +56,7 @@ public:
     }
 
 	void test_Fundamentals_Enum(void) {
-		std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/enum.elm";
+		std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/enum.ech";
 
       Tokenizer t;
       auto res = t.tokenize(getFileContents(file));
@@ -71,7 +71,7 @@ public:
 	}
 
   void test_Fundamentals_variable(void) {
-    std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/variable.elm";
+    std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/variable.ech";
 
     Tokenizer t;
     auto res = t.tokenize(getFileContents(file));
