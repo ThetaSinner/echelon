@@ -29,3 +29,4 @@ language: cpp
 notifications:
   webhooks:
     - http://echelon-lang.org/webhooks/travis-notify.php
+    
