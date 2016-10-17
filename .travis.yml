@@ -25,3 +25,7 @@ script:
   - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make && cd bin && ./test-echelon
 
 language: cpp
+
+notifications:
+  webhooks:
+    - http://echelon-lang.org/webhooks/travis-notify.php
