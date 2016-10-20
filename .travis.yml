@@ -1,32 +1,36 @@
 before_install:
-  - echo | sudo apt-add-repository ppa:dhart/ppa
-  - sudo apt-get -qq update
-
+- echo | sudo apt-add-repository ppa:dhart/ppa
+- sudo apt-get -qq update
 install:
-  - sudo apt-get install -y cxxtest
-
+- sudo apt-get install -y cxxtest
 matrix:
   include:
-    - compiler: gcc
-      addons:
-        apt:
-          sources:
-            - george-edison55-precise-backports
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-5
-            - cmake
-            - cmake-data
-      env: COMPILER=g++-5 CXXTEST=/usr/include
-
+  - compiler: gcc
+    addons:
+      apt:
+        sources:
+        - george-edison55-precise-backports
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-5
+        - cmake
+        - cmake-data
+    env: COMPILER=g++-5 CXXTEST=/usr/include
 script:
-  - mkdir build
-  - cd build
-  - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make && cd bin && ./test-echelon
-
+- mkdir build
+- cd build
+- cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make && cd bin && ./test-echelon
 language: cpp
-
 notifications:
   webhooks:
-    - http://echelon-lang.org/webhooks/travis-notify.php
-    
+  - http://echelon-lang.org/webhooks/travis-notify.php
+deploy:
+  provider: releases
+  api_key:
+    secure: MryLIhLcsZ/IVrRTDuCnXFiZMQaCSnEnrHwLbAsX1e/QUrdfxA0a+3vnu4tj2A27ttR3FHu1zMiJertl2P+8DMMHYq5SMaoLGJ9euByU79+Rx6Vmhmf93x96v00oqJEa43tzAn/PfbHov+0Bhow9ezCk8F4j1E4HpQw5QhB9WLPbYjBNlpT+guGDbgX1F78cjFDrANgeCRC9Jm3B9hvLq8P74BWX8qmJDhUnARGxjl1FsDl1YVMCtXih4+Xxh8tUVirSJqtiUHWoWlyUfVqxIcDOpqQHvY+F522LXxypxB61PKEoQ3H9LQRWONY64IzMGW3V1EU/FMetYg2EBZmzq5lgPKAuOAe7IIwed+dNSd5CHtfIpok9SAevAaLbrMqbk3Xf8rV0jH6epRr8D1QSnrbxecyoI0kNFERWvt3EaVBr/2DSNZUUOptZvrl7d5iuoNj9L4buZluPKji+ezOYo969IbgcDUbFUl6Ztn/A2T89gGy9FkgUcT/QW8TTp4jogOCpE35xeM8L0z8sp/R9N9NYod3v3YlMxZFTLzlk/n1zUnZAIvGlPtYB05gwr0oj2SsUKDhzyqWmpBAashyhW0PRW3gUHkLbKVYmbsZBdQlizc7Us99/FbLSxE8zYicuG7tZLu/WJtBKAZKSEgGhlx1fKYHtStYR8qRZM6P7slA=
+  file:
+    - docs.tar.gz
+    - release.tar.gz
+  on:
+    repo: ThetaSinner/echelon
+    tags: true
