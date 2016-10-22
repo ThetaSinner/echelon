@@ -1,7 +1,8 @@
 # This will be compiled into the executable if BUILD_SHARED_LIBS is OFF
 # otherwise it is output to CMAKE_LIBRARY_OUTPUT_DIRECTORY
 add_library(${string_lib_name}
-  string-util.cpp)
+  string-util.cpp
+  tizer.cpp)
 
 # Disable prefixing library name with 'lib'
 set_target_properties(${string_lib_name} PROPERTIES PREFIX "")
