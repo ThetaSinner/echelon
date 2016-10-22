@@ -15,6 +15,7 @@ public:
   void addTriggerChars(std::string expr);
 
   bool isAllowedFirstChar(char c);
+  virtual bool isAllowedChar(char, int index) = 0;
 };
 
 void TokenExpr::addTriggerChar(char c) {
@@ -61,9 +62,11 @@ class TokenUnordExpr : public TokenExpr {
 private:
   std::set<char> restChars;
 
-private:
+public:
   void addRestChar(char c);
   void addRestChars(std::string expr);
+
+  bool isAllowedChar(char, int index);
 };
 
 void TokenUnordExpr::addRestChar(char c) {
@@ -75,18 +78,29 @@ void TokenUnordExpr::addRestChars(std::string expr) {
   restChars.insert(expanded.begin(), expanded.end());
 }
 
+bool TokenUnordExpr::isAllowedChar(char c, int index) {
+  // we don't care about order.
+  return restChars.find(c) != restChars.end();
+}
+
 class TokenSeqExpr : public TokenExpr {
 private:
-  std::list<char> restSeq;
+  std::vector<char> restSeq;
 
 public:
   void addRestSeq(std::string seq);
+
+  bool isAllowedChar(char, int index);
 };
 
 void TokenSeqExpr::addRestSeq(std::string seq) {
   for (int i = 0; i < seq.size(); i++) {
     restSeq.push_back(seq.at(i));
   }
+}
+
+bool TokenSeqExpr::isAllowedChar(char c, int index) {
+  return index < restSeq.size() && restSeq.at(index) == c;
 }
 
 int main(int argc, char** args) {
@@ -97,7 +111,7 @@ int main(int argc, char** args) {
   t.tokenize("hello_world");
   t.tokenize("12 3he4llo5 67 8wo9rld10 11");
 
-  TokenExpr* te = new TokenExpr();
+  TokenUnordExpr* te = new TokenUnordExpr();
   te->addTriggerChar('=');
 
   if (te->isAllowedFirstChar('=')) {
@@ -114,7 +128,7 @@ int main(int argc, char** args) {
     std::cout << "good\n";
   }
 
-  TokenExpr* te2 = new TokenExpr();
+  TokenUnordExpr* te2 = new TokenUnordExpr();
   te2->addTriggerChars("a-z");
 
   if (te2->isAllowedFirstChar('k')) {
@@ -126,6 +140,41 @@ int main(int argc, char** args) {
 
   if (te2->isAllowedFirstChar('A')) {
     std::cout << "bad\n";
+  }
+  else {
+    std::cout << "good\n";
+  }
+
+  TokenUnordExpr* tue = new TokenUnordExpr();
+  tue -> addRestChar('_');
+
+  if (tue -> isAllowedChar('_', 1)) {
+    std::cout << "good\n";
+  }
+  else {
+    std::cout << "bad\n";
+  }
+
+  TokenSeqExpr* tse = new TokenSeqExpr();
+  tse -> addRestSeq("=="); // tripple equals, incl the trigger char.
+
+  if (tse -> isAllowedChar('=', 0)) {
+    std::cout << "good\n";
+  }
+  else {
+    std::cout << "bad\n";
+  }
+
+  if (tse -> isAllowedChar('=', 1)) {
+    std::cout << "good\n";
+  }
+  else {
+    std::cout << "bad\n";
+  }
+
+  if (tse -> isAllowedChar('=', 2)) {
+    std::cout << "bad\n";
+
   }
   else {
     std::cout << "good\n";
