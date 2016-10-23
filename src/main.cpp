@@ -103,6 +103,43 @@ bool TokenSeqExpr::isAllowedChar(char c, int index) {
   return index < restSeq.size() && restSeq.at(index) == c;
 }
 
+int matchRest(std::list<TokenExpr*> matchers, std::string str, int pos, int offset) {
+  if (pos + offset >= str.size()) {
+    return offset;
+  }
+
+  std::list<TokenExpr*> rest_matchers;
+  for (auto& i : matchers) {
+    std::cout << "?[" << str.at(pos + offset) << "] ";
+    if (i -> isAllowedChar(str.at(pos + offset), offset)) {
+      rest_matchers.push_back(i);
+    }
+  }
+
+  if (rest_matchers.size()) {
+    return matchRest(rest_matchers, str, pos, offset + 1);
+  }
+  else {
+    return offset;
+  }
+}
+
+int match(std::list<TokenExpr*> matchers, std::string str, int pos) {
+  std::list<TokenExpr*> first_matchers;
+  for (auto& i : matchers) {
+    if (i -> isAllowedFirstChar(str.at(pos))) {
+      first_matchers.push_back(i);
+    }
+  }
+
+  if (first_matchers.size()) {
+    return matchRest(first_matchers, str, pos + 1, 0);
+  }
+  else {
+    return -1;
+  }
+}
+
 int main(int argc, char** args) {
   std::cout << "Happy dappy" << std::endl;
 
@@ -178,6 +215,47 @@ int main(int argc, char** args) {
   }
   else {
     std::cout << "good\n";
+  }
+
+  TokenUnordExpr* identifier = new TokenUnordExpr();
+  identifier -> addTriggerChars("a-z");
+  identifier -> addTriggerChars("A-Z");
+
+  identifier -> addRestChars("a-z");
+  identifier -> addRestChars("A-Z");
+  identifier -> addRestChars("0-9");
+  identifier -> addRestChar('_');
+
+  TokenSeqExpr* equality = new TokenSeqExpr();
+  equality -> addTriggerChar('=');
+  equality -> addRestSeq("=");
+
+  TokenExpr* assign = new TokenSeqExpr();
+  assign -> addTriggerChar('=');
+
+  std::list<TokenExpr*> matchers;
+  matchers.push_back(identifier);
+  matchers.push_back(equality);
+  matchers.push_back(assign);
+
+  std::string str = "helloVariable thing bit stuff = == ===";
+  int pos = 0;
+  while (pos < str.size()) {
+    if (str.at(pos) == ' ') {
+      pos++;
+      continue;
+    }
+
+    int extract = match(matchers, str, pos);
+
+    if (extract != -1) {
+      std::cout << str.substr(pos, extract + 1) << "\n";
+      pos += extract + 1;
+    }
+    else {
+      std::cout << "unhandled char\n";
+      pos += 1;
+    }
   }
 
   return 0;
