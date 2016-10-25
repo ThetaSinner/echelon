@@ -4,6 +4,177 @@
 #include <string>
 #include <set>
 #include <list>
+#include <algorithm>
+
+enum class Bool {
+  Yes,
+  No,
+  Maybe
+};
+
+std::string b(Bool input) {
+  if (input == Bool::Yes) {
+    return "yes";
+  }
+  else if (input == Bool::No) {
+    return "no";
+  }
+  else {
+    return "maybe";
+  }
+}
+
+class TokenExpr2 {
+private:
+  bool triggerOrdered = false;
+  std::vector<char> triggerChars;
+
+  bool contentOrdered = false;
+  std::vector<char> contentChars;
+
+  bool terminateOrdered = false;
+  std::vector<char> terminateChars;
+
+  std::set<char> expandExpr(std::string expr);
+public:
+  void setTriggerOrdered(bool ordered) {
+    triggerOrdered = ordered;
+  }
+  bool isTriggerOrdered() {
+    return triggerOrdered;
+  }
+  void addTriggerChar(char c);
+  void addTriggerChars(std::string expr);
+  Bool isTriggerMatch(char c, int index);
+
+  void setContentOrdered(bool ordered) {
+    contentOrdered = ordered;
+  }
+  bool isContentOrdered() {
+    return contentOrdered;
+  }
+  void addContentChar(char c);
+  void addContentChars(std::string expr);
+  Bool isContentMatch(char c, int index);
+
+  void setTerminateOrdered(bool ordered) {
+    terminateOrdered = ordered;
+  }
+  bool isTerminateOrdered() {
+    return terminateOrdered;
+  }
+  void addTerminateChar(char c);
+  void addTerminateChars(std::string expr);
+  Bool isTerminateMatch(char c, int index);
+};
+
+std::set<char> TokenExpr2::expandExpr(std::string expr) {
+  int expandIndex = expr.find("-");
+  if (expandIndex != -1) {
+    char first = expr.at(0);
+    char last = expr.at(2);
+
+    std::set<char> out;
+    for (int i = (int) first; i < (int) last; i++) {
+      out.insert((char) i);
+    }
+
+    return out;
+  }
+  else {
+    std::set<char> out;
+    for (int i = 0; i < expr.size(); i++) {
+      out.insert(expr.at(i));
+    }
+
+    return out;
+  }
+}
+
+void TokenExpr2::addTriggerChar(char c) {
+  triggerChars.push_back(c);
+}
+
+void TokenExpr2::addTriggerChars(std::string expr) {
+  auto expanded = expandExpr(expr);
+  triggerChars.insert(triggerChars.end(), expanded.begin(), expanded.end());
+}
+
+Bool TokenExpr2::isTriggerMatch(char c, int index) {
+ if (triggerOrdered) {
+   if (index < triggerChars.size()) {
+     bool is = triggerChars.at(index) == c;
+     if (index + 1 == triggerChars.size()) {
+       return is ? Bool::Yes  : Bool::No;
+     }
+     else {
+       return is ? Bool::Maybe : Bool::No;
+     }
+   }
+   else {
+     return Bool::No;
+   }
+ }
+ else {
+   bool r = std::find(triggerChars.begin(), triggerChars.end(), c) != triggerChars.end();
+   return r ? Bool::Yes : Bool::No;
+ }
+}
+
+void TokenExpr2::addContentChar(char c) {
+  contentChars.push_back(c);
+}
+
+void TokenExpr2::addContentChars(std::string expr) {
+  auto expanded = expandExpr(expr);
+  contentChars.insert(contentChars.end(), expanded.begin(), expanded.end());
+}
+
+Bool TokenExpr2::isContentMatch(char c, int index) {
+  if (contentOrdered) {
+    if (index < contentChars.size()) {
+      bool r = contentChars.at(index) == c;
+      return r ? Bool::Yes : Bool::No;
+    }
+    else {
+      return Bool::No;
+    }
+  }
+  else {
+    bool r = std::find(contentChars.begin(), contentChars.end(), c) != contentChars.end();
+    return r ? Bool::Yes : Bool::No;
+  }
+}
+
+void TokenExpr2::addTerminateChar(char c) {
+  terminateChars.push_back(c);
+}
+
+void TokenExpr2::addTerminateChars(std::string expr) {
+  auto expanded = expandExpr(expr);
+  terminateChars.insert(terminateChars.end(), expanded.begin(), expanded.end());
+}
+
+Bool TokenExpr2::isTerminateMatch(char c, int index) {
+ if (terminateOrdered) {
+   if (index < terminateChars.size()) {
+     bool is = terminateChars.at(index) == c;
+     if (index + 1 == terminateChars.size()) {
+       return is ? Bool::Yes  : Bool::No;
+     }
+     else {
+       return is ? Bool::Maybe : Bool::No;
+     }
+   }
+   else {
+     return Bool::No;
+   }
+ }
+ else {
+   bool r = std::find(terminateChars.begin(), terminateChars.end(), c) != terminateChars.end();
+   return r ? Bool::Yes : Bool::No;
+ }
+}
 
 class TokenExpr {
 private:
@@ -211,7 +382,6 @@ int main(int argc, char** args) {
 
   if (tse -> isAllowedChar('=', 2)) {
     std::cout << "bad\n";
-
   }
   else {
     std::cout << "good\n";
@@ -257,6 +427,24 @@ int main(int argc, char** args) {
       pos += 1;
     }
   }
+
+  TokenExpr2 tev2;
+  tev2.setTriggerOrdered(true);
+  tev2.addTriggerChar('<');
+  tev2.addTriggerChar('=');
+
+  std::cout << "[Maybe] " << b(tev2.isTriggerMatch('<', 0)) << "\n";
+  std::cout << "[No] " << b(tev2.isTriggerMatch('=', 0)) << "\n";
+  std::cout << "[Yes] " << b(tev2.isTriggerMatch('=', 1)) << "\n";
+  std::cout << "[No] " << b(tev2.isTriggerMatch('t', 3)) << "\n";
+
+  TokenExpr2 mlc;
+  mlc.setTriggerOrdered(true);
+  mlc.addTriggerChar('/');
+  mlc.addTriggerChar('*');
+
+  std::cout << "[Maybe] " << b(mlc.isTriggerMatch('/', 0)) << "\n";
+  std::cout << "[Yes] " << b(mlc.isTriggerMatch('*', 1)) << "\n";
 
   return 0;
 }
