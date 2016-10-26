@@ -12,6 +12,10 @@ enum class Bool {
   Maybe
 };
 
+bool permissiveBool(Bool b) {
+  return b != Bool::No;
+}
+
 std::string b(Bool input) {
   if (input == Bool::Yes) {
     return "yes";
@@ -31,6 +35,7 @@ private:
 
   bool contentOrdered = false;
   std::vector<char> contentChars;
+  bool contentAny = false;
 
   bool terminateOrdered = false;
   std::vector<char> terminateChars;
@@ -55,6 +60,7 @@ public:
   }
   void addContentChar(char c);
   void addContentChars(std::string expr);
+  void setContentAny(bool b);
   Bool isContentMatch(char c, int index);
 
   void setTerminateOrdered(bool ordered) {
@@ -130,7 +136,15 @@ void TokenExpr2::addContentChars(std::string expr) {
   contentChars.insert(contentChars.end(), expanded.begin(), expanded.end());
 }
 
+void TokenExpr2::setContentAny(bool b) {
+  contentAny = b;
+}
+
 Bool TokenExpr2::isContentMatch(char c, int index) {
+  if (contentAny) {
+    return Bool::Yes;
+  }
+
   if (contentOrdered) {
     if (index < contentChars.size()) {
       bool r = contentChars.at(index) == c;
@@ -295,6 +309,61 @@ int matchRest(std::list<TokenExpr*> matchers, std::string str, int pos, int offs
   }
 }
 
+int matchTerminate2(std::list<TokenExpr2*> matchers, std::string str, int pos, int offset) {
+  if (pos + offset >= str.size()) {
+    return offset;
+  }
+
+  int term_len = 0;
+  for (int k = 0; pos + k < str.size(); k++) {
+    bool anyMatched = false;
+    for (auto& i : matchers) {
+      Bool b = i -> isTerminateMatch(str.at(pos + k), k);
+      if (permissiveBool(b)) {
+        anyMatched = true;
+        break;
+      }
+    }
+
+    if (anyMatched) {
+      term_len = k + 1;
+    }
+    else {
+      break;
+    }
+  }
+
+  return term_len == 0 ? -1 : term_len;
+}
+
+int matchContent2(std::list<TokenExpr2*> matchers, std::string str, int pos, int offset) {
+  if (pos + offset >= str.size()) {
+    return offset;
+  }
+
+  int mt = matchTerminate2(matchers, str, pos + offset, 0);
+  if (mt != -1) {
+    std::cout << "\nmt " << mt << "\n";
+    return offset + mt;
+  }
+
+  std::list<TokenExpr2*> rest_matchers;
+  for (auto& i : matchers) {
+    std::cout << "?[" << str.at(pos + offset) << "] ";
+    Bool b = i -> isContentMatch(str.at(pos + offset), offset);
+    if (permissiveBool(b)) {
+      rest_matchers.push_back(i);
+    }
+  }
+
+  if (rest_matchers.size()) {
+    return matchContent2(rest_matchers, str, pos, offset + 1);
+  }
+  else {
+    return offset;
+  }
+}
+
 int match(std::list<TokenExpr*> matchers, std::string str, int pos) {
   std::list<TokenExpr*> first_matchers;
   for (auto& i : matchers) {
@@ -305,6 +374,37 @@ int match(std::list<TokenExpr*> matchers, std::string str, int pos) {
 
   if (first_matchers.size()) {
     return matchRest(first_matchers, str, pos + 1, 0);
+  }
+  else {
+    return -1;
+  }
+}
+
+int match2(std::list<TokenExpr2*> matchers, std::string str, int pos) {
+  std::list<TokenExpr2*> first_matchers;
+  int trigger_len = 0;
+  for (int k = 0; pos + k < str.size(); k++) {
+    std::list<TokenExpr2*> first_matchers_sub;
+    for (auto& i : matchers) {
+      Bool b = i -> isTriggerMatch(str.at(pos + k), k);
+      if (permissiveBool(b)) {
+        first_matchers_sub.push_back(i);
+      }
+      // todo make use of maybe.
+    }
+
+    if (first_matchers_sub.size()) {
+      first_matchers.clear();
+      first_matchers.insert(first_matchers.end(), first_matchers_sub.begin(), first_matchers_sub.end());
+      trigger_len = k + 1;
+    }
+    else {
+      break;
+    }
+  }
+
+  if (first_matchers.size()) {
+    return matchContent2(first_matchers, str, pos + trigger_len, 0) + trigger_len;
   }
   else {
     return -1;
@@ -443,8 +543,36 @@ int main(int argc, char** args) {
   mlc.addTriggerChar('/');
   mlc.addTriggerChar('*');
 
+  mlc.setContentAny(true);
+
+  mlc.setTerminateOrdered(true);
+  mlc.addTerminateChar('*');
+  mlc.addTerminateChar('/');
+
+  TokenExpr2 slc;
+  slc.setTriggerOrdered(true);
+  slc.addTriggerChar('/');
+  slc.addTriggerChar('/');
+
+  slc.setContentAny(true);
+
+  slc.addTerminateChar('\n');
+
   std::cout << "[Maybe] " << b(mlc.isTriggerMatch('/', 0)) << "\n";
   std::cout << "[Yes] " << b(mlc.isTriggerMatch('*', 1)) << "\n";
+
+  std::list<TokenExpr2*> matchers2;
+  matchers2.push_back(&mlc);
+  matchers2.push_back(&slc);
+
+  int u = match2(matchers2, "/* hey */", 0);
+  std::cout << "\nmatch2 len " << u << "\n";
+
+  int v = match2(matchers2, "/* hey */  asdf", 0);
+  std::cout << "\nmatch2 len " << v << "\n";
+
+  int w = match2(matchers2, "// test\nhello", 0);
+  std::cout << "\nmatch2 len " << w << "\n";
 
   return 0;
 }
