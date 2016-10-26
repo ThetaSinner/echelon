@@ -6,29 +6,18 @@
 #include <list>
 #include <algorithm>
 
-enum class Bool {
-  Yes,
-  No,
-  Maybe
+class EncodingQuery {
+public:
+  bool isEol(char c);
 };
 
-bool permissiveBool(Bool b) {
-  return b != Bool::No;
+EncodingQuery* eq = new EncodingQuery();
+
+bool EncodingQuery::isEol(char c) {
+  return c == '\n';
 }
 
-std::string b(Bool input) {
-  if (input == Bool::Yes) {
-    return "yes";
-  }
-  else if (input == Bool::No) {
-    return "no";
-  }
-  else {
-    return "maybe";
-  }
-}
-
-class TokenExpr2 {
+class TokenExpr {
 private:
   bool triggerOrdered = false;
   std::vector<char> triggerChars;
@@ -39,6 +28,7 @@ private:
 
   bool terminateOrdered = false;
   std::vector<char> terminateChars;
+  bool terminateOnEol = false;
 
   std::set<char> expandExpr(std::string expr);
 public:
@@ -50,7 +40,7 @@ public:
   }
   void addTriggerChar(char c);
   void addTriggerChars(std::string expr);
-  Bool isTriggerMatch(char c, int index);
+  bool isTriggerMatch(char c, int index);
 
   void setContentOrdered(bool ordered) {
     contentOrdered = ordered;
@@ -61,7 +51,7 @@ public:
   void addContentChar(char c);
   void addContentChars(std::string expr);
   void setContentAny(bool b);
-  Bool isContentMatch(char c, int index);
+  bool isContentMatch(char c, int index);
 
   void setTerminateOrdered(bool ordered) {
     terminateOrdered = ordered;
@@ -71,146 +61,11 @@ public:
   }
   void addTerminateChar(char c);
   void addTerminateChars(std::string expr);
-  Bool isTerminateMatch(char c, int index);
+  bool isTerminateMatch(char c, int index);
+
+  void setTerminateOnEol(bool b);
+  bool isTerminateOnEol();
 };
-
-std::set<char> TokenExpr2::expandExpr(std::string expr) {
-  int expandIndex = expr.find("-");
-  if (expandIndex != -1) {
-    char first = expr.at(0);
-    char last = expr.at(2);
-
-    std::set<char> out;
-    for (int i = (int) first; i < (int) last; i++) {
-      out.insert((char) i);
-    }
-
-    return out;
-  }
-  else {
-    std::set<char> out;
-    for (int i = 0; i < expr.size(); i++) {
-      out.insert(expr.at(i));
-    }
-
-    return out;
-  }
-}
-
-void TokenExpr2::addTriggerChar(char c) {
-  triggerChars.push_back(c);
-}
-
-void TokenExpr2::addTriggerChars(std::string expr) {
-  auto expanded = expandExpr(expr);
-  triggerChars.insert(triggerChars.end(), expanded.begin(), expanded.end());
-}
-
-Bool TokenExpr2::isTriggerMatch(char c, int index) {
- if (triggerOrdered) {
-   if (index < triggerChars.size()) {
-     bool is = triggerChars.at(index) == c;
-     if (index + 1 == triggerChars.size()) {
-       return is ? Bool::Yes  : Bool::No;
-     }
-     else {
-       return is ? Bool::Maybe : Bool::No;
-     }
-   }
-   else {
-     return Bool::No;
-   }
- }
- else {
-   bool r = std::find(triggerChars.begin(), triggerChars.end(), c) != triggerChars.end();
-   return r ? Bool::Yes : Bool::No;
- }
-}
-
-void TokenExpr2::addContentChar(char c) {
-  contentChars.push_back(c);
-}
-
-void TokenExpr2::addContentChars(std::string expr) {
-  auto expanded = expandExpr(expr);
-  contentChars.insert(contentChars.end(), expanded.begin(), expanded.end());
-}
-
-void TokenExpr2::setContentAny(bool b) {
-  contentAny = b;
-}
-
-Bool TokenExpr2::isContentMatch(char c, int index) {
-  if (contentAny) {
-    return Bool::Yes;
-  }
-
-  if (contentOrdered) {
-    if (index < contentChars.size()) {
-      bool r = contentChars.at(index) == c;
-      return r ? Bool::Yes : Bool::No;
-    }
-    else {
-      return Bool::No;
-    }
-  }
-  else {
-    bool r = std::find(contentChars.begin(), contentChars.end(), c) != contentChars.end();
-    return r ? Bool::Yes : Bool::No;
-  }
-}
-
-void TokenExpr2::addTerminateChar(char c) {
-  terminateChars.push_back(c);
-}
-
-void TokenExpr2::addTerminateChars(std::string expr) {
-  auto expanded = expandExpr(expr);
-  terminateChars.insert(terminateChars.end(), expanded.begin(), expanded.end());
-}
-
-Bool TokenExpr2::isTerminateMatch(char c, int index) {
- if (terminateOrdered) {
-   if (index < terminateChars.size()) {
-     bool is = terminateChars.at(index) == c;
-     if (index + 1 == terminateChars.size()) {
-       return is ? Bool::Yes  : Bool::No;
-     }
-     else {
-       return is ? Bool::Maybe : Bool::No;
-     }
-   }
-   else {
-     return Bool::No;
-   }
- }
- else {
-   bool r = std::find(terminateChars.begin(), terminateChars.end(), c) != terminateChars.end();
-   return r ? Bool::Yes : Bool::No;
- }
-}
-
-class TokenExpr {
-private:
-  std::set<char> triggerChars;
-protected:
-  std::set<char> expandExpr(std::string expr);
-public:
-  void addTriggerChar(char c);
-  void addTriggerChars(std::string expr);
-
-  bool isAllowedFirstChar(char c);
-  virtual bool isAllowedChar(char, int index) = 0;
-};
-
-void TokenExpr::addTriggerChar(char c) {
-  triggerChars.insert(c);
-}
-
-void TokenExpr::addTriggerChars(std::string expr) {
-  auto expanded = expandExpr(expr);
-  triggerChars.insert(expanded.begin(), expanded.end());
-}
 
 std::set<char> TokenExpr::expandExpr(std::string expr) {
   int expandIndex = expr.find("-");
@@ -235,81 +90,92 @@ std::set<char> TokenExpr::expandExpr(std::string expr) {
   }
 }
 
-bool TokenExpr::isAllowedFirstChar(char c) {
-  if (triggerChars.find(c) != triggerChars.end()) {
+void TokenExpr::addTriggerChar(char c) {
+  triggerChars.push_back(c);
+}
+
+void TokenExpr::addTriggerChars(std::string expr) {
+  auto expanded = expandExpr(expr);
+  triggerChars.insert(triggerChars.end(), expanded.begin(), expanded.end());
+}
+
+bool TokenExpr::isTriggerMatch(char c, int index) {
+ if (triggerOrdered) {
+   if (index < triggerChars.size()) {
+     return triggerChars.at(index) == c;
+   }
+   else {
+     return false;
+   }
+ }
+ else {
+   return std::find(triggerChars.begin(), triggerChars.end(), c) != triggerChars.end();
+ }
+}
+
+void TokenExpr::addContentChar(char c) {
+  contentChars.push_back(c);
+}
+
+void TokenExpr::addContentChars(std::string expr) {
+  auto expanded = expandExpr(expr);
+  contentChars.insert(contentChars.end(), expanded.begin(), expanded.end());
+}
+
+void TokenExpr::setContentAny(bool b) {
+  contentAny = b;
+}
+
+bool TokenExpr::isContentMatch(char c, int index) {
+  if (contentAny) {
     return true;
   }
 
-  return false;
-}
-
-class TokenUnordExpr : public TokenExpr {
-private:
-  std::set<char> restChars;
-
-public:
-  void addRestChar(char c);
-  void addRestChars(std::string expr);
-
-  bool isAllowedChar(char, int index);
-};
-
-void TokenUnordExpr::addRestChar(char c) {
-  restChars.insert(c);
-}
-
-void TokenUnordExpr::addRestChars(std::string expr) {
-  auto expanded = expandExpr(expr);
-  restChars.insert(expanded.begin(), expanded.end());
-}
-
-bool TokenUnordExpr::isAllowedChar(char c, int index) {
-  // we don't care about order.
-  return restChars.find(c) != restChars.end();
-}
-
-class TokenSeqExpr : public TokenExpr {
-private:
-  std::vector<char> restSeq;
-
-public:
-  void addRestSeq(std::string seq);
-
-  bool isAllowedChar(char, int index);
-};
-
-void TokenSeqExpr::addRestSeq(std::string seq) {
-  for (int i = 0; i < seq.size(); i++) {
-    restSeq.push_back(seq.at(i));
-  }
-}
-
-bool TokenSeqExpr::isAllowedChar(char c, int index) {
-  return index < restSeq.size() && restSeq.at(index) == c;
-}
-
-int matchRest(std::list<TokenExpr*> matchers, std::string str, int pos, int offset) {
-  if (pos + offset >= str.size()) {
-    return offset;
-  }
-
-  std::list<TokenExpr*> rest_matchers;
-  for (auto& i : matchers) {
-    std::cout << "?[" << str.at(pos + offset) << "] ";
-    if (i -> isAllowedChar(str.at(pos + offset), offset)) {
-      rest_matchers.push_back(i);
+  if (contentOrdered) {
+    if (index < contentChars.size()) {
+      return contentChars.at(index) == c;
+    }
+    else {
+      return false;
     }
   }
-
-  if (rest_matchers.size()) {
-    return matchRest(rest_matchers, str, pos, offset + 1);
-  }
   else {
-    return offset;
+    return std::find(contentChars.begin(), contentChars.end(), c) != contentChars.end();
   }
 }
 
-int matchTerminate2(std::list<TokenExpr2*> matchers, std::string str, int pos, int offset) {
+void TokenExpr::addTerminateChar(char c) {
+  terminateChars.push_back(c);
+}
+
+void TokenExpr::addTerminateChars(std::string expr) {
+  auto expanded = expandExpr(expr);
+  terminateChars.insert(terminateChars.end(), expanded.begin(), expanded.end());
+}
+
+bool TokenExpr::isTerminateMatch(char c, int index) {
+ if (terminateOrdered) {
+   if (index < terminateChars.size()) {
+     return terminateChars.at(index) == c;
+   }
+   else {
+     return false;
+   }
+ }
+ else {
+   return std::find(terminateChars.begin(), terminateChars.end(), c) != terminateChars.end();
+ }
+}
+
+void TokenExpr::setTerminateOnEol(bool b) {
+  terminateOnEol = b;
+}
+
+bool TokenExpr::isTerminateOnEol() {
+  return terminateOnEol;
+}
+
+int matchTerminate(std::list<TokenExpr*> matchers, std::string str, int pos, int offset) {
   if (pos + offset >= str.size()) {
     return offset;
   }
@@ -318,8 +184,11 @@ int matchTerminate2(std::list<TokenExpr2*> matchers, std::string str, int pos, i
   for (int k = 0; pos + k < str.size(); k++) {
     bool anyMatched = false;
     for (auto& i : matchers) {
-      Bool b = i -> isTerminateMatch(str.at(pos + k), k);
-      if (permissiveBool(b)) {
+      if (i -> isTerminateOnEol() && eq -> isEol(str.at(pos + k))) {
+        return 0;
+      }
+
+      if (i -> isTerminateMatch(str.at(pos + k), k)) {
         anyMatched = true;
         break;
       }
@@ -336,28 +205,26 @@ int matchTerminate2(std::list<TokenExpr2*> matchers, std::string str, int pos, i
   return term_len == 0 ? -1 : term_len;
 }
 
-int matchContent2(std::list<TokenExpr2*> matchers, std::string str, int pos, int offset) {
+int matchContent(std::list<TokenExpr*> matchers, std::string str, int pos, int offset) {
   if (pos + offset >= str.size()) {
     return offset;
   }
 
-  int mt = matchTerminate2(matchers, str, pos + offset, 0);
+  int mt = matchTerminate(matchers, str, pos + offset, 0);
   if (mt != -1) {
-    std::cout << "\nmt " << mt << "\n";
     return offset + mt;
   }
 
-  std::list<TokenExpr2*> rest_matchers;
+  std::list<TokenExpr*> rest_matchers;
   for (auto& i : matchers) {
-    std::cout << "?[" << str.at(pos + offset) << "] ";
-    Bool b = i -> isContentMatch(str.at(pos + offset), offset);
-    if (permissiveBool(b)) {
+    //std::cout << "?[" << str.at(pos + offset) << "] ";
+    if (i -> isContentMatch(str.at(pos + offset), offset)) {
       rest_matchers.push_back(i);
     }
   }
 
   if (rest_matchers.size()) {
-    return matchContent2(rest_matchers, str, pos, offset + 1);
+    return matchContent(rest_matchers, str, pos, offset + 1);
   }
   else {
     return offset;
@@ -366,28 +233,11 @@ int matchContent2(std::list<TokenExpr2*> matchers, std::string str, int pos, int
 
 int match(std::list<TokenExpr*> matchers, std::string str, int pos) {
   std::list<TokenExpr*> first_matchers;
-  for (auto& i : matchers) {
-    if (i -> isAllowedFirstChar(str.at(pos))) {
-      first_matchers.push_back(i);
-    }
-  }
-
-  if (first_matchers.size()) {
-    return matchRest(first_matchers, str, pos + 1, 0);
-  }
-  else {
-    return -1;
-  }
-}
-
-int match2(std::list<TokenExpr2*> matchers, std::string str, int pos) {
-  std::list<TokenExpr2*> first_matchers;
   int trigger_len = 0;
   for (int k = 0; pos + k < str.size(); k++) {
-    std::list<TokenExpr2*> first_matchers_sub;
+    std::list<TokenExpr*> first_matchers_sub;
     for (auto& i : matchers) {
-      Bool b = i -> isTriggerMatch(str.at(pos + k), k);
-      if (permissiveBool(b)) {
+      if (i -> isTriggerMatch(str.at(pos + k), k)) {
         first_matchers_sub.push_back(i);
       }
       // todo make use of maybe.
@@ -404,7 +254,7 @@ int match2(std::list<TokenExpr2*> matchers, std::string str, int pos) {
   }
 
   if (first_matchers.size()) {
-    return matchContent2(first_matchers, str, pos + trigger_len, 0) + trigger_len;
+    return matchContent(first_matchers, str, pos + trigger_len, 0) + trigger_len;
   }
   else {
     return -1;
@@ -412,133 +262,7 @@ int match2(std::list<TokenExpr2*> matchers, std::string str, int pos) {
 }
 
 int main(int argc, char** args) {
-  std::cout << "Happy dappy" << std::endl;
-
-  Tokenizer t;
-  t.tokenize("hello world");
-  t.tokenize("hello_world");
-  t.tokenize("12 3he4llo5 67 8wo9rld10 11");
-
-  TokenUnordExpr* te = new TokenUnordExpr();
-  te->addTriggerChar('=');
-
-  if (te->isAllowedFirstChar('=')) {
-    std::cout << "good\n";
-  }
-  else {
-    std::cout << "bad\n";
-  }
-
-  if (te->isAllowedFirstChar('@')) {
-    std::cout << "bad\n";
-  }
-  else {
-    std::cout << "good\n";
-  }
-
-  TokenUnordExpr* te2 = new TokenUnordExpr();
-  te2->addTriggerChars("a-z");
-
-  if (te2->isAllowedFirstChar('k')) {
-    std::cout << "good\n";
-  }
-  else {
-    std::cout << "bad\n";
-  }
-
-  if (te2->isAllowedFirstChar('A')) {
-    std::cout << "bad\n";
-  }
-  else {
-    std::cout << "good\n";
-  }
-
-  TokenUnordExpr* tue = new TokenUnordExpr();
-  tue -> addRestChar('_');
-
-  if (tue -> isAllowedChar('_', 1)) {
-    std::cout << "good\n";
-  }
-  else {
-    std::cout << "bad\n";
-  }
-
-  TokenSeqExpr* tse = new TokenSeqExpr();
-  tse -> addRestSeq("=="); // tripple equals, incl the trigger char.
-
-  if (tse -> isAllowedChar('=', 0)) {
-    std::cout << "good\n";
-  }
-  else {
-    std::cout << "bad\n";
-  }
-
-  if (tse -> isAllowedChar('=', 1)) {
-    std::cout << "good\n";
-  }
-  else {
-    std::cout << "bad\n";
-  }
-
-  if (tse -> isAllowedChar('=', 2)) {
-    std::cout << "bad\n";
-  }
-  else {
-    std::cout << "good\n";
-  }
-
-  TokenUnordExpr* identifier = new TokenUnordExpr();
-  identifier -> addTriggerChars("a-z");
-  identifier -> addTriggerChars("A-Z");
-
-  identifier -> addRestChars("a-z");
-  identifier -> addRestChars("A-Z");
-  identifier -> addRestChars("0-9");
-  identifier -> addRestChar('_');
-
-  TokenSeqExpr* equality = new TokenSeqExpr();
-  equality -> addTriggerChar('=');
-  equality -> addRestSeq("=");
-
-  TokenExpr* assign = new TokenSeqExpr();
-  assign -> addTriggerChar('=');
-
-  std::list<TokenExpr*> matchers;
-  matchers.push_back(identifier);
-  matchers.push_back(equality);
-  matchers.push_back(assign);
-
-  std::string str = "helloVariable thing bit stuff = == ===";
-  int pos = 0;
-  while (pos < str.size()) {
-    if (str.at(pos) == ' ') {
-      pos++;
-      continue;
-    }
-
-    int extract = match(matchers, str, pos);
-
-    if (extract != -1) {
-      std::cout << str.substr(pos, extract + 1) << "\n";
-      pos += extract + 1;
-    }
-    else {
-      std::cout << "unhandled char\n";
-      pos += 1;
-    }
-  }
-
-  TokenExpr2 tev2;
-  tev2.setTriggerOrdered(true);
-  tev2.addTriggerChar('<');
-  tev2.addTriggerChar('=');
-
-  std::cout << "[Maybe] " << b(tev2.isTriggerMatch('<', 0)) << "\n";
-  std::cout << "[No] " << b(tev2.isTriggerMatch('=', 0)) << "\n";
-  std::cout << "[Yes] " << b(tev2.isTriggerMatch('=', 1)) << "\n";
-  std::cout << "[No] " << b(tev2.isTriggerMatch('t', 3)) << "\n";
-
-  TokenExpr2 mlc;
+  TokenExpr mlc;
   mlc.setTriggerOrdered(true);
   mlc.addTriggerChar('/');
   mlc.addTriggerChar('*');
@@ -549,30 +273,60 @@ int main(int argc, char** args) {
   mlc.addTerminateChar('*');
   mlc.addTerminateChar('/');
 
-  TokenExpr2 slc;
+  TokenExpr slc;
   slc.setTriggerOrdered(true);
   slc.addTriggerChar('/');
   slc.addTriggerChar('/');
 
   slc.setContentAny(true);
 
-  slc.addTerminateChar('\n');
+  slc.setTerminateOnEol(true);
 
-  std::cout << "[Maybe] " << b(mlc.isTriggerMatch('/', 0)) << "\n";
-  std::cout << "[Yes] " << b(mlc.isTriggerMatch('*', 1)) << "\n";
+  TokenExpr identifier;
+  identifier.addTriggerChars("a-z");
+  identifier.addTriggerChars("A-Z");
 
-  std::list<TokenExpr2*> matchers2;
+  identifier.addContentChars("a-z");
+  identifier.addContentChars("A-Z");
+  identifier.addContentChars("0-9");
+  identifier.addContentChar('_');
+
+  TokenExpr assign;
+  assign.setTriggerOrdered(true);
+  assign.addTriggerChar('=');
+
+  TokenExpr equality;
+  equality.setTriggerOrdered(true);
+  equality.addTriggerChar('=');
+  equality.addTriggerChar('=');
+
+  std::list<TokenExpr*> matchers2;
   matchers2.push_back(&mlc);
   matchers2.push_back(&slc);
+  matchers2.push_back(&identifier);
+  matchers2.push_back(&assign);
+  matchers2.push_back(&equality);
 
-  int u = match2(matchers2, "/* hey */", 0);
-  std::cout << "\nmatch2 len " << u << "\n";
+  std::string str = "helloVariable thing bit stuff = == === /* hello */ /**/ // hey\n test words";
+  int pos = 0;
+  while (pos < str.size()) {
+    if (str.at(pos) == ' ') {
+      pos++;
+      continue;
+    }
 
-  int v = match2(matchers2, "/* hey */  asdf", 0);
-  std::cout << "\nmatch2 len " << v << "\n";
+    int extract = match(matchers2, str, pos);
 
-  int w = match2(matchers2, "// test\nhello", 0);
-  std::cout << "\nmatch2 len " << w << "\n";
+    if (extract != -1) {
+      std::cout << "[" << str.substr(pos, extract) << "]\n";
+      pos += extract;
+    }
+    else {
+      // obviously this can't stay.
+      std::cout << "unhandled char [" << str.at(pos) << "]\n";
+      pos++;
+    }
+  }
 
   return 0;
 }
