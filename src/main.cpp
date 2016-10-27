@@ -175,90 +175,95 @@ bool TokenExpr::isTerminateOnEol() {
   return terminateOnEol;
 }
 
-int matchTerminate(std::list<TokenExpr*> matchers, std::string str, int pos, int offset) {
-  if (pos + offset >= str.size()) {
-    return offset;
+class MatchData {
+private:
+  int triggerLen = 0;
+  int contentLen = 0;
+  int terminateLen = 0;
+  bool terminate = false;
+public:
+  void setTriggerLen(int len) {
+    triggerLen = len;
+  }
+  void setContentLen(int len) {
+    contentLen = len;
+  }
+  void setTerminateLen(int len) {
+    terminateLen = len;
   }
 
-  int term_len = 0;
-  for (int k = 0; pos + k < str.size(); k++) {
-    bool anyMatched = false;
-    for (auto& i : matchers) {
-      if (i -> isTerminateOnEol() && eq -> isEol(str.at(pos + k))) {
-        return 0;
-      }
+  int getLen() {
+    return triggerLen + contentLen + terminateLen;
+  }
 
-      if (i -> isTerminateMatch(str.at(pos + k), k)) {
-        anyMatched = true;
-        break;
-      }
+  bool isMatch() {
+    return getLen() > 0;
+  }
+
+  void setTerminate(bool t) {
+    terminateLen = t;
+  }
+  bool isTerminate() {
+    return terminate || terminateLen > 0;
+  }
+};
+
+void matchTerminate(MatchData* matchData, TokenExpr* expr, std::string str, int pos) {
+  int terminate_len = 0;
+  for (int k = 0; pos + k < str.size(); k++) {
+    if (expr -> isTerminateOnEol() && eq -> isEol(str.at(pos + k))) {
+      matchData -> setTerminate(true);
+      return;
     }
 
-    if (anyMatched) {
-      term_len = k + 1;
+    if (expr -> isTerminateMatch(str.at(pos + k), k)) {
+      terminate_len++;
     }
     else {
       break;
     }
   }
 
-  return term_len == 0 ? -1 : term_len;
+  matchData -> setTerminateLen(terminate_len);
 }
 
-int matchContent(std::list<TokenExpr*> matchers, std::string str, int pos, int offset) {
-  if (pos + offset >= str.size()) {
-    return offset;
-  }
-
-  int mt = matchTerminate(matchers, str, pos + offset, 0);
-  if (mt != -1) {
-    return offset + mt;
-  }
-
-  std::list<TokenExpr*> rest_matchers;
-  for (auto& i : matchers) {
-    //std::cout << "?[" << str.at(pos + offset) << "] ";
-    if (i -> isContentMatch(str.at(pos + offset), offset)) {
-      rest_matchers.push_back(i);
+void matchContent(MatchData* matchData, TokenExpr* expr, std::string str, int pos) {
+  int content_len = 0;
+  for (int i = 0; pos + i < str.size(); i++) {
+    matchTerminate(matchData, expr, str, pos + content_len);
+    if (matchData -> isTerminate()) {
+      return;
     }
-  }
 
-  if (rest_matchers.size()) {
-    return matchContent(rest_matchers, str, pos, offset + 1);
-  }
-  else {
-    return offset;
+    if (expr -> isContentMatch(str.at(pos + i), i)) {
+      content_len++;
+    }
+
+    // Need to update each loop because the function may exit before the loop does.
+    matchData -> setContentLen(content_len);
   }
 }
 
-int match(std::list<TokenExpr*> matchers, std::string str, int pos) {
-  std::list<TokenExpr*> first_matchers;
+MatchData* match(TokenExpr* expr, std::string str, int pos) {
+  MatchData* matchData = new MatchData();
+
   int trigger_len = 0;
   for (int k = 0; pos + k < str.size(); k++) {
-    std::list<TokenExpr*> first_matchers_sub;
-    for (auto& i : matchers) {
-      if (i -> isTriggerMatch(str.at(pos + k), k)) {
-        first_matchers_sub.push_back(i);
-      }
-      // todo make use of maybe.
-    }
-
-    if (first_matchers_sub.size()) {
-      first_matchers.clear();
-      first_matchers.insert(first_matchers.end(), first_matchers_sub.begin(), first_matchers_sub.end());
-      trigger_len = k + 1;
+    if (expr -> isTriggerMatch(str.at(pos + k), k)) {
+      trigger_len++;
     }
     else {
       break;
     }
   }
 
-  if (first_matchers.size()) {
-    return matchContent(first_matchers, str, pos + trigger_len, 0) + trigger_len;
+  matchData -> setTriggerLen(trigger_len);
+
+  if (trigger_len > 0) {
+    matchContent(matchData, expr, str, pos + trigger_len);
   }
-  else {
-    return -1;
-  }
+
+  return matchData;
 }
 
 int main(int argc, char** args) {
@@ -315,9 +320,21 @@ int main(int argc, char** args) {
       continue;
     }
 
-    int extract = match(matchers2, str, pos);
+    std::list<MatchData*> matches;
+    for (auto& i : matchers2) {
+      MatchData* matchData = match(i, str, pos);
 
-    if (extract != -1) {
+      if (matchData -> isMatch()) {
+        matches.push_back(matchData);
+      }
+    }
+
+    if (matches.size()) {
+      matches.sort([](MatchData* a, MatchData* b) {
+        return a -> getLen() < b -> getLen();
+      });
+
+      int extract = matches.back() -> getLen();
       std::cout << "[" << str.substr(pos, extract) << "]\n";
       pos += extract;
     }
