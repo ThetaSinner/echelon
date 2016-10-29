@@ -17,6 +17,22 @@ bool EncodingQuery::isEol(char c) {
   return c == '\n';
 }
 
+class TokenInfo {
+private:
+  std::string friendlyName;
+
+public:
+  void setFriendlyName(std::string fname);
+  std::string getFriendlyName();
+};
+
+void TokenInfo::setFriendlyName(std::string fname) {
+  friendlyName = fname;
+}
+std::string TokenInfo::getFriendlyName() {
+  return friendlyName;
+}
+
 class TokenExpr {
 private:
   bool triggerOrdered = false;
@@ -31,6 +47,8 @@ private:
   bool terminateOnEol = false;
 
   std::set<char> expandExpr(std::string expr);
+
+  TokenInfo tokenInfo;
 public:
   void setTriggerOrdered(bool ordered) {
     triggerOrdered = ordered;
@@ -41,6 +59,8 @@ public:
   void addTriggerChar(char c);
   void addTriggerChars(std::string expr);
   bool isTriggerMatch(char c, int index);
+
+  bool isCompleteTrigger(int currentLen);
 
   void setContentOrdered(bool ordered) {
     contentOrdered = ordered;
@@ -65,6 +85,10 @@ public:
 
   void setTerminateOnEol(bool b);
   bool isTerminateOnEol();
+
+  TokenInfo* getTokenInfo() {
+    return &tokenInfo;
+  }
 };
 
 std::set<char> TokenExpr::expandExpr(std::string expr) {
@@ -111,6 +135,14 @@ bool TokenExpr::isTriggerMatch(char c, int index) {
  else {
    return std::find(triggerChars.begin(), triggerChars.end(), c) != triggerChars.end();
  }
+}
+
+bool TokenExpr::isCompleteTrigger(int currentLen) {
+  if (isTriggerOrdered() && currentLen < triggerChars.size()) {
+    return false;
+  }
+
+  return true;
 }
 
 void TokenExpr::addContentChar(char c) {
@@ -201,7 +233,7 @@ public:
   }
 
   void setTerminate(bool t) {
-    terminateLen = t;
+    terminate = t;
   }
   bool isTerminate() {
     return terminate || terminateLen > 0;
@@ -238,6 +270,9 @@ void matchContent(MatchData* matchData, TokenExpr* expr, std::string str, int po
     if (expr -> isContentMatch(str.at(pos + i), i)) {
       content_len++;
     }
+    else {
+      break;
+    }
 
     // Need to update each loop because the function may exit before the loop does.
     matchData -> setContentLen(content_len);
@@ -257,9 +292,9 @@ MatchData* match(TokenExpr* expr, std::string str, int pos) {
     }
   }
 
-  matchData -> setTriggerLen(trigger_len);
+  if (expr -> isCompleteTrigger(trigger_len)) {
+    matchData -> setTriggerLen(trigger_len);
 
-  if (trigger_len > 0) {
     matchContent(matchData, expr, str, pos + trigger_len);
   }
 
@@ -268,6 +303,7 @@ MatchData* match(TokenExpr* expr, std::string str, int pos) {
 
 int main(int argc, char** args) {
   TokenExpr mlc;
+  mlc.getTokenInfo() -> setFriendlyName("multi line comment");
   mlc.setTriggerOrdered(true);
   mlc.addTriggerChar('/');
   mlc.addTriggerChar('*');
@@ -279,6 +315,7 @@ int main(int argc, char** args) {
   mlc.addTerminateChar('/');
 
   TokenExpr slc;
+  slc.getTokenInfo() -> setFriendlyName("single line comment");
   slc.setTriggerOrdered(true);
   slc.addTriggerChar('/');
   slc.addTriggerChar('/');
@@ -288,6 +325,7 @@ int main(int argc, char** args) {
   slc.setTerminateOnEol(true);
 
   TokenExpr identifier;
+  identifier.getTokenInfo() -> setFriendlyName("identifier");
   identifier.addTriggerChars("a-z");
   identifier.addTriggerChars("A-Z");
 
@@ -297,10 +335,12 @@ int main(int argc, char** args) {
   identifier.addContentChar('_');
 
   TokenExpr assign;
+  assign.getTokenInfo() -> setFriendlyName("assignment");
   assign.setTriggerOrdered(true);
   assign.addTriggerChar('=');
 
   TokenExpr equality;
+  equality.getTokenInfo() -> setFriendlyName("equality");
   equality.setTriggerOrdered(true);
   equality.addTriggerChar('=');
   equality.addTriggerChar('=');
@@ -313,9 +353,15 @@ int main(int argc, char** args) {
   matchers2.push_back(&equality);
 
   std::string str = "helloVariable thing bit stuff = == === /* hello */ /**/ // hey\n test words";
+  int linesBreaks = 0;
   int pos = 0;
   while (pos < str.size()) {
     if (str.at(pos) == ' ') {
+      pos++;
+      continue;
+    }
+    if (eq -> isEol(str.at(pos))) {
+      linesBreaks++;
       pos++;
       continue;
     }
@@ -325,6 +371,7 @@ int main(int argc, char** args) {
       MatchData* matchData = match(i, str, pos);
 
       if (matchData -> isMatch()) {
+        std::cout << i -> getTokenInfo() -> getFriendlyName() << ", ";
         matches.push_back(matchData);
       }
     }
