@@ -4,6 +4,11 @@ add_library(${parser_lib_name}
   tokenizer.cpp
   parser.cpp
   token.cpp
+  encoding-query.cpp
+  token-expr-info.cpp
+  token-expr.cpp
+  match-data.cpp
+  token-expr-matcher.cpp
   tokenizer-impl/character-query.cpp
   tokenizer-impl/parse-data.cpp
   tokenizer-impl/extractor-for-assignment.cpp
