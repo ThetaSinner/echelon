@@ -16,7 +16,7 @@ Optional<Token> LineCommentExtractor::extract(ParseData parseData) {
       offset++;
     }
 
-    return Optional<Token>::of(Token(parseData.getParseStr().substr(parseData.getParsePos(), offset), TokenTypeEnum::LineComment));
+    return Optional<Token>::of(Token(parseData.getParseStr().substr(parseData.getParsePos(), offset), TokenTypeEnum::SingleLineComment));
   }
 
   return Optional<Token>::absent();

@@ -10,7 +10,7 @@ enum class TokenTypeEnum {
   SqBracket,
   Assign,
   Equality,
-  LineComment,
+  SingleLineComment,
   MultiLineComment
 };
 

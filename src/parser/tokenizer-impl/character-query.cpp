@@ -67,3 +67,11 @@ bool CharacterQuery::is_sq_bracket_stop(char in) {
 bool CharacterQuery::is_sq_bracket(char in) {
   return is_sq_bracket_start(in) || is_sq_bracket_stop(in);
 }
+
+bool CharacterQuery::is_space(char in) {
+  return in == ' ';
+}
+
+bool CharacterQuery::is_end_of_line(char in) {
+  return in == '\n';
+}

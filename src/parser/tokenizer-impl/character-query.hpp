@@ -23,6 +23,8 @@ public:
 
   static bool is_underscore(char in);
   static bool is_whitespace(char in);
+  static bool is_space(char in);
+  static bool is_end_of_line(char in);
   static bool is_line_break(char in);
   static bool is_number(char in);
   static bool is_string_delim(char in);
