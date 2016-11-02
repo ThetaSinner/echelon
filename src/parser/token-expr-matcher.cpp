@@ -1,5 +1,7 @@
 #include <echelon/parser/token-expr-matcher.hpp>
 
+#include <iostream>
+
 void TokenExprMatcher::matchTerminate(MatchData* matchData, TokenExpr* expr, std::string str, int pos) {
   int terminate_len = 0;
   for (int k = 0; pos + k < str.size(); k++) {
@@ -76,7 +78,7 @@ void TokenExprMatcher::matchTrigger(MatchData* matchData, TokenExpr* expr, std::
   }
 
   // Check if the trigger condition has been fully satisfied.
-  if (expr -> isCompleteTrigger(trigger_len)) {
+  if (trigger_len > 0 && expr -> isCompleteTrigger(trigger_len)) {
     // save the actual number of tigger characters matched.
     matchData -> setTriggerLen(trigger_len);
 

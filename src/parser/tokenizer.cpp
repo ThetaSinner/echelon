@@ -66,6 +66,38 @@ Tokenizer::Tokenizer() {
   equality.addTriggerChar('=');
 
   tokenExprMap.insert({TokenTypeEnum::Equality, equality});
+
+  TokenExpr blockDelimO;
+  blockDelimO.getTokenExprInfo() -> setFriendlyName("block delim open");
+  blockDelimO.setTriggerOrdered(true);
+  blockDelimO.addTriggerChar('{');
+
+  tokenExprMap.insert({TokenTypeEnum::BlockDelimO, blockDelimO});
+
+  TokenExpr blockDelimC;
+  blockDelimC.getTokenExprInfo() -> setFriendlyName("block delim close");
+  blockDelimC.setTriggerOrdered(true);
+  blockDelimC.addTriggerChar('}');
+
+  tokenExprMap.insert({TokenTypeEnum::BlockDelimC, blockDelimC});
+
+  TokenExpr string;
+  string.getTokenExprInfo() -> setFriendlyName("string");
+  string.setTriggerOrdered(true);
+  string.addTriggerChar('"');
+
+  string.setContentAny(true);
+
+  string.setTerminateOrdered(true);
+  string.addTerminateChar('"');
+
+  tokenExprMap.insert({TokenTypeEnum::String, string});
+
+  TokenExpr integer;
+  integer.getTokenExprInfo() -> setFriendlyName("integer");
+  integer.addTriggerChars("0-9");
+
+  tokenExprMap.insert({TokenTypeEnum::Integer, integer});
 }
 
 std::vector<Token> Tokenizer::tokenize(std::string in) {
@@ -99,7 +131,7 @@ std::vector<Token> Tokenizer::tokenize(std::string in) {
       matchData -> setTokenTypeEnum(i.first);
 
       if (matchData -> isMatch()) {
-        std::cout << (i.second).getTokenExprInfo() -> getFriendlyName() << ", ";
+        //std::cout << (i.second).getTokenExprInfo() -> getFriendlyName() << ", ";
         matches.push_back(matchData);
       }
     }
