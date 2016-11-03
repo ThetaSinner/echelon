@@ -2,7 +2,9 @@
 #define AST_NODE_TYPE_HPP_INCLUDED
 
 enum class AstNodeType {
-  Block
+  Block,
+  AssignmentExpr,
+  ExplicitType,
 };
 
 #endif
