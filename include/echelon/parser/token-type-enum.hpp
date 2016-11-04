@@ -1,6 +1,8 @@
 #ifndef TOKEN_ENUM_HPP_INCLUDED
 #define TOKEN_ENUM_HPP_INCLUDED
 
+#include <string>
+
 enum class TokenTypeEnum {
   String,
   Identifier,
@@ -14,5 +16,7 @@ enum class TokenTypeEnum {
   SingleLineComment,
   MultiLineComment
 };
+
+std::string toString(TokenTypeEnum tokenType);
 
 #endif

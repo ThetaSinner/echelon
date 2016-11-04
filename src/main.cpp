@@ -17,18 +17,6 @@ std::string toString(bool b) {
   return b ? "true" : "false";
 }
 
-std::string toString(TokenTypeEnum tokenType) {
-  switch (tokenType) {
-    case TokenTypeEnum::String: return "string";
-    case TokenTypeEnum::Identifier: return "identifier";
-    case TokenTypeEnum::Integer: return "integer";
-    case TokenTypeEnum::BlockDelimO: return "block delim open";
-    case TokenTypeEnum::BlockDelimC: return "block delim close";
-    case TokenTypeEnum::Assign: return "assign";
-    default: return "none";
-  }
-}
-
 void stream_dump(std::ostream& s, std::vector<Token> tokens) {
   for (auto& i : tokens) {
     s << toString(i.getTokenType()) << " ["<< i.getData() << "], ";
@@ -121,7 +109,7 @@ void process_dataTypeIdentifier(AstNode *node, std::vector<Token>::iterator it) 
   // modify tree.
 
   it++;
-  if (it.getTokenType() == TokenTypeEnum::Integer) {
+  if (it -> getTokenType() == TokenTypeEnum::Integer) {
     // add value to tree.
   }
   else {
@@ -140,13 +128,96 @@ AstNode* parse(std::vector<Token> tokens) {
   }
 }
 
+bool is_letter(int c) {
+  return (c >= 97) && (c <= 122);
+}
+
+bool is_identifier_char(int c) {
+  return is_letter(c) || c == '_';
+}
+
+bool safe_advance(std::string::iterator& it, int n, std::string& s) {
+  while (n) {
+    if (it != s.end()) {
+      it++;
+    }
+    else {
+      return false;
+    }
+    n--;
+  }
+
+  return true;
+}
+
+void translate_pattern(std::string pattern) {
+  std::cout << "Pattern length: " << pattern.size() << "\n";
+
+  for (auto i = pattern.begin(); i != pattern.end(); i++) {
+    if (*i == ' ') {
+      // new expression.
+      continue;
+    }
+
+    if (*i == '[') {
+      auto it = i;
+      while (*(++it) != ']') {}
+
+      std::cout << "optional '" << std::string(i + 1, it) << "' ";
+
+      if (!safe_advance(i, it - i, pattern)) {
+        break;
+      }
+
+      /*
+      if (*(++it) != ' ' && it != pattern.end()) {
+        if (*it == '*') {
+          std::cout << "may repeat ";
+          i = it; //bad?
+        }
+      }
+      */
+    }
+
+    if (is_letter(*i)) {
+      auto it = i;
+      while (is_identifier_char(*(++it))) {}
+
+      std::cout << "'" << std::string(i, it) << "' ";
+
+      if (!safe_advance(i, it - i, pattern)) {
+        //
+        break;
+      }
+    }
+
+    if (i == pattern.end()) {
+      // mustn't increment if we've consumed the whole string.
+      break;
+    }
+  }
+}
+
 int main(int argc, char** args) {
   Tokenizer t;
   auto r = t.tokenize("module {\n    integer t = 1\n}");
 
   stream_dump(std::cout, r);
 
-  auto x = parse(r);
+  //auto x = parse(r);
+
+  //
+
+  std::string assignment_expr = "[type] identifier assign [type_]expr ";
+  std::string for_loop = "kwd_for ([type] identifier assign expr; bool_expr; expr) block_delim_o  block_delim_c";
+  std::string package = "kwd_package [identifier_scope]*identifier";
+
+  std::cout << "\n";
+  translate_pattern(assignment_expr);
+  std::cout << "\n";
+  translate_pattern(for_loop);
+  std::cout << "\n";
+  translate_pattern(package);
 
   return 0;
 }

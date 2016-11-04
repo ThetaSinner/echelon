@@ -9,6 +9,7 @@ add_library(${parser_lib_name}
   token-expr.cpp
   match-data.cpp
   token-expr-matcher.cpp
+  token-type-enum.cpp
   tokenizer-impl/character-query.cpp
   tokenizer-impl/parse-data.cpp
   tokenizer-impl/extractor-for-assignment.cpp
