@@ -14,7 +14,8 @@ enum class TokenTypeEnum {
   Assign,
   Equality,
   SingleLineComment,
-  MultiLineComment
+  MultiLineComment,
+  StructureOperator,
 };
 
 std::string toString(TokenTypeEnum tokenType);
