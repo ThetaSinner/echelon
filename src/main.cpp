@@ -153,33 +153,43 @@ bool safe_advance(std::string::iterator& it, int n, std::string& s) {
 void translate_pattern(std::string pattern) {
   std::cout << "Pattern length: " << pattern.size() << "\n";
 
+  std::cout << "[";
   for (auto i = pattern.begin(); i != pattern.end(); i++) {
     if (*i == ' ') {
       // new expression.
+      std::cout << "][";
       continue;
     }
 
+    bool iterator_moved = false;
+
     if (*i == '[') {
+      iterator_moved = true;
+
       auto it = i;
       while (*(++it) != ']') {}
 
-      std::cout << "optional '" << std::string(i + 1, it) << "' ";
+      std::cout << "'optional: " << std::string(i + 1, it) << " ";
 
       if (!safe_advance(i, it - i, pattern)) {
         break;
       }
 
-      /*
-      if (*(++it) != ' ' && it != pattern.end()) {
+      if (*(++it) != ' ') {
         if (*it == '*') {
           std::cout << "may repeat ";
-          i = it; //bad?
+          if (!safe_advance(i, it - i, pattern)) {
+            break;
+          }
         }
       }
-      */
+
+      std::cout << "' ";
     }
 
     if (is_letter(*i)) {
+      iterator_moved = true;
+
       auto it = i;
       while (is_identifier_char(*(++it))) {}
 
@@ -191,11 +201,11 @@ void translate_pattern(std::string pattern) {
       }
     }
 
-    if (i == pattern.end()) {
-      // mustn't increment if we've consumed the whole string.
-      break;
+    if (iterator_moved) {
+      i--;
     }
   }
+  std::cout << "]";
 }
 
 int main(int argc, char** args) {
@@ -208,8 +218,8 @@ int main(int argc, char** args) {
 
   //
 
-  std::string assignment_expr = "[type] identifier assign [type_]expr ";
-  std::string for_loop = "kwd_for ([type] identifier assign expr; bool_expr; expr) block_delim_o  block_delim_c";
+  std::string assignment_expr = "[type] identifier assign [type_]expr";
+  std::string for_loop = "kwd_for [type] identifier assign expr; bool_expr; expr block_delim_o block block_delim_c";
   std::string package = "kwd_package [identifier_scope]*identifier";
 
   std::cout << "\n";
