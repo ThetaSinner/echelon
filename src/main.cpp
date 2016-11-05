@@ -13,17 +13,76 @@
 #include <echelon/ast/AstNode.hpp>
 #include <echelon/ast/AstNodeType.hpp>
 
+class EchelonLookup {
+private:
+  std::set<std::string> dataTypeKeywordSet;
+  std::set<std::string> keywordSet;
+
+public:
+  template<typename T>
+  static std::string toString(T t);
+
+  void addDataTypeKeyword(std::string dataTypeKeyword) {
+    dataTypeKeywordSet.insert(dataTypeKeyword);
+
+    keywordSet.insert(dataTypeKeyword);
+  }
+
+  bool isDataTypeKeyword(std::string str) {
+    return dataTypeKeywordSet.find(str) != dataTypeKeywordSet.end();
+  }
+
+  void addKeyword(std::string keyword) {
+    keywordSet.insert(keyword);
+  }
+
+  bool isKeyword(std::string str) {
+    return keywordSet.find(str) != keywordSet.end();
+  }
+} echelonLookup;
+
+class EnhancedToken {
+private:
+  TokenTypeEnum tokenType;
+  std::string data;
+
+  bool keyword = false;
+  bool dataTypeKeyword;
+public:
+  EnhancedToken(Token t) {
+    data = t.getData();
+    tokenType = t.getTokenType();
+
+    switch(tokenType) {
+      case TokenTypeEnum::Identifier:
+        keyword = echelonLookup.isKeyword(data);
+        dataTypeKeyword = echelonLookup.isDataTypeKeyword(data);
+        break;
+    }
+  }
+
+  TokenTypeEnum getTokenType() {
+    return tokenType;
+  }
+
+  std::string getData() {
+    return data;
+  }
+
+  bool isKeyword() {
+    return keyword;
+  }
+
+  bool isDataTypeKeyword() {
+    return dataTypeKeyword;
+  }
+};
+
 enum class Keyword {
   Package,
   Module,
 
   Integer
-};
-
-class EchelonLookup {
-public:
-  template<typename T>
-  static std::string toString(T t);
 };
 
 template<> std::string EchelonLookup::toString(Keyword t) {
@@ -255,8 +314,6 @@ int TokenPatternElement::getRepeatUpperBound() {
   return repeatUpperBound;
 }
 
-
-
 void translate_pattern(std::string pattern) {
   std::cout << "Pattern length: " << pattern.size() << "\n";
 
@@ -315,6 +372,14 @@ void translate_pattern(std::string pattern) {
   std::cout << "]";
 }
 
+AstNode* parse2(std::list<Token> tokens) {
+  std::stack<EnhancedToken> enchancedTokens;
+
+  for (auto& t : tokens) {
+    
+  }
+}
+
 int main(int argc, char** args) {
   Tokenizer t;
   auto r = t.tokenize("module {\n    integer t = 1\n}");
@@ -328,6 +393,11 @@ int main(int argc, char** args) {
   if (Keyword::Integer == "integer") {
     std::cout << "wow.\n";
   }
+
+  echelonLookup.addDataTypeKeyword("integer");
+  echelonLookup.addDataTypeKeyword("string");
+
+  echelonLookup.addKeyword("package");
 
   std::cout << EchelonLookup::toString(Keyword::Module) << std::endl;
   std::cout << EchelonLookup::toString(TokenTypeEnum::Identifier) << std::endl;
