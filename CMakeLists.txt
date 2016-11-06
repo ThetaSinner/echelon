@@ -26,6 +26,7 @@ add_executable(${project_binary_name} ${project_source_files})
 
 # Specify required features for compilation.
 target_compile_features(${project_binary_name} PRIVATE cxx_range_for)
+target_compile_features(${project_binary_name} PRIVATE cxx_nullptr)
 
 # Link the parser to the executable.
 add_subdirectory(src/parser)

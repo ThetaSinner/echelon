@@ -250,17 +250,28 @@ bool safe_advance(std::string::iterator& it, int n, std::string& s) {
   return true;
 }
 
-class TokenPattern {
-
-};
-
 class TokenPatternElement {
 private:
+  std::string data;
+
+  bool prefix = false;
+
   bool optional = false;
   int repeatLowerBound = 1;
   int repeatUpperBound = 1;
 public:
   TokenPatternElement(std::string element);
+
+  std::string getData() {
+    return data;
+  }
+
+  void setPrefix(bool prefix) {
+    this -> prefix = prefix;
+  }
+  bool isPrefix() {
+    return prefix;
+  }
 
   void setOptional(bool optional);
   bool isOptional();
@@ -273,6 +284,8 @@ public:
 };
 
 TokenPatternElement::TokenPatternElement(std::string element) {
+  data = element;
+
   if (element.substr(1, 3) == "kwd") {
     std::cout << element.substr(4);
   }
@@ -291,6 +304,7 @@ TokenPatternElement::TokenPatternElement(std::string element) {
 }
 
 void TokenPatternElement::setOptional(bool optional) {
+  setRepeatLowerBound(0);
   this -> optional = optional;
 }
 
@@ -314,69 +328,102 @@ int TokenPatternElement::getRepeatUpperBound() {
   return repeatUpperBound;
 }
 
-void translate_pattern(std::string pattern) {
+class TokenPattern {
+private:
+  std::vector<TokenPatternElement*> tokenPatternElements;
+
+public:
+  void addElement(TokenPatternElement* tokenPatternElement) {
+    tokenPatternElements.push_back(tokenPatternElement);
+  }
+
+  std::vector<TokenPatternElement*>* getElements() {
+    return &tokenPatternElements;
+  }
+};
+
+void stream_dump(std::ostream& s, TokenPatternElement* tokenPatternElement) {
+  if (tokenPatternElement -> isPrefix()) {
+    s << "prefix: ";
+  }
+  if (tokenPatternElement -> isOptional()) {
+    s << "optional: ";
+  }
+
+  s << tokenPatternElement -> getData();
+  s << "{" << tokenPatternElement -> getRepeatLowerBound() << "," << tokenPatternElement -> getRepeatUpperBound() << "}";
+}
+
+
+void stream_dump(std::ostream& s, TokenPattern* tokenPattern) {
+  for (auto& i : *tokenPattern -> getElements()) {
+    stream_dump(s, i);
+    s << " ";
+  }
+}
+
+TokenPattern* translate_pattern(std::string pattern) {
   std::cout << "Pattern length: " << pattern.size() << "\n";
 
-  std::cout << "[";
+  TokenPattern *tokenPattern = new TokenPattern();
+
   for (auto i = pattern.begin(); i != pattern.end(); i++) {
     if (*i == ' ') {
-      // new expression.
-      std::cout << "][";
       continue;
     }
 
-    bool iterator_moved = false;
-
+    bool matched_optional = false;
     if (*i == '[') {
-      iterator_moved = true;
-
       auto it = i;
       while (*(++it) != ']') {}
 
-      std::cout << "'optional: " << std::string(i + 1, it) << " ";
+      TokenPatternElement *tokenPatternElement = new TokenPatternElement(std::string(i + 1, it));
+      tokenPatternElement -> setOptional(true);
 
-      if (!safe_advance(i, it - i, pattern)) {
-        break;
-      }
+      // We want to consume the ] too.
+      safe_advance(i, it - i + 1, pattern);
 
       if (*(++it) != ' ') {
         if (*it == '*') {
-          std::cout << "may repeat ";
-          if (!safe_advance(i, it - i, pattern)) {
-            break;
-          }
+          tokenPatternElement -> setRepeatUpperBound(-1);
+          safe_advance(i, 1, pattern);
         }
       }
 
-      std::cout << "' ";
+      tokenPattern -> addElement(tokenPatternElement);
+      matched_optional = true;
     }
 
+    bool matched_identifier = false;
     if (is_letter(*i)) {
-      iterator_moved = true;
-
       auto it = i;
       while (is_identifier_char(*(++it))) {}
 
-      std::cout << "'" << std::string(i, it) << "' ";
+      TokenPatternElement *tokenPatternElement = new TokenPatternElement(std::string(i, it));
 
-      if (!safe_advance(i, it - i, pattern)) {
-        //
-        break;
-      }
+      safe_advance(i, it - i, pattern);
+
+      tokenPattern -> addElement(tokenPatternElement);
+      matched_identifier = true;
     }
 
-    if (iterator_moved) {
+    if (matched_optional && matched_identifier) {
+      tokenPattern -> getElements() -> at(tokenPattern -> getElements() -> size() - 2) -> setPrefix(true);
+    }
+
+    if (i == pattern.end()) {
       i--;
     }
   }
-  std::cout << "]";
+
+  return tokenPattern;
 }
 
 AstNode* parse2(std::list<Token> tokens) {
   std::stack<EnhancedToken> enchancedTokens;
 
   for (auto& t : tokens) {
-    
+
   }
 }
 
@@ -415,15 +462,19 @@ int main(int argc, char** args) {
 
   // may contain the toString of any token type.
   std::string assignment_expr = "[type] identifier assign [type_]expr";
-  std::string for_loop = "kwd_for [type] identifier assign expr; bool_expr; expr block_delim_o block block_delim_c";
+  std::string for_loop = "kwd_for [type] identifier assign expr; bool_expr; expr block_delim_o [block] block_delim_c";
   std::string package = "kwd_package [identifier_structure]*identifier";
 
   std::cout << "\n";
-  translate_pattern(assignment_expr);
+  auto assignment_pattern = translate_pattern(assignment_expr);
+  stream_dump(std::cout, assignment_pattern);
   std::cout << "\n";
-  translate_pattern(for_loop);
+  auto for_loop_pattern = translate_pattern(for_loop);
+  stream_dump(std::cout, for_loop_pattern);
   std::cout << "\n";
-  translate_pattern(package);
+  auto package_pattern = translate_pattern(package);
+  stream_dump(std::cout, package_pattern);
+  std::cout << "\n";
 
   return 0;
 }
