@@ -419,13 +419,25 @@ TokenPattern* translate_pattern(std::string pattern) {
   return tokenPattern;
 }
 
-AstNode* parse2(std::list<Token> tokens) {
-  std::stack<EnhancedToken> enchancedTokens;
+class Parser2 {
+private:
+  std::vector<TokenPattern*> tokenPatterns;
+public:
+  AstNode* parse(std::list<Token> tokens) {
+    std::stack<EnhancedToken> enchancedTokens;
 
-  for (auto& t : tokens) {
-
+    
+    for (auto& t : tokens) {
+      EnhancedToken *enhancedToken = new EnhancedToken(t);
+    }
   }
-}
+
+  void addTokenPattern(TokenPattern* tokenPattern) {
+    tokenPatterns.push_back(tokenPattern);
+  }
+};
+
+
 
 int main(int argc, char** args) {
   Tokenizer t;
@@ -461,6 +473,7 @@ int main(int argc, char** args) {
 
 
   // may contain the toString of any token type.
+  std::string var_decl = "[type] identifier assign";
   std::string assignment_expr = "[type] identifier assign [type_]expr";
   std::string for_loop = "kwd_for [type] identifier assign expr; bool_expr; expr block_delim_o [block] block_delim_c";
   std::string package = "kwd_package [identifier_structure]*identifier";
