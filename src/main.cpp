@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <stack>
+#include <functional>
 
 #include <echelon/parser/tokenizer.hpp>
 #include <echelon/parser/token.hpp>
@@ -75,6 +76,34 @@ public:
 
   bool isDataTypeKeyword() {
     return dataTypeKeyword;
+  }
+};
+
+class Matcher {
+  std::function<bool()> matcher;
+
+  EchelonLookup* echelonLookup;
+
+  EnhancedToken* enhancedToken;
+public:
+  void setMatcher(std::function<bool()> matcher) {
+    this -> matcher = matcher;
+  }
+
+  void setLookup(EchelonLookup* echelonLookup) {
+    this -> echelonLookup = echelonLookup;
+  }
+  EchelonLookup* getLookup() {
+    return echelonLookup;
+  }
+
+  bool matches(EnhancedToken* enhancedToken) {
+    this -> enhancedToken = enhancedToken;
+    return matcher();
+  }
+
+  EnhancedToken* getEnhancedToken() {
+    return enhancedToken;
   }
 };
 
@@ -254,6 +283,14 @@ class TokenPatternElement {
 private:
   std::string data;
 
+  class Recog {
+  public:
+    bool is_keyword = false;
+    std::string keyword = "";
+
+    bool is_data_type = false;
+  } recog;
+
   bool prefix = false;
 
   bool optional = false;
@@ -287,11 +324,13 @@ TokenPatternElement::TokenPatternElement(std::string element) {
   data = element;
 
   if (element.substr(1, 3) == "kwd") {
-    std::cout << element.substr(4);
+    recog.is_keyword = true;
+    recog.keyword = element.substr(4);
   }
 
   if (element == "type") {
     // we are a datatype. must have token type identifier and be a valid type identifier.
+    recog.is_data_type = true;
   }
 
   if (element == "identifier") {
@@ -422,14 +461,21 @@ TokenPattern* translate_pattern(std::string pattern) {
 class Parser2 {
 private:
   std::vector<TokenPattern*> tokenPatterns;
-public:
-  AstNode* parse(std::list<Token> tokens) {
-    std::stack<EnhancedToken> enchancedTokens;
 
-    
+  AstNode* _parse(const std::list<Token>& tokens) {
+    std::stack<EnhancedToken*> enchancedTokens;
+
+
     for (auto& t : tokens) {
       EnhancedToken *enhancedToken = new EnhancedToken(t);
+      enchancedTokens.push(enhancedToken);
+
+
     }
+  }
+public:
+  AstNode* parse(std::list<Token> tokens) {
+    return _parse(tokens);
   }
 
   void addTokenPattern(TokenPattern* tokenPattern) {
@@ -488,6 +534,32 @@ int main(int argc, char** args) {
   auto package_pattern = translate_pattern(package);
   stream_dump(std::cout, package_pattern);
   std::cout << "\n";
+
+  Matcher* type = new Matcher();
+  type -> setLookup(&echelonLookup);
+  type -> setMatcher([&type] () -> bool {
+    if (type -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+      return false;
+    }
+
+    return type -> getLookup() -> isDataTypeKeyword(type -> getEnhancedToken() -> getData());
+  });
+
+  Matcher* keyword = new Matcher();
+  keyword -> setLookup(&echelonLookup);
+  keyword -> setMatcher([&keyword] () -> bool {
+    if (keyword -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+      return false;
+    }
+
+    return keyword -> getLookup() -> isKeyword(keyword -> getEnhancedToken() -> getData());
+  });
+
+  EnhancedToken *enhancedPackageKwd = new EnhancedToken(packageKwd);
+
+  std::cout << toString(keyword -> matches(enhancedPackageKwd)) << "\n";
+  std::cout << toString(type -> matches(enhancedPackageKwd)) << "\n";
+
 
   return 0;
 }
