@@ -483,6 +483,84 @@ public:
   }
 };
 
+/////
+class PatternTranslator {
+private:
+  TokenPatternElement* readIdentifier(std::string::iterator& i, std::string& pattern) {
+    if (is_letter(*i)) {
+      auto it = i;
+      while (is_identifier_char(*(++it))) {}
+
+      TokenPatternElement *tokenPatternElement = new TokenPatternElement(std::string(i, it));
+
+      safe_advance(i, it - i, pattern);
+
+      return tokenPatternElement;
+    }
+
+    return nullptr;
+  }
+public:
+  TokenPattern* translate(std::string pattern);
+};
+
+TokenPattern* PatternTranslator::translate(std::string pattern) {
+  std::cout << "Pattern length: " << pattern.size() << "\n";
+
+  TokenPattern *tokenPattern = new TokenPattern();
+
+  for (auto i = pattern.begin(); i != pattern.end(); i++) {
+    if (*i == '[') {
+      i++;
+      while (true) {
+        if (*i == ' ') {
+          i++;
+          continue;
+        }
+
+        auto ident = readIdentifier(i, pattern);
+
+        if (ident == nullptr) {
+          break;
+        }
+
+        ident -> setOptional(true);
+        // add to group.
+      }
+
+      while (*i == ' ') {
+        i++;
+      }
+      if (*i != ']') {
+        std::cout << "syntax error.\n";
+      }
+      i++;
+      std::cout << *i;
+      // We want to consume the ] too.
+
+      auto it = i;
+      if (*(++it) != ' ') {
+        if (*it == '*') {
+          //tokenPatternElement -> setRepeatUpperBound(-1);
+          safe_advance(i, 1, pattern);
+        }
+      }
+
+      //tokenPattern -> addElement(tokenPatternElement);
+    }
+
+    if (is_letter(*i)) {
+      auto ident = readIdentifier(i, pattern);
+      tokenPattern -> addElement(ident);
+    }
+
+    if (i == pattern.end()) {
+      i--;
+    }
+  }
+
+  return tokenPattern;
+}
 
 
 int main(int argc, char** args) {
@@ -520,9 +598,9 @@ int main(int argc, char** args) {
 
   // may contain the toString of any token type.
   std::string var_decl = "[type] identifier assign";
-  std::string assignment_expr = "[type] identifier assign [type_]expr";
+  std::string assignment_expr = "[type] identifier assign expr";
   std::string for_loop = "kwd_for [type] identifier assign expr; bool_expr; expr block_delim_o [block] block_delim_c";
-  std::string package = "kwd_package [identifier_structure]*identifier";
+  std::string package = "kwd_package [identifier op_structure]* identifier";
 
   std::cout << "\n";
   auto assignment_pattern = translate_pattern(assignment_expr);
@@ -560,6 +638,7 @@ int main(int argc, char** args) {
   std::cout << toString(keyword -> matches(enhancedPackageKwd)) << "\n";
   std::cout << toString(type -> matches(enhancedPackageKwd)) << "\n";
 
+  stream_dump(std::cout, (new PatternTranslator()) -> translate(package));
 
   return 0;
 }
