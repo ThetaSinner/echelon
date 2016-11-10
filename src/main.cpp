@@ -282,55 +282,25 @@ bool safe_advance(std::string::iterator& it, int n, std::string& s) {
 class TokenPatternElement {
 private:
   std::string data;
-
-  class Recog {
-  public:
-    bool is_keyword = false;
-    std::string keyword = "";
-
-    bool is_data_type = false;
-  } recog;
-
-  bool prefix = false;
-
-  bool optional = false;
-  int repeatLowerBound = 1;
-  int repeatUpperBound = 1;
 public:
   TokenPatternElement(std::string element);
 
   std::string getData() {
     return data;
   }
-
-  void setPrefix(bool prefix) {
-    this -> prefix = prefix;
-  }
-  bool isPrefix() {
-    return prefix;
-  }
-
-  void setOptional(bool optional);
-  bool isOptional();
-
-  void setRepeatLowerBound(int repeatLowerBound);
-  int getRepeatLowerBound();
-
-  void setRepeatUpperBound(int repeatUpperBound);
-  int getRepeatUpperBound();
 };
 
 TokenPatternElement::TokenPatternElement(std::string element) {
   data = element;
 
+  // Get the appropriate matcher and expose it.
+
   if (element.substr(1, 3) == "kwd") {
-    recog.is_keyword = true;
-    recog.keyword = element.substr(4);
+    // element.substr(4);
   }
 
   if (element == "type") {
     // we are a datatype. must have token type identifier and be a valid type identifier.
-    recog.is_data_type = true;
   }
 
   if (element == "identifier") {
@@ -342,35 +312,11 @@ TokenPatternElement::TokenPatternElement(std::string element) {
   }
 }
 
-void TokenPatternElement::setOptional(bool optional) {
-  setRepeatLowerBound(0);
-  this -> optional = optional;
-}
-
-bool TokenPatternElement::isOptional() {
-  return optional;
-}
-
-void TokenPatternElement::setRepeatLowerBound(int repeatLowerBound) {
-  this -> repeatLowerBound = repeatLowerBound;
-}
-
-int TokenPatternElement::getRepeatLowerBound() {
-  return repeatLowerBound;
-}
-
-void TokenPatternElement::setRepeatUpperBound(int repeatUpperBound) {
-  this -> repeatUpperBound = repeatUpperBound;
-}
-
-int TokenPatternElement::getRepeatUpperBound() {
-  return repeatUpperBound;
-}
-
-class TokenPattern {
-private:
+class TokenPatternGroup {
   std::vector<TokenPatternElement*> tokenPatternElements;
 
+  int repeatLowerBound = 1;
+  int repeatUpperBound = 1;
 public:
   void addElement(TokenPatternElement* tokenPatternElement) {
     tokenPatternElements.push_back(tokenPatternElement);
@@ -379,28 +325,60 @@ public:
   std::vector<TokenPatternElement*>* getElements() {
     return &tokenPatternElements;
   }
+
+  void setRepeatLowerBound(int repeatLowerBound) {
+    this -> repeatLowerBound = repeatLowerBound;
+  }
+  int getRepeatLowerBound() {
+    return repeatLowerBound;
+  }
+
+  void setRepeatUpperBound(int repeatUpperBound) {
+    this -> repeatUpperBound = repeatUpperBound;
+  }
+  int getRepeatUpperBound() {
+    return repeatUpperBound;
+  }
+};
+
+class TokenPattern {
+  std::vector<TokenPatternGroup*> tokenPatternGroups;
+public:
+  void addGroup(TokenPatternGroup* tokenPatternGroup) {
+    tokenPatternGroups.push_back(tokenPatternGroup);
+  }
+
+  std::vector<TokenPatternGroup*>* getGroups() {
+    return &tokenPatternGroups;
+  }
 };
 
 void stream_dump(std::ostream& s, TokenPatternElement* tokenPatternElement) {
-  if (tokenPatternElement -> isPrefix()) {
-    s << "prefix: ";
-  }
-  if (tokenPatternElement -> isOptional()) {
-    s << "optional: ";
-  }
-
   s << tokenPatternElement -> getData();
-  s << "{" << tokenPatternElement -> getRepeatLowerBound() << "," << tokenPatternElement -> getRepeatUpperBound() << "}";
+  //s << "{" << tokenPatternElement -> getRepeatLowerBound() << "," << tokenPatternElement -> getRepeatUpperBound() << "}";
 }
 
+void stream_dump(std::ostream& s, TokenPatternGroup* tokenPatternGroup) {
+  s << "'";
+  int sp = false;
+  for (auto& i : *tokenPatternGroup -> getElements()) {
+    if (sp) {
+      s << " ";
+    }
+    stream_dump(s, i);
+    sp = true;
+  }
+  s << "'{" << tokenPatternGroup -> getRepeatLowerBound() << "," << tokenPatternGroup -> getRepeatUpperBound() << "}";
+}
 
 void stream_dump(std::ostream& s, TokenPattern* tokenPattern) {
-  for (auto& i : *tokenPattern -> getElements()) {
+  for (auto& i : *tokenPattern -> getGroups()) {
     stream_dump(s, i);
     s << " ";
   }
 }
 
+/* initial version, has been replaced.
 TokenPattern* translate_pattern(std::string pattern) {
   std::cout << "Pattern length: " << pattern.size() << "\n";
 
@@ -457,6 +435,7 @@ TokenPattern* translate_pattern(std::string pattern) {
 
   return tokenPattern;
 }
+*/
 
 class Parser2 {
 private:
@@ -510,7 +489,12 @@ TokenPattern* PatternTranslator::translate(std::string pattern) {
   TokenPattern *tokenPattern = new TokenPattern();
 
   for (auto i = pattern.begin(); i != pattern.end(); i++) {
+    TokenPatternGroup *tokenPatternGroup = new TokenPatternGroup();
+
     if (*i == '[') {
+      // is optional.
+      tokenPatternGroup -> setRepeatLowerBound(0);
+
       i++;
       while (true) {
         if (*i == ' ') {
@@ -524,36 +508,33 @@ TokenPattern* PatternTranslator::translate(std::string pattern) {
           break;
         }
 
-        ident -> setOptional(true);
-        // add to group.
+        tokenPatternGroup -> addElement(ident);
       }
 
       while (*i == ' ') {
         i++;
       }
       if (*i != ']') {
-        std::cout << "syntax error.\n";
+        std::cout << "(0042) syntax error.\n";
       }
-      i++;
-      std::cout << *i;
-      // We want to consume the ] too.
+      // consume the ']'
+      safe_advance(i, 1, pattern);
 
-      auto it = i;
-      if (*(++it) != ' ') {
-        if (*it == '*') {
-          //tokenPatternElement -> setRepeatUpperBound(-1);
-          safe_advance(i, 1, pattern);
-        }
+      if (*i == '*') {
+        tokenPatternGroup -> setRepeatUpperBound(-1);
+        safe_advance(i, 1, pattern);
       }
-
-      //tokenPattern -> addElement(tokenPatternElement);
     }
-
-    if (is_letter(*i)) {
+    else if (is_letter(*i)) {
       auto ident = readIdentifier(i, pattern);
-      tokenPattern -> addElement(ident);
+      tokenPatternGroup -> addElement(ident);
+    }
+    else {
+      std::cout << "(0041) syntax error." << *i << "\n";
+      break;
     }
 
+    tokenPattern -> addGroup(tokenPatternGroup);
     if (i == pattern.end()) {
       i--;
     }
@@ -603,14 +584,13 @@ int main(int argc, char** args) {
   std::string package = "kwd_package [identifier op_structure]* identifier";
 
   std::cout << "\n";
-  auto assignment_pattern = translate_pattern(assignment_expr);
-  stream_dump(std::cout, assignment_pattern);
+  stream_dump(std::cout, (new PatternTranslator()) -> translate(var_decl));
   std::cout << "\n";
-  auto for_loop_pattern = translate_pattern(for_loop);
-  stream_dump(std::cout, for_loop_pattern);
+  stream_dump(std::cout, (new PatternTranslator()) -> translate(assignment_expr));
   std::cout << "\n";
-  auto package_pattern = translate_pattern(package);
-  stream_dump(std::cout, package_pattern);
+  stream_dump(std::cout, (new PatternTranslator()) -> translate(for_loop));
+  std::cout << "\n";
+  stream_dump(std::cout, (new PatternTranslator()) -> translate(package));
   std::cout << "\n";
 
   Matcher* type = new Matcher();
@@ -637,8 +617,6 @@ int main(int argc, char** args) {
 
   std::cout << toString(keyword -> matches(enhancedPackageKwd)) << "\n";
   std::cout << toString(type -> matches(enhancedPackageKwd)) << "\n";
-
-  stream_dump(std::cout, (new PatternTranslator()) -> translate(package));
 
   return 0;
 }
