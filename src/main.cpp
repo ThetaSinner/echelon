@@ -18,10 +18,23 @@
 
 class EchelonLookup {
 private:
+  static EchelonLookup *self;
+
   std::set<std::string> dataTypeKeywordSet;
   std::set<std::string> keywordSet;
 
+  EchelonLookup() {}
+  EchelonLookup(const EchelonLookup& _) {}
+  void operator=(const EchelonLookup& _) {}
 public:
+  static EchelonLookup* getInstance() {
+    if (self == nullptr) {
+      self = new EchelonLookup();
+    }
+
+    return self;
+  }
+
   template<typename T>
   static std::string toString(T t);
 
@@ -42,7 +55,9 @@ public:
   bool isKeyword(std::string str) {
     return keywordSet.find(str) != keywordSet.end();
   }
-} echelonLookup;
+};
+
+EchelonLookup* EchelonLookup::self = nullptr;
 
 class EnhancedToken {
 private:
@@ -58,8 +73,8 @@ public:
 
     switch(tokenType) {
       case TokenTypeEnum::Identifier:
-        keyword = echelonLookup.isKeyword(data);
-        dataTypeKeyword = echelonLookup.isDataTypeKeyword(data);
+        keyword = EchelonLookup::getInstance() -> isKeyword(data);
+        dataTypeKeyword = EchelonLookup::getInstance() -> isDataTypeKeyword(data);
         break;
     }
   }
@@ -84,19 +99,10 @@ public:
 class Matcher {
   std::function<bool()> matcher;
 
-  EchelonLookup* echelonLookup;
-
   EnhancedToken* enhancedToken;
 public:
   void setMatcher(std::function<bool()> matcher) {
     this -> matcher = matcher;
-  }
-
-  void setLookup(EchelonLookup* echelonLookup) {
-    this -> echelonLookup = echelonLookup;
-  }
-  EchelonLookup* getLookup() {
-    return echelonLookup;
   }
 
   bool matches(EnhancedToken* enhancedToken) {
@@ -116,7 +122,7 @@ class MatcherLookup {
 
   MatcherLookup() {};
   MatcherLookup(const MatcherLookup& _) {}
-  operator=(const MatcherLookup& _) {}
+  void operator=(const MatcherLookup& _) {}
 public:
   static MatcherLookup* getInstance() {
     if (self == nullptr) {
@@ -131,9 +137,6 @@ public:
   }
 
   Matcher* getMatcher(std::string key) {
-    for (auto& i : matcherHash) {
-      std::cout << i.first << ", ";
-    }
     #ifdef ECHELON_DEBUG
     if (matcherHash.find(key) == matcherHash.end()) {
       std::cout << "Missing matcher for " << key << std::endl;
@@ -250,6 +253,7 @@ bool isKeyword(Token t) {
   return false;
 }
 
+// scrap
 void process_dataTypeIdentifier(AstNode *node, std::vector<Token>::iterator it) {
   AstNode* process_node = new AstNode();
   process_node -> setType(AstNodeType::AssignmentExpr);
@@ -525,10 +529,10 @@ int main(int argc, char** args) {
     std::cout << "wow.\n";
   }
 
-  echelonLookup.addDataTypeKeyword("integer");
-  echelonLookup.addDataTypeKeyword("string");
+  EchelonLookup::getInstance() -> addDataTypeKeyword("integer");
+  EchelonLookup::getInstance() -> addDataTypeKeyword("string");
 
-  echelonLookup.addKeyword("package");
+  EchelonLookup::getInstance() -> addKeyword("package");
 
   std::cout << EchelonLookup::toString(Keyword::Module) << std::endl;
   std::cout << EchelonLookup::toString(TokenTypeEnum::Identifier) << std::endl;
@@ -542,6 +546,54 @@ int main(int argc, char** args) {
   program.push_back(structureOperator);
   Token packageName("test_package", TokenTypeEnum::Identifier);
   program.push_back(packageName);
+
+  Matcher *type = new Matcher();
+  type -> setMatcher([&type] () -> bool {
+    if (type -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+      return false;
+    }
+
+    return EchelonLookup::getInstance() -> isDataTypeKeyword(type -> getEnhancedToken() -> getData());
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("type", type);
+
+  Matcher *keyword = new Matcher();
+  keyword -> setMatcher([&keyword] () -> bool {
+    if (keyword -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+      return false;
+    }
+
+    return EchelonLookup::getInstance() -> isKeyword(keyword -> getEnhancedToken() -> getData());
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("keyword", keyword);
+
+  Matcher *identifier = new Matcher();
+  identifier -> setMatcher([&identifier] () -> bool {
+    // need to check not a keyword? or seperate matcher for that might be better.
+    return identifier -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::Identifier;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("identifier", identifier);
+
+  Matcher *kwd_package = new Matcher();
+  kwd_package -> setMatcher([&kwd_package] () -> bool {
+    if (kwd_package -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+      return false;
+    }
+
+    return kwd_package -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Package);
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("kwd_package", kwd_package);
+
+  Matcher *op_structure = new Matcher();
+  op_structure -> setMatcher([&op_structure] () -> bool {
+    return op_structure -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::StructureOperator;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("op_structure", op_structure);
 
   // may contain the toString of any token type.
   std::string var_decl = "[type] identifier assign";
@@ -558,38 +610,6 @@ int main(int argc, char** args) {
   std::cout << "\n";
   stream_dump(std::cout, (new PatternTranslator()) -> translate(package));
   std::cout << "\n";
-
-  Matcher* type = new Matcher();
-  type -> setLookup(&echelonLookup);
-  type -> setMatcher([&type] () -> bool {
-    if (type -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
-      return false;
-    }
-
-    return type -> getLookup() -> isDataTypeKeyword(type -> getEnhancedToken() -> getData());
-  });
-
-  MatcherLookup::getInstance() -> addMatcher("type", type);
-
-  Matcher* keyword = new Matcher();
-  keyword -> setLookup(&echelonLookup);
-  keyword -> setMatcher([&keyword] () -> bool {
-    if (keyword -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
-      return false;
-    }
-
-    return keyword -> getLookup() -> isKeyword(keyword -> getEnhancedToken() -> getData());
-  });
-
-  MatcherLookup::getInstance() -> addMatcher("keyword", keyword);
-
-  Matcher* identifier = new Matcher();
-  identifier -> setLookup(&echelonLookup);
-  identifier -> setMatcher([&identifier] () -> bool {
-    return identifier -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier;
-  });
-
-  MatcherLookup::getInstance() -> addMatcher("identifier", identifier);
 
   EnhancedToken *enhancedPackageKwd = new EnhancedToken(packageKwd);
 
