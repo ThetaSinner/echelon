@@ -14,6 +14,8 @@
 #include <echelon/ast/AstNode.hpp>
 #include <echelon/ast/AstNodeType.hpp>
 
+#define ECHELON_DEBUG
+
 class EchelonLookup {
 private:
   std::set<std::string> dataTypeKeywordSet;
@@ -106,6 +108,44 @@ public:
     return enhancedToken;
   }
 };
+
+class MatcherLookup {
+  static MatcherLookup *self;
+
+  std::map<std::string, Matcher*> matcherHash;
+
+  MatcherLookup() {};
+  MatcherLookup(const& MatcherLookup) {}
+  operator=(const& MatcherLookup) {}
+public:
+  static MatcherLookup* getInstance() {
+    if (self == nullptr) {
+      self = new MatcherLookup();
+    }
+
+    return self;
+  }
+
+  void addMatcher(std::string key, Matcher* matcher) {
+    matcherHash.insert({key, matcher});
+  }
+
+  Matcher* getMatcher(std::string key) {
+    for (auto& i : matcherHash) {
+      std::cout << i.first << ", ";
+    }
+    #ifdef ECHELON_DEBUG
+    if (matcherHash.find(key) == matcherHash.end()) {
+      std::cout << "Missing matcher for " << key << std::endl;
+      return nullptr;
+    }
+    #endif
+
+    return matcherHash.at(key);
+  }
+};
+
+MatcherLookup *MatcherLookup::self = nullptr;
 
 enum class Keyword {
   Package,
@@ -282,34 +322,24 @@ bool safe_advance(std::string::iterator& it, int n, std::string& s) {
 class TokenPatternElement {
 private:
   std::string data;
+  Matcher* matcher;
 public:
   TokenPatternElement(std::string element);
 
   std::string getData() {
     return data;
   }
+
+  Matcher* getMatcher() {
+    return matcher;
+  }
 };
 
 TokenPatternElement::TokenPatternElement(std::string element) {
   data = element;
 
-  // Get the appropriate matcher and expose it.
-
-  if (element.substr(1, 3) == "kwd") {
-    // element.substr(4);
-  }
-
-  if (element == "type") {
-    // we are a datatype. must have token type identifier and be a valid type identifier.
-  }
-
-  if (element == "identifier") {
-    // we are a non-keyword identifier. (this should be checked on input)
-  }
-
-  if (element == "assign") {
-    // we are an assignment operator. must have token type assign.
-  }
+  // Get the appropriate matcher.
+  matcher = MatcherLookup::getInstance() -> getMatcher(data);
 }
 
 class TokenPatternGroup {
@@ -355,7 +385,6 @@ public:
 
 void stream_dump(std::ostream& s, TokenPatternElement* tokenPatternElement) {
   s << tokenPatternElement -> getData();
-  //s << "{" << tokenPatternElement -> getRepeatLowerBound() << "," << tokenPatternElement -> getRepeatUpperBound() << "}";
 }
 
 void stream_dump(std::ostream& s, TokenPatternGroup* tokenPatternGroup) {
@@ -378,65 +407,6 @@ void stream_dump(std::ostream& s, TokenPattern* tokenPattern) {
   }
 }
 
-/* initial version, has been replaced.
-TokenPattern* translate_pattern(std::string pattern) {
-  std::cout << "Pattern length: " << pattern.size() << "\n";
-
-  TokenPattern *tokenPattern = new TokenPattern();
-
-  for (auto i = pattern.begin(); i != pattern.end(); i++) {
-    if (*i == ' ') {
-      continue;
-    }
-
-    bool matched_optional = false;
-    if (*i == '[') {
-      auto it = i;
-      while (*(++it) != ']') {}
-
-      TokenPatternElement *tokenPatternElement = new TokenPatternElement(std::string(i + 1, it));
-      tokenPatternElement -> setOptional(true);
-
-      // We want to consume the ] too.
-      safe_advance(i, it - i + 1, pattern);
-
-      if (*(++it) != ' ') {
-        if (*it == '*') {
-          tokenPatternElement -> setRepeatUpperBound(-1);
-          safe_advance(i, 1, pattern);
-        }
-      }
-
-      tokenPattern -> addElement(tokenPatternElement);
-      matched_optional = true;
-    }
-
-    bool matched_identifier = false;
-    if (is_letter(*i)) {
-      auto it = i;
-      while (is_identifier_char(*(++it))) {}
-
-      TokenPatternElement *tokenPatternElement = new TokenPatternElement(std::string(i, it));
-
-      safe_advance(i, it - i, pattern);
-
-      tokenPattern -> addElement(tokenPatternElement);
-      matched_identifier = true;
-    }
-
-    if (matched_optional && matched_identifier) {
-      tokenPattern -> getElements() -> at(tokenPattern -> getElements() -> size() - 2) -> setPrefix(true);
-    }
-
-    if (i == pattern.end()) {
-      i--;
-    }
-  }
-
-  return tokenPattern;
-}
-*/
-
 class Parser2 {
 private:
   std::vector<TokenPattern*> tokenPatterns;
@@ -444,12 +414,9 @@ private:
   AstNode* _parse(const std::list<Token>& tokens) {
     std::stack<EnhancedToken*> enchancedTokens;
 
-
     for (auto& t : tokens) {
       EnhancedToken *enhancedToken = new EnhancedToken(t);
       enchancedTokens.push(enhancedToken);
-
-
     }
   }
 public:
@@ -576,7 +543,6 @@ int main(int argc, char** args) {
   Token packageName("test_package", TokenTypeEnum::Identifier);
   program.push_back(packageName);
 
-
   // may contain the toString of any token type.
   std::string var_decl = "[type] identifier assign";
   std::string assignment_expr = "[type] identifier assign expr";
@@ -603,6 +569,8 @@ int main(int argc, char** args) {
     return type -> getLookup() -> isDataTypeKeyword(type -> getEnhancedToken() -> getData());
   });
 
+  MatcherLookup::getInstance() -> addMatcher("type", type);
+
   Matcher* keyword = new Matcher();
   keyword -> setLookup(&echelonLookup);
   keyword -> setMatcher([&keyword] () -> bool {
@@ -612,6 +580,16 @@ int main(int argc, char** args) {
 
     return keyword -> getLookup() -> isKeyword(keyword -> getEnhancedToken() -> getData());
   });
+
+  MatcherLookup::getInstance() -> addMatcher("keyword", keyword);
+
+  Matcher* identifier = new Matcher();
+  identifier -> setLookup(&echelonLookup);
+  identifier -> setMatcher([&identifier] () -> bool {
+    return identifier -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("identifier", identifier);
 
   EnhancedToken *enhancedPackageKwd = new EnhancedToken(packageKwd);
 
