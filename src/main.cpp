@@ -115,8 +115,8 @@ class MatcherLookup {
   std::map<std::string, Matcher*> matcherHash;
 
   MatcherLookup() {};
-  MatcherLookup(const& MatcherLookup) {}
-  operator=(const& MatcherLookup) {}
+  MatcherLookup(const MatcherLookup& _) {}
+  operator=(const MatcherLookup& _) {}
 public:
   static MatcherLookup* getInstance() {
     if (self == nullptr) {
