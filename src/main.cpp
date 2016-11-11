@@ -6,6 +6,7 @@
 #include <vector>
 #include <stack>
 #include <functional>
+#include <iterator>
 
 #include <echelon/parser/tokenizer.hpp>
 #include <echelon/parser/token.hpp>
@@ -411,29 +412,6 @@ void stream_dump(std::ostream& s, TokenPattern* tokenPattern) {
   }
 }
 
-class Parser2 {
-private:
-  std::vector<TokenPattern*> tokenPatterns;
-
-  AstNode* _parse(const std::list<Token>& tokens) {
-    std::stack<EnhancedToken*> enchancedTokens;
-
-    for (auto& t : tokens) {
-      EnhancedToken *enhancedToken = new EnhancedToken(t);
-      enchancedTokens.push(enhancedToken);
-    }
-  }
-public:
-  AstNode* parse(std::list<Token> tokens) {
-    return _parse(tokens);
-  }
-
-  void addTokenPattern(TokenPattern* tokenPattern) {
-    tokenPatterns.push_back(tokenPattern);
-  }
-};
-
-/////
 class PatternTranslator {
 private:
   TokenPatternElement* readIdentifier(std::string::iterator& i, std::string& pattern) {
@@ -514,6 +492,106 @@ TokenPattern* PatternTranslator::translate(std::string pattern) {
   return tokenPattern;
 }
 
+class Parser2 {
+private:
+  std::vector<TokenPattern*> tokenPatterns;
+
+  AstNode* _parse(const std::list<Token>& tokens) {
+
+    for (auto i = tokens.begin(); i != tokens.end(); i++) {
+
+      bool foundPattern = false;
+
+      for (auto p = tokenPatterns.begin(); p != tokenPatterns.end(); p++) {
+        // PROCESS PATTERN.
+        bool patternMatches = true;
+
+        auto it = i;
+
+        // match each group in this pattern against the token.
+        int groupMatchCount = 0;
+        for (auto g = (*p) -> getGroups() -> begin(); g != (*p) -> getGroups() -> end(); g++) {
+
+          auto itt = it;
+
+          int matchCount = 0;
+          for (auto element = (*g) -> getElements() -> begin(); element != (*g) -> getElements() -> end(); element++) {
+            EnhancedToken *enhancedToken = new EnhancedToken(*itt);
+            if ((*element) -> getMatcher() -> matches(enhancedToken)) {
+              matchCount++;
+              itt++;
+            }
+            else {
+              break;
+            }
+          }
+
+          bool completeGroupMatch = matchCount == (*g) -> getElements() -> size();
+
+          // doesn't match but is optional or repeating
+          // does match and can't match again
+          // does match and can match again
+
+          if (completeGroupMatch) {
+            // We've completed the first match.
+            groupMatchCount++;
+
+            // Go again if we're under the uppper bound or are allowed unlimited matches.
+            if (groupMatchCount < (*g) -> getRepeatUpperBound() || (*g) -> getRepeatUpperBound() == -1) {
+              g--; // repeat this group.
+            }
+            else {
+              // matched but no need to repeat, therefore we just let the loop continue;
+            }
+          }
+          else {
+            // No match.
+
+            if (groupMatchCount >= (*g) -> getRepeatLowerBound()) {
+              // We've actually matched enough to allow the match even though this one failed.
+            }
+            else {
+              patternMatches = false;
+              break;
+            }
+          }
+
+          // This group matches so we want to consume the tokens matched by this group.
+          std::advance(it, std::distance(itt, it));
+        }
+
+        if (patternMatches) {
+          std::cout << "Pattern matches.\n";
+          stream_dump(std::cout, *p);
+
+          foundPattern = true;
+
+          // We've matched this whole pattern, so we want to consume tokens.
+          std::advance(i, std::distance(it, i));
+          break;
+        }
+      }
+
+      if (foundPattern) {
+        std::cout << "Found a valid pattern!";
+        // want to use these tokens and the key for this pattern to build a peice of AST.
+      }
+    }
+  }
+public:
+  AstNode* parse(std::list<Token> tokens) {
+    return _parse(tokens);
+  }
+
+  void addTokenPattern(TokenPattern* tokenPattern) {
+    tokenPatterns.push_back(tokenPattern);
+  }
+
+  void addTokenPattern(std::string tokenPattern) {
+    static PatternTranslator patternTranslator;
+    tokenPatterns.push_back(patternTranslator.translate(tokenPattern));
+  }
+};
 
 int main(int argc, char** args) {
   Tokenizer t;
@@ -601,18 +679,15 @@ int main(int argc, char** args) {
   std::string for_loop = "kwd_for [type] identifier assign expr; bool_expr; expr block_delim_o [block] block_delim_c";
   std::string package = "kwd_package [identifier op_structure]* identifier";
 
-  std::cout << "\n";
-  stream_dump(std::cout, (new PatternTranslator()) -> translate(var_decl));
-  std::cout << "\n";
-  stream_dump(std::cout, (new PatternTranslator()) -> translate(assignment_expr));
-  std::cout << "\n";
-  stream_dump(std::cout, (new PatternTranslator()) -> translate(for_loop));
-  std::cout << "\n";
-  stream_dump(std::cout, (new PatternTranslator()) -> translate(package));
-  std::cout << "\n";
+  Parser2 p2;
+  p2.addTokenPattern(var_decl);
+  p2.addTokenPattern(assignment_expr);
+  p2.addTokenPattern(for_loop);
+  p2.addTokenPattern(package);
+
+  p2.parse(program);
 
   EnhancedToken *enhancedPackageKwd = new EnhancedToken(packageKwd);
-
   std::cout << toString(keyword -> matches(enhancedPackageKwd)) << "\n";
   std::cout << toString(type -> matches(enhancedPackageKwd)) << "\n";
 
