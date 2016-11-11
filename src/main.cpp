@@ -60,6 +60,25 @@ public:
 
 EchelonLookup* EchelonLookup::self = nullptr;
 
+template<> std::string EchelonLookup::toString(TokenTypeEnum t) {
+  switch(t) {
+    case TokenTypeEnum::Identifier:
+      return "identifier";
+    default:
+      return "none";
+  }
+}
+
+template<typename T>
+bool eq(T e, std::string s) {
+  return EchelonLookup::toString(e) == s;
+}
+
+void stream_dump(std::ostream& s, const Token* t) {
+  s << "{" << t -> getData() << ", " << EchelonLookup::getInstance() -> toString(t -> getTokenType()) << "}";
+}
+
+
 class EnhancedToken {
 private:
   TokenTypeEnum tokenType;
@@ -68,14 +87,18 @@ private:
   bool keyword = false;
   bool dataTypeKeyword;
 public:
-  EnhancedToken(Token t) {
-    data = t.getData();
-    tokenType = t.getTokenType();
+  EnhancedToken(Token* t) {
+    data = t -> getData();
+    tokenType = t -> getTokenType();
 
     switch(tokenType) {
       case TokenTypeEnum::Identifier:
         keyword = EchelonLookup::getInstance() -> isKeyword(data);
         dataTypeKeyword = EchelonLookup::getInstance() -> isDataTypeKeyword(data);
+        break;
+      default:
+        std::cout << "Unhandled case in EnhancedToken constructor.\n";
+        // do nothing.
         break;
     }
   }
@@ -141,7 +164,7 @@ public:
     #ifdef ECHELON_DEBUG
     if (matcherHash.find(key) == matcherHash.end()) {
       std::cout << "Missing matcher for " << key << std::endl;
-      return nullptr;
+      throw std::runtime_error("Missing matcher");
     }
     #endif
 
@@ -167,20 +190,6 @@ template<> std::string EchelonLookup::toString(Keyword t) {
     default:
       return "none";
   }
-}
-
-template<> std::string EchelonLookup::toString(TokenTypeEnum t) {
-  switch(t) {
-    case TokenTypeEnum::Identifier:
-      return "identifier";
-    default:
-      return "none";
-  }
-}
-
-template<typename T>
-bool eq(T e, std::string s) {
-  return EchelonLookup::toString(e) == s;
 }
 
 bool operator==(const Keyword& l, const std::string& r) {
@@ -388,10 +397,6 @@ public:
   }
 };
 
-void stream_dump(std::ostream& s, const Token* t) {
-  s << "{" << t -> getData() << ", " << EchelonLookup::getInstance() -> toString(t -> getTokenType()) << "}";
-}
-
 void stream_dump(std::ostream& s, TokenPatternElement* tokenPatternElement) {
   s << tokenPatternElement -> getData();
 }
@@ -505,11 +510,11 @@ class Parser2 {
 private:
   std::vector<TokenPattern*> tokenPatterns;
 
-  AstNode* _parse(const std::list<Token>& tokens) {
+  AstNode* _parse(std::list<Token*>& tokens) {
 
     for (auto i = tokens.begin(); i != tokens.end(); i++) {
 
-      std::cout << "Start processing at token "; stream_dump(std::cout, &(*i)); std::cout << std::endl;
+      std::cout << "Start processing at token "; stream_dump(std::cout, *i); std::cout << std::endl;
 
       bool foundPattern = false;
 
@@ -528,18 +533,25 @@ private:
           std::cout << "Process group "; stream_dump(std::cout, *g); std::cout << std::endl;
 
           auto itt = it;
-          std::cout << "Current starting token "; stream_dump(std::cout, &(*itt)); std::cout << std::endl;
+          std::cout << "Current starting token "; stream_dump(std::cout, *itt); std::cout << std::endl;
 
           int matchCount = 0;
+
           for (auto element = (*g) -> getElements() -> begin(); element != (*g) -> getElements() -> end(); element++) {
+            std::cout << "_\n";
             EnhancedToken *enhancedToken = new EnhancedToken(*itt);
 
-            std::cout << "Matches: {"; stream_dump(std::cout, enhancedToken); std::cout << "} ? ";
+            std::cout << "Matches: {"; stream_dump(std::cout, enhancedToken); std::cout << "} ? " << std::endl;
 
             if ((*element) -> getMatcher() -> matches(enhancedToken)) {
-              std::cout << "Yes\n";
+              std::cout << "Yes\n" << std::endl;
               matchCount++;
               itt++;
+
+              if (itt == tokens.end()) {
+                std::cout << "Ran out of tokens.\n";
+                break;
+              }
             }
             else {
               std::cout << "No\n";
@@ -574,6 +586,9 @@ private:
             if (groupMatchCount >= (*g) -> getRepeatLowerBound()) {
               // We've actually matched enough to allow the match even though this one failed.
               std::cout << "No group match, allowing anyway.\n";
+
+              // However, we need to reset itt to give back the tokens we've used so far.
+              itt = it;
             }
             else {
               patternMatches = false;
@@ -582,9 +597,9 @@ private:
           }
 
           // This group matches so we want to consume the tokens matched by this group.
-          std::cout << "Consume " << std::distance(itt, it) << " tokens.\n";
-          // HERE'S THE BUG/ONE OF THE BUGS.
-          std::advance(it, std::distance(itt, it));
+          std::cout << "Consume " << std::distance(it, itt) << " tokens.\n";
+          // need to be more careful than this.
+          std::advance(it, std::distance(it, itt));
         }
 
         if (patternMatches) {
@@ -594,7 +609,8 @@ private:
           foundPattern = true;
 
           // We've matched this whole pattern, so we want to consume tokens.
-          std::advance(i, std::distance(it, i));
+          std::cout << "Confirm consume " << std::distance(i, it) << " tokens\n";
+          std::advance(i, std::distance(i, it));
           break;
         }
       }
@@ -602,11 +618,16 @@ private:
       if (foundPattern) {
         std::cout << "Found a valid pattern!";
         // want to use these tokens and the key for this pattern to build a peice of AST.
+
+      }
+
+      if (i == tokens.end()) {
+        i--;
       }
     }
   }
 public:
-  AstNode* parse(std::list<Token> tokens) {
+  AstNode* parse(std::list<Token*> tokens) {
     return _parse(tokens);
   }
 
@@ -642,14 +663,14 @@ int main(int argc, char** args) {
   std::cout << EchelonLookup::toString(Keyword::Module) << std::endl;
   std::cout << EchelonLookup::toString(TokenTypeEnum::Identifier) << std::endl;
 
-  std::list<Token> program;
-  Token packageKwd("package", TokenTypeEnum::Identifier);
+  std::list<Token*> program;
+  Token *packageKwd = new Token("package", TokenTypeEnum::Identifier);
   program.push_back(packageKwd);
-  Token projectName("echelon", TokenTypeEnum::Identifier);
+  Token *projectName = new Token("echelon", TokenTypeEnum::Identifier);
   program.push_back(projectName);
-  Token structureOperator("::", TokenTypeEnum::StructureOperator);
+  Token *structureOperator = new Token("::", TokenTypeEnum::StructureOperator);
   program.push_back(structureOperator);
-  Token packageName("test_package", TokenTypeEnum::Identifier);
+  Token *packageName = new Token("test_package", TokenTypeEnum::Identifier);
   program.push_back(packageName);
 
   Matcher *type = new Matcher();
@@ -677,6 +698,7 @@ int main(int argc, char** args) {
   Matcher *identifier = new Matcher();
   identifier -> setMatcher([&identifier] () -> bool {
     // need to check not a keyword? or seperate matcher for that might be better.
+    std::cout << "run identifier matcher." << std::endl;
     return identifier -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::Identifier;
   });
 
@@ -707,9 +729,9 @@ int main(int argc, char** args) {
   std::string package = "kwd_package [identifier op_structure]* identifier";
 
   Parser2 p2;
-  p2.addTokenPattern(var_decl);
-  p2.addTokenPattern(assignment_expr);
-  p2.addTokenPattern(for_loop);
+  //p2.addTokenPattern(var_decl);
+  //p2.addTokenPattern(assignment_expr);
+  //p2.addTokenPattern(for_loop);
   p2.addTokenPattern(package);
 
   p2.parse(program);
