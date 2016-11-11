@@ -13,8 +13,8 @@ public:
   Token() {}
   Token(std::string data, TokenTypeEnum type);
 
-  std::string getData();
-  TokenTypeEnum getTokenType();
+  std::string getData() const;
+  TokenTypeEnum getTokenType() const;
 };
 
 #endif

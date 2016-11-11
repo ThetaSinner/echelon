@@ -331,11 +331,11 @@ private:
 public:
   TokenPatternElement(std::string element);
 
-  std::string getData() {
+  std::string getData() const {
     return data;
   }
 
-  Matcher* getMatcher() {
+  Matcher* getMatcher() const {
     return matcher;
   }
 };
@@ -364,14 +364,14 @@ public:
   void setRepeatLowerBound(int repeatLowerBound) {
     this -> repeatLowerBound = repeatLowerBound;
   }
-  int getRepeatLowerBound() {
+  int getRepeatLowerBound() const {
     return repeatLowerBound;
   }
 
   void setRepeatUpperBound(int repeatUpperBound) {
     this -> repeatUpperBound = repeatUpperBound;
   }
-  int getRepeatUpperBound() {
+  int getRepeatUpperBound() const {
     return repeatUpperBound;
   }
 };
@@ -387,6 +387,10 @@ public:
     return &tokenPatternGroups;
   }
 };
+
+void stream_dump(std::ostream& s, const Token* t) {
+  s << "{" << t -> getData() << ", " << EchelonLookup::getInstance() -> toString(t -> getTokenType()) << "}";
+}
 
 void stream_dump(std::ostream& s, TokenPatternElement* tokenPatternElement) {
   s << tokenPatternElement -> getData();
@@ -412,6 +416,10 @@ void stream_dump(std::ostream& s, TokenPattern* tokenPattern) {
   }
 }
 
+void stream_dump(std::ostream& s, EnhancedToken* enhancedToken) {
+  s << enhancedToken -> getData() << ", " << EchelonLookup::getInstance() -> toString(enhancedToken -> getTokenType());
+}
+
 class PatternTranslator {
 private:
   TokenPatternElement* readIdentifier(std::string::iterator& i, std::string& pattern) {
@@ -433,14 +441,15 @@ public:
 };
 
 TokenPattern* PatternTranslator::translate(std::string pattern) {
-  std::cout << "Pattern length: " << pattern.size() << "\n";
-
   TokenPattern *tokenPattern = new TokenPattern();
 
   for (auto i = pattern.begin(); i != pattern.end(); i++) {
     TokenPatternGroup *tokenPatternGroup = new TokenPatternGroup();
 
-    if (*i == '[') {
+    if (*i == ' ') {
+      continue;
+    }
+    else if (*i == '[') {
       // is optional.
       tokenPatternGroup -> setRepeatLowerBound(0);
 
@@ -500,11 +509,15 @@ private:
 
     for (auto i = tokens.begin(); i != tokens.end(); i++) {
 
+      std::cout << "Start processing at token "; stream_dump(std::cout, &(*i)); std::cout << std::endl;
+
       bool foundPattern = false;
 
       for (auto p = tokenPatterns.begin(); p != tokenPatterns.end(); p++) {
         // PROCESS PATTERN.
         bool patternMatches = true;
+
+        std::cout << "Trying pattern "; stream_dump(std::cout, *p); std::cout << std::endl;
 
         auto it = i;
 
@@ -512,21 +525,30 @@ private:
         int groupMatchCount = 0;
         for (auto g = (*p) -> getGroups() -> begin(); g != (*p) -> getGroups() -> end(); g++) {
 
+          std::cout << "Process group "; stream_dump(std::cout, *g); std::cout << std::endl;
+
           auto itt = it;
+          std::cout << "Current starting token "; stream_dump(std::cout, &(*itt)); std::cout << std::endl;
 
           int matchCount = 0;
           for (auto element = (*g) -> getElements() -> begin(); element != (*g) -> getElements() -> end(); element++) {
             EnhancedToken *enhancedToken = new EnhancedToken(*itt);
+
+            std::cout << "Matches: {"; stream_dump(std::cout, enhancedToken); std::cout << "} ? ";
+
             if ((*element) -> getMatcher() -> matches(enhancedToken)) {
+              std::cout << "Yes\n";
               matchCount++;
               itt++;
             }
             else {
+              std::cout << "No\n";
               break;
             }
           }
 
           bool completeGroupMatch = matchCount == (*g) -> getElements() -> size();
+          std::cout << "Complete group match? " << toString(completeGroupMatch) << "\n";
 
           // doesn't match but is optional or repeating
           // does match and can't match again
@@ -538,9 +560,11 @@ private:
 
             // Go again if we're under the uppper bound or are allowed unlimited matches.
             if (groupMatchCount < (*g) -> getRepeatUpperBound() || (*g) -> getRepeatUpperBound() == -1) {
+              std::cout << "Match this group again.\n";
               g--; // repeat this group.
             }
             else {
+              std::cout << "Finished with this group. Move on.\n";
               // matched but no need to repeat, therefore we just let the loop continue;
             }
           }
@@ -549,6 +573,7 @@ private:
 
             if (groupMatchCount >= (*g) -> getRepeatLowerBound()) {
               // We've actually matched enough to allow the match even though this one failed.
+              std::cout << "No group match, allowing anyway.\n";
             }
             else {
               patternMatches = false;
@@ -557,6 +582,8 @@ private:
           }
 
           // This group matches so we want to consume the tokens matched by this group.
+          std::cout << "Consume " << std::distance(itt, it) << " tokens.\n";
+          // HERE'S THE BUG/ONE OF THE BUGS.
           std::advance(it, std::distance(itt, it));
         }
 
@@ -674,7 +701,7 @@ int main(int argc, char** args) {
   MatcherLookup::getInstance() -> addMatcher("op_structure", op_structure);
 
   // may contain the toString of any token type.
-  std::string var_decl = "[type] identifier assign";
+  std::string var_decl = "[type] identifier assign"; // should check non-kwd identifier.
   std::string assignment_expr = "[type] identifier assign expr";
   std::string for_loop = "kwd_for [type] identifier assign expr; bool_expr; expr block_delim_o [block] block_delim_c";
   std::string package = "kwd_package [identifier op_structure]* identifier";

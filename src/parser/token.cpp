@@ -5,10 +5,10 @@ Token::Token(std::string data, TokenTypeEnum type) {
   this->type = type;
 }
 
-std::string Token::getData() {
+std::string Token::getData() const {
   return data;
 }
 
-TokenTypeEnum Token::getTokenType() {
+TokenTypeEnum Token::getTokenType() const {
   return type;
 }
