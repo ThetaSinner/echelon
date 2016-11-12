@@ -174,6 +174,55 @@ public:
 
 MatcherLookup *MatcherLookup::self = nullptr;
 
+class PatternMatchInfo {
+  std::vector<int> groupMatchCounts;
+
+public:
+  void setGroupMatchCount(int groupIndex, int count) {
+    while (groupMatchCounts.size() < groupIndex) {
+      groupMatchCounts.push_back(0);
+    }
+
+    groupMatchCounts[groupIndex] = count;
+  }
+
+  int getGroupMatchCount(int groupIndex) {
+    return groupMatchCounts[groupIndex];
+  }
+};
+
+class AstTransformData {
+  std::list<Token*> tokens;
+  PatternMatchInfo* patternMatchInfo;
+public:
+  void setTokens(std::list<Token*> tokens) {
+    this -> tokens = tokens;
+  }
+  std::list<Token*>* getTokens() {
+    return &tokens;
+  }
+
+  void setPatternMatchInfo(PatternMatchInfo* patternMatchInfo) {
+    this -> patternMatchInfo = patternMatchInfo;
+  }
+  PatternMatchInfo* getPatternMatchInfo() {
+    return patternMatchInfo;
+  }
+};
+
+class AstTransform {
+  std::function<AstNode*(AstTransformData*)> transformer;
+
+public:
+  AstTransform(std::function<AstNode*(AstTransformData*)> transformer) {
+    this -> transformer = transformer;
+  }
+
+  AstNode* transform(AstTransformData* astTransformData) {
+    return transformer(astTransformData);
+  }
+};
+
 enum class Keyword {
   Package,
   Module,
@@ -514,7 +563,7 @@ private:
 
     for (auto i = tokens.begin(); i != tokens.end(); i++) {
 
-      std::cout << "Start processing at token "; stream_dump(std::cout, *i); std::cout << std::endl;
+      std::cout << "Start processing at token "; stream_dump(std::cout, *i); std::cout << "\n";
 
       bool foundPattern = false;
 
@@ -522,7 +571,7 @@ private:
         // PROCESS PATTERN.
         bool patternMatches = true;
 
-        std::cout << "Trying pattern "; stream_dump(std::cout, *p); std::cout << std::endl;
+        std::cout << "Trying pattern "; stream_dump(std::cout, *p); std::cout << "\n";
 
         auto it = i;
 
@@ -530,10 +579,10 @@ private:
         int groupMatchCount = 0;
         for (auto g = (*p) -> getGroups() -> begin(); g != (*p) -> getGroups() -> end(); g++) {
 
-          std::cout << "Process group "; stream_dump(std::cout, *g); std::cout << std::endl;
+          std::cout << "Process group "; stream_dump(std::cout, *g); std::cout << "\n";
 
           auto itt = it;
-          std::cout << "Current starting token "; stream_dump(std::cout, *itt); std::cout << std::endl;
+          std::cout << "Current starting token "; stream_dump(std::cout, *itt); std::cout << "\n";
 
           int matchCount = 0;
 
@@ -541,7 +590,7 @@ private:
             std::cout << "_\n";
             EnhancedToken *enhancedToken = new EnhancedToken(*itt);
 
-            std::cout << "Matches: {"; stream_dump(std::cout, enhancedToken); std::cout << "} ? " << std::endl;
+            std::cout << "Matches: {"; stream_dump(std::cout, enhancedToken); std::cout << "} ? ";
 
             if ((*element) -> getMatcher() -> matches(enhancedToken)) {
               std::cout << "Yes\n" << std::endl;
@@ -598,13 +647,12 @@ private:
 
           // This group matches so we want to consume the tokens matched by this group.
           std::cout << "Consume " << std::distance(it, itt) << " tokens.\n";
-          // need to be more careful than this.
+          // need to be more careful than this?
           std::advance(it, std::distance(it, itt));
         }
 
         if (patternMatches) {
           std::cout << "Pattern matches.\n";
-          stream_dump(std::cout, *p);
 
           foundPattern = true;
 
@@ -616,7 +664,7 @@ private:
       }
 
       if (foundPattern) {
-        std::cout << "Found a valid pattern!";
+        std::cout << "Found a valid pattern!\n";
         // want to use these tokens and the key for this pattern to build a peice of AST.
 
       }
@@ -663,16 +711,6 @@ int main(int argc, char** args) {
   std::cout << EchelonLookup::toString(Keyword::Module) << std::endl;
   std::cout << EchelonLookup::toString(TokenTypeEnum::Identifier) << std::endl;
 
-  std::list<Token*> program;
-  Token *packageKwd = new Token("package", TokenTypeEnum::Identifier);
-  program.push_back(packageKwd);
-  Token *projectName = new Token("echelon", TokenTypeEnum::Identifier);
-  program.push_back(projectName);
-  Token *structureOperator = new Token("::", TokenTypeEnum::StructureOperator);
-  program.push_back(structureOperator);
-  Token *packageName = new Token("test_package", TokenTypeEnum::Identifier);
-  program.push_back(packageName);
-
   Matcher *type = new Matcher();
   type -> setMatcher([&type] () -> bool {
     if (type -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
@@ -698,7 +736,6 @@ int main(int argc, char** args) {
   Matcher *identifier = new Matcher();
   identifier -> setMatcher([&identifier] () -> bool {
     // need to check not a keyword? or seperate matcher for that might be better.
-    std::cout << "run identifier matcher." << std::endl;
     return identifier -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::Identifier;
   });
 
@@ -734,9 +771,25 @@ int main(int argc, char** args) {
   //p2.addTokenPattern(for_loop);
   p2.addTokenPattern(package);
 
+  std::list<Token*> program;
+  program.push_back(new Token("package", TokenTypeEnum::Identifier));
+  program.push_back(new Token("echelon", TokenTypeEnum::Identifier));
+  program.push_back(new Token("::", TokenTypeEnum::StructureOperator));
+  program.push_back(new Token("test_package", TokenTypeEnum::Identifier));
+
   p2.parse(program);
 
-  EnhancedToken *enhancedPackageKwd = new EnhancedToken(packageKwd);
+  std::list<Token*> program2;
+  program2.push_back(new Token("package", TokenTypeEnum::Identifier));
+  program2.push_back(new Token("test", TokenTypeEnum::Identifier));
+  program2.push_back(new Token("::", TokenTypeEnum::StructureOperator));
+  program2.push_back(new Token("pack", TokenTypeEnum::Identifier));
+  program2.push_back(new Token("::", TokenTypeEnum::StructureOperator));
+  program2.push_back(new Token("name", TokenTypeEnum::Identifier));
+
+  p2.parse(program2);
+
+  EnhancedToken *enhancedPackageKwd = new EnhancedToken(new Token("package", TokenTypeEnum::Identifier));
   std::cout << toString(keyword -> matches(enhancedPackageKwd)) << "\n";
   std::cout << toString(type -> matches(enhancedPackageKwd)) << "\n";
 
