@@ -1,5 +1,6 @@
 before_install:
 - echo | sudo apt-add-repository ppa:dhart/ppa
+- sudo apt-key update
 - sudo apt-get -qq update
 install:
 - sudo apt-get install -y cxxtest
