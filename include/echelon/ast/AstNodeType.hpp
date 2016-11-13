@@ -5,6 +5,7 @@ enum class AstNodeType {
   Block,
   AssignmentExpr,
   ExplicitType,
+  Package,
 };
 
 #endif

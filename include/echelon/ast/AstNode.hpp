@@ -3,10 +3,12 @@
 
 #include <echelon/ast/AstNodeType.hpp>
 #include <vector>
+#include <string>
 
 class AstNode {
 private:
   AstNodeType type;
+  std::string data;
   std::vector<AstNode*> children;
 public:
   int getChildCount();
@@ -16,6 +18,9 @@ public:
 
   void setType(AstNodeType type);
   AstNodeType getType();
+
+  void setData(std::string data);
+  std::string getData();
 };
 
 #endif

@@ -69,6 +69,15 @@ template<> std::string EchelonLookup::toString(TokenTypeEnum t) {
   }
 }
 
+template<> std::string EchelonLookup::toString(AstNodeType t) {
+  switch(t) {
+    case AstNodeType::Package:
+      return "package";
+    default:
+      return "none";
+  }
+}
+
 template<typename T>
 bool eq(T e, std::string s) {
   return EchelonLookup::toString(e) == s;
@@ -192,13 +201,13 @@ public:
 };
 
 class AstTransformData {
-  std::list<Token*> tokens;
+  std::list<EnhancedToken*> tokens;
   PatternMatchInfo* patternMatchInfo;
 public:
-  void setTokens(std::list<Token*> tokens) {
+  void setTokens(std::list<EnhancedToken*> tokens) {
     this -> tokens = tokens;
   }
-  std::list<Token*>* getTokens() {
+  std::list<EnhancedToken*>* getTokens() {
     return &tokens;
   }
 
@@ -670,7 +679,7 @@ private:
       }
 
       if (i == tokens.end()) {
-        i--;
+        break;
       }
     }
   }
@@ -688,6 +697,19 @@ public:
     tokenPatterns.push_back(patternTranslator.translate(tokenPattern));
   }
 };
+
+void stream_dump(std::ostream& s, AstNode* node, int level = 1) {
+  s << "Level " << level << "\n";
+
+  s << EchelonLookup::toString(node -> getType()) << ", ";
+  s << node -> getData();
+  s << "\n";
+
+  for (int i = 0; i < node -> getChildCount(); i++) {
+    stream_dump(s, node -> getChild(i), level + 1);
+    s << "\n";
+  }
+}
 
 int main(int argc, char** args) {
   Tokenizer t;
@@ -772,6 +794,7 @@ int main(int argc, char** args) {
   p2.addTokenPattern(package);
 
   std::list<Token*> program;
+  // package echelon::test_package
   program.push_back(new Token("package", TokenTypeEnum::Identifier));
   program.push_back(new Token("echelon", TokenTypeEnum::Identifier));
   program.push_back(new Token("::", TokenTypeEnum::StructureOperator));
@@ -792,6 +815,49 @@ int main(int argc, char** args) {
   EnhancedToken *enhancedPackageKwd = new EnhancedToken(new Token("package", TokenTypeEnum::Identifier));
   std::cout << toString(keyword -> matches(enhancedPackageKwd)) << "\n";
   std::cout << toString(type -> matches(enhancedPackageKwd)) << "\n";
+
+  AstTransform *packageTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    AstNode *currentNode = base;
+
+    auto builder = [&currentNode] (EnhancedToken* t) {
+      currentNode -> setType(AstNodeType::Package);
+      currentNode -> setData(t -> getData());
+
+      AstNode *astNode = new AstNode();
+      currentNode -> putChild(astNode);
+      currentNode = astNode;
+    };
+
+    auto it = astTransformData -> getTokens() -> begin();
+    it++; // skip the package keyword.
+    for (int i = 0; i < astTransformData -> getPatternMatchInfo() -> getGroupMatchCount(1); i++) {
+      builder(*it);
+
+      it++;it++;
+    }
+
+    currentNode -> setType(AstNodeType::Package);
+    currentNode -> setData((*it) -> getData());
+
+    return base;
+  });
+
+  PatternMatchInfo *pmi = new PatternMatchInfo();
+  pmi -> setGroupMatchCount(1, 1);
+
+  std::list<EnhancedToken*> packageEnhancedTokens;
+  packageEnhancedTokens.push_back(new EnhancedToken(new Token("package", TokenTypeEnum::Identifier)));
+  packageEnhancedTokens.push_back(new EnhancedToken(new Token("echelon", TokenTypeEnum::Identifier)));
+  packageEnhancedTokens.push_back(new EnhancedToken(new Token("::", TokenTypeEnum::StructureOperator)));
+  packageEnhancedTokens.push_back(new EnhancedToken(new Token("test_package", TokenTypeEnum::Identifier)));
+
+  AstTransformData *td = new AstTransformData();
+  td -> setPatternMatchInfo(pmi);
+  td -> setTokens(packageEnhancedTokens);
+
+  auto packageNode = packageTransform -> transform(td);
+  stream_dump(std::cout, packageNode);
 
   return 0;
 }
