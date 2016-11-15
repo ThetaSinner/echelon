@@ -549,11 +549,46 @@ public:
   }
 };
 
+class ParserInternalInput {
+  std::list<Token*>* tokens;
+
+  TokenPatternGroup *subProcessFinishGroup = nullptr;
+
+public:
+  void setTokens(std::list<Token*>* tokens) {
+    this -> tokens = tokens;
+  }
+  std::list<Token*>* getTokens() {
+    return tokens;
+  }
+
+  void setSubProcessFinishGroup(TokenPatternGroup* subProcessFinishGroup) {
+    this -> subProcessFinishGroup = subProcessFinishGroup;
+  }
+  TokenPatternGroup* getSubProcessFinishGroup() {
+    return subProcessFinishGroup;
+  }
+};
+
+class ParserInternalOutput {
+  AstNode *astNode;
+public:
+  void setAstNode(AstNode* astNode) {
+    this -> astNode = astNode;
+  }
+  AstNode* getAstNode() {
+    return astNode;
+  }
+};
+
 class Parser2 {
 private:
   std::vector<TokenPattern*> tokenPatterns;
 
-  AstNode* _parse(std::list<Token*>& tokens) {
+  ParserInternalOutput _parse(ParserInternalInput& parserInternalInput) {
+    ParserInternalOutput output;
+
+    std::list<Token*> tokens = *parserInternalInput.getTokens();
 
     for (auto i = tokens.begin(); i != tokens.end(); i++) {
 
@@ -587,12 +622,20 @@ private:
 
             if ((*element) -> isSubProcess()) {
               std::cout << "sub process";
-              auto finishGroup = *(g.next());
+              // PLAN:
               // call self, from current iterator position.
               // pass down the NEXT group from this one, then we can suppress "no patterns match" in the next level
               // down if the first non-matching token in the level below matches this next group.
 
               // this will involve extracting the group match below?
+
+              std::list<Token*> subList(itt, tokens.end());
+              ParserInternalInput subInput;
+              subInput.setTokens(&subList);
+              subInput.setSubProcessFinishGroup(*(std::next(g, 1)));
+
+              auto subOutput = _parse(subInput);
+              // now nnext to know the number of tokens processed in the level below.
             }
 
             if ((*element) -> getMatcher() -> matches(enhancedToken)) {
@@ -683,10 +726,17 @@ private:
         break;
       }
     }
+
+    return output;
   }
 public:
   AstNode* parse(std::list<Token*> tokens) {
-    return _parse(tokens);
+    ParserInternalInput parserInternalInput;
+    parserInternalInput.setTokens(&tokens);
+
+    auto out = _parse(parserInternalInput);
+
+    return out.getAstNode();
   }
 
   void addTokenPattern(TokenPattern* tokenPattern) {
