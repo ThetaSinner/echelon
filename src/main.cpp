@@ -87,7 +87,6 @@ void stream_dump(std::ostream& s, const Token* t) {
   s << "{" << t -> getData() << ", " << EchelonLookup::getInstance() -> toString(t -> getTokenType()) << "}";
 }
 
-
 class EnhancedToken {
 private:
   TokenTypeEnum tokenType;
@@ -333,6 +332,8 @@ class TokenPatternElement {
 private:
   std::string data;
   Matcher* matcher;
+
+  bool subProcess = false;
 public:
   TokenPatternElement(std::string element);
 
@@ -343,6 +344,10 @@ public:
   Matcher* getMatcher() const {
     return matcher;
   }
+
+  bool isSubProcess() {
+    return subProcess;
+  }
 };
 
 TokenPatternElement::TokenPatternElement(std::string element) {
@@ -350,6 +355,10 @@ TokenPatternElement::TokenPatternElement(std::string element) {
 
   // Get the appropriate matcher.
   matcher = MatcherLookup::getInstance() -> getMatcher(data);
+
+  if (data == "block") {
+    subProcess = true;
+  }
 }
 
 class TokenPatternGroup {
@@ -524,6 +533,22 @@ void stream_dump(std::ostream& s, AstNode* node, int level = 1) {
   }
 }
 
+class AstConstructionManager {
+  AstNode *root;
+public:
+  AstConstructionManager() {
+    root = new AstNode();
+  }
+
+  void pushFragment(AstNode* fragment) {
+
+  }
+
+  AstNode* getRoot() {
+    return root;
+  }
+};
+
 class Parser2 {
 private:
   std::vector<TokenPattern*> tokenPatterns;
@@ -559,6 +584,16 @@ private:
             EnhancedToken *enhancedToken = new EnhancedToken(*itt);
 
             std::cout << "Matches: {"; stream_dump(std::cout, enhancedToken); std::cout << "} ? ";
+
+            if ((*element) -> isSubProcess()) {
+              std::cout << "sub process";
+              auto finishGroup = *(g.next());
+              // call self, from current iterator position.
+              // pass down the NEXT group from this one, then we can suppress "no patterns match" in the next level
+              // down if the first non-matching token in the level below matches this next group.
+
+              // this will involve extracting the group match below?
+            }
 
             if ((*element) -> getMatcher() -> matches(enhancedToken)) {
               std::cout << "Yes\n" << std::endl;
