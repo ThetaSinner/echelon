@@ -7,6 +7,7 @@
 #include <stack>
 #include <functional>
 #include <iterator>
+#include <queue>
 
 #include <echelon/parser/tokenizer.hpp>
 #include <echelon/parser/token.hpp>
@@ -77,6 +78,8 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
   switch(t) {
     case AstNodeType::Package:
       return "package";
+    case AstNodeType::Module:
+    return "module";
     default:
       return "none";
   }
@@ -88,7 +91,7 @@ bool eq(T e, std::string s) {
 }
 
 void stream_dump(std::ostream& s, const Token* t) {
-  s << "{" << t -> getData() << ", " << EchelonLookup::getInstance() -> toString(t -> getTokenType()) << "}";
+  s << "`" << t -> getData() << ", " << EchelonLookup::getInstance() -> toString(t -> getTokenType()) << "`";
 }
 
 class EnhancedToken {
@@ -210,6 +213,8 @@ public:
 class AstTransformData {
   std::list<EnhancedToken*> tokens;
   PatternMatchInfo* patternMatchInfo;
+
+  std::queue<AstNode*>* subProcessAstNodes;
 public:
   void setTokens(std::list<EnhancedToken*> tokens) {
     this -> tokens = tokens;
@@ -223,6 +228,13 @@ public:
   }
   PatternMatchInfo* getPatternMatchInfo() {
     return patternMatchInfo;
+  }
+
+  void setSubProcessAstNodes(std::queue<AstNode*>* subProcessAstNodes) {
+    this -> subProcessAstNodes = subProcessAstNodes;
+  }
+  std::queue<AstNode*>* getSubProcessAstNodes() {
+    return subProcessAstNodes;
   }
 };
 
@@ -546,13 +558,18 @@ void stream_dump(std::ostream& s, AstNode* node, int level = 1) {
 
 class AstConstructionManager {
   AstNode *root;
+
+  AstNode *workingNode;
 public:
   AstConstructionManager() {
     root = new AstNode();
+    workingNode = root;
   }
 
   void pushFragment(AstNode* fragment) {
+    // handle special cases
 
+    workingNode -> putChild(fragment);
   }
 
   AstNode* getRoot() {
@@ -609,12 +626,16 @@ private:
 
     std::list<Token*> tokens = *parserInternalInput.getTokens();
 
+    AstConstructionManager astConstructionManager;
+
     for (auto i = tokens.begin(); i != tokens.end(); i++) {
 
       std::cout << "Start processing at token "; stream_dump(std::cout, *i); std::cout << "\n";
 
       bool somePatternMatches = false;
       for (auto p = tokenPatterns.begin(); p != tokenPatterns.end(); p++) {
+        std::queue<AstNode*> subProcessAstNodes;
+
         bool patternMatches = true;
 
         std::cout << "Trying pattern "; stream_dump(std::cout, *p); std::cout << "\n";
@@ -630,7 +651,7 @@ private:
           std::cout << "Process group "; stream_dump(std::cout, *g); std::cout << "\n";
 
           auto itt = it;
-          std::cout << "Current starting token "; stream_dump(std::cout, *itt); std::cout << "\n";
+          //std::cout << "Current starting token "; stream_dump(std::cout, *itt); std::cout << "\n";
 
           int matchCount = 0;
 
@@ -641,7 +662,6 @@ private:
             std::cout << "Matches: {"; stream_dump(std::cout, enhancedToken); std::cout << "} ? ";
 
             if ((*element) -> isSubProcess()) {
-              std::cout << "\nsub process.\n";
               // PLAN:
               // call self, from current iterator position.
               // pass down the NEXT group from this one, then we can suppress "no patterns match" in the next level
@@ -656,7 +676,12 @@ private:
               subInput.setSubProcessFinishGroup(*(std::next(g, 1)));
 
               auto subOutput = _parse(subInput);
+              std::cout << "Sub process result:\n"; stream_dump(std::cout, subOutput.getAstNode()); std::cout << "\n";
+              subProcessAstNodes.push(subOutput.getAstNode());
+              std::cout << "Advance by [" << subOutput.getTokensConsumedCount() << "]\n";
               std::advance(itt, subOutput.getTokensConsumedCount());
+
+              matchCount++;
               continue;
               // now just resume matching this pattern.
             }
@@ -722,38 +747,47 @@ private:
         }
 
         if (patternMatches) {
-          std::cout << "Pattern matches.\n";
+          //std::cout << "Pattern matches.\n";
           somePatternMatches = true;
 
           // We've matched this whole pattern, so we want to consume tokens.
           std::cout << "Confirm consume " << std::distance(i, it) << " tokens\n";
           std::list<EnhancedToken*> matchedTokens;
           for (int k = 0; k < std::distance(i, it); k++) {
+            std::cout << k << "\n"; stream_dump(std::cout, *std::next(i, k)); std::cout << "\n";
             matchedTokens.push_back(new EnhancedToken(*std::next(i, k)));
           }
 
           AstTransformData *td = new AstTransformData();
+          td -> setSubProcessAstNodes(&subProcessAstNodes);
           td -> setPatternMatchInfo(patternMatchInfo);
           td -> setTokens(matchedTokens);
 
+          stream_dump(std::cout, *p); std::cout << "\n";
+          std::cout << (*p) -> getId() << std::endl;
           auto transformer = AstTransformLookup::getInstance() -> getAstTransform((*p) -> getId());
 
           // TODO
-          stream_dump(std::cout, transformer -> transform(td));
+          astConstructionManager.pushFragment(transformer -> transform(td));
+          //stream_dump(std::cout, transformer -> transform(td));
 
           std::advance(i, std::distance(i, it));
           break;
         }
       }
 
+      // After each pattern match pass, count the
+      output.setTokensConsumedCount(std::distance(tokens.begin(), i));
+
       if (!somePatternMatches) {
+        std::cout << "No matching patterns for "; stream_dump(std::cout, *i); std::cout << "\n";
+
         // This is the case where a sub-process has been requested, check if we can safely return control to the caller.
         if (parserInternalInput.getSubProcessFinishGroup() != nullptr) {
           std::list<Token*> subList(i, tokens.end());
           if (simpleGroupMatch(subList, parserInternalInput.getSubProcessFinishGroup())) {
             std::cout << "Level above should handle this token and further tokens.\n";
-            output.setTokensConsumedCount(std::distance(tokens.begin(), i));
-            return output; // early exit, don't process any more tokens.
+            break;
           }
         }
         else {
@@ -766,6 +800,8 @@ private:
       }
     }
 
+    std::cout << "built result "; stream_dump(std::cout, astConstructionManager.getRoot()); std::cout << "\n";
+    output.setAstNode(astConstructionManager.getRoot());
     return output;
   }
 
@@ -960,7 +996,17 @@ int main(int argc, char** args) {
   AstTransformLookup::getInstance() -> addAstTransform("package", packageTransform);
 
   AstTransform *moduleTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
-    return nullptr;
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::Module);
+    base -> setData((*std::next(astTransformData -> getTokens() -> begin(), 1)) -> getData());
+
+    // think I'm creating an extra level that I don't need.
+    if (!astTransformData -> getSubProcessAstNodes() -> empty()) {
+      base -> putChild(astTransformData -> getSubProcessAstNodes() -> front());
+      astTransformData -> getSubProcessAstNodes() -> pop();
+    }
+
+    return base;
   });
 
   AstTransformLookup::getInstance() -> addAstTransform("module", moduleTransform);
@@ -1010,7 +1056,9 @@ int main(int argc, char** args) {
   program3.push_back(new Token("}", TokenTypeEnum::BlockDelimC));
   program3.push_back(new Token("}", TokenTypeEnum::BlockDelimC));
 
-  //p2.parse(program3); crashes when it tries to print the tree.
+  std::cout << "\n_\n_\n_\n_\n_\n_\n_\n_\n_\n_\n";
+
+  p2.parse(program3); // crashes when it tries to print the tree.
 
   EnhancedToken *enhancedPackageKwd = new EnhancedToken(new Token("package", TokenTypeEnum::Identifier));
   std::cout << toString(keyword -> matches(enhancedPackageKwd)) << "\n";
