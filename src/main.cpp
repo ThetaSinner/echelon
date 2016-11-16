@@ -64,6 +64,10 @@ template<> std::string EchelonLookup::toString(TokenTypeEnum t) {
   switch(t) {
     case TokenTypeEnum::Identifier:
       return "identifier";
+    case TokenTypeEnum::BlockDelimO:
+      return "block delim open";
+    case TokenTypeEnum::BlockDelimC:
+      return "block delim close";
     default:
       return "none";
   }
@@ -272,6 +276,7 @@ AstTransformLookup* AstTransformLookup::self = nullptr;
 
 enum class Keyword {
   Package,
+  For,
   Module,
 
   Integer
@@ -303,6 +308,12 @@ std::string toString(bool b) {
 void stream_dump(std::ostream& s, std::vector<Token> tokens) {
   for (auto& i : tokens) {
     s << toString(i.getTokenType()) << " ["<< i.getData() << "], ";
+  }
+}
+
+void stream_dump(std::ostream& s, std::list<Token*> tokens) {
+  for (auto& i : tokens) {
+    s << toString(i -> getTokenType()) << " ["<< i -> getData() << "], ";
   }
 }
 
@@ -572,12 +583,20 @@ public:
 
 class ParserInternalOutput {
   AstNode *astNode;
+  int tokensConsumedCount = 0;
 public:
   void setAstNode(AstNode* astNode) {
     this -> astNode = astNode;
   }
   AstNode* getAstNode() {
     return astNode;
+  }
+
+  void setTokensConsumedCount(int tokensConsumedCount) {
+    this -> tokensConsumedCount = tokensConsumedCount;
+  }
+  int getTokensConsumedCount() {
+    return tokensConsumedCount;
   }
 };
 
@@ -594,6 +613,7 @@ private:
 
       std::cout << "Start processing at token "; stream_dump(std::cout, *i); std::cout << "\n";
 
+      bool somePatternMatches = false;
       for (auto p = tokenPatterns.begin(); p != tokenPatterns.end(); p++) {
         bool patternMatches = true;
 
@@ -621,7 +641,7 @@ private:
             std::cout << "Matches: {"; stream_dump(std::cout, enhancedToken); std::cout << "} ? ";
 
             if ((*element) -> isSubProcess()) {
-              std::cout << "sub process";
+              std::cout << "\nsub process.\n";
               // PLAN:
               // call self, from current iterator position.
               // pass down the NEXT group from this one, then we can suppress "no patterns match" in the next level
@@ -630,12 +650,15 @@ private:
               // this will involve extracting the group match below?
 
               std::list<Token*> subList(itt, tokens.end());
+              std::cout << "Sub process list "; stream_dump(std::cout, subList); std::cout << "\n";
               ParserInternalInput subInput;
               subInput.setTokens(&subList);
               subInput.setSubProcessFinishGroup(*(std::next(g, 1)));
 
               auto subOutput = _parse(subInput);
-              // now nnext to know the number of tokens processed in the level below.
+              std::advance(itt, subOutput.getTokensConsumedCount());
+              continue;
+              // now just resume matching this pattern.
             }
 
             if ((*element) -> getMatcher() -> matches(enhancedToken)) {
@@ -700,6 +723,7 @@ private:
 
         if (patternMatches) {
           std::cout << "Pattern matches.\n";
+          somePatternMatches = true;
 
           // We've matched this whole pattern, so we want to consume tokens.
           std::cout << "Confirm consume " << std::distance(i, it) << " tokens\n";
@@ -722,12 +746,56 @@ private:
         }
       }
 
+      if (!somePatternMatches) {
+        // This is the case where a sub-process has been requested, check if we can safely return control to the caller.
+        if (parserInternalInput.getSubProcessFinishGroup() != nullptr) {
+          std::list<Token*> subList(i, tokens.end());
+          if (simpleGroupMatch(subList, parserInternalInput.getSubProcessFinishGroup())) {
+            std::cout << "Level above should handle this token and further tokens.\n";
+            output.setTokensConsumedCount(std::distance(tokens.begin(), i));
+            return output; // early exit, don't process any more tokens.
+          }
+        }
+        else {
+          std::cerr << "ERROR, unhandled token. "; stream_dump(std::cout, *i); std::cout << "\n" ;
+        }
+      }
+
       if (i == tokens.end()) {
         break;
       }
     }
 
     return output;
+  }
+
+  bool simpleGroupMatch(std::list<Token*>& tokens, TokenPatternGroup* group) {
+    std::cout << "Simple group match.\n";
+    auto it = tokens.begin();
+
+    int matchCount = 0;
+    for (auto element = group -> getElements() -> begin(); element != group -> getElements() -> end(); element++) {
+      EnhancedToken *enhancedToken = new EnhancedToken(*it);
+
+      std::cout << "Matches: {"; stream_dump(std::cout, enhancedToken); std::cout << "} ? ";
+
+      if ((*element) -> getMatcher() -> matches(enhancedToken)) {
+        std::cout << "Yes\n" << std::endl;
+        matchCount++;
+        it++;
+
+        if (it == tokens.end()) {
+          std::cout << "Ran out of tokens.\n";
+          break;
+        }
+      }
+      else {
+        std::cout << "No\n";
+        break;
+      }
+    }
+
+    return matchCount == group -> getElements() -> size();
   }
 public:
   AstNode* parse(std::list<Token*> tokens) {
@@ -805,12 +873,62 @@ int main(int argc, char** args) {
 
   MatcherLookup::getInstance() -> addMatcher("kwd_package", kwd_package);
 
+  Matcher *kwd_for = new Matcher();
+  kwd_for -> setMatcher([&kwd_for] () -> bool {
+    if (kwd_for -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+      return false;
+    }
+
+    return kwd_for -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::For);
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("kwd_for", kwd_for);
+
+  Matcher *kwd_module = new Matcher();
+  kwd_module -> setMatcher([&kwd_module] () -> bool {
+    if (kwd_module -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+      return false;
+    }
+
+    return kwd_module -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Module);
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("kwd_module", kwd_module);
+
   Matcher *op_structure = new Matcher();
   op_structure -> setMatcher([&op_structure] () -> bool {
     return op_structure -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::StructureOperator;
   });
 
   MatcherLookup::getInstance() -> addMatcher("op_structure", op_structure);
+
+  Matcher *op_assign = new Matcher();
+  op_assign -> setMatcher([&op_assign] () -> bool {
+    return op_assign -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::Assign;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("op_assign", op_assign);
+
+  Matcher *block_delim_o = new Matcher();
+  block_delim_o -> setMatcher([&block_delim_o] () -> bool {
+    return block_delim_o -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::BlockDelimO;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("block_delim_o", block_delim_o);
+
+  Matcher *block_delim_c = new Matcher();
+  block_delim_c -> setMatcher([&block_delim_c] () -> bool {
+    return block_delim_c -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::BlockDelimC;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("block_delim_c", block_delim_c);
+
+  Matcher *block = new Matcher();
+  block -> setMatcher([&block] () -> bool {
+    throw std::runtime_error("Cannot match block directly.");
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("block", block);
 
   AstTransform *packageTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
@@ -841,16 +959,24 @@ int main(int argc, char** args) {
 
   AstTransformLookup::getInstance() -> addAstTransform("package", packageTransform);
 
+  AstTransform *moduleTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    return nullptr;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("module", moduleTransform);
+
   // may contain the toString of any token type.
   std::string var_decl = "[type] identifier assign"; // should check non-kwd identifier.
   std::string assignment_expr = "[type] identifier assign expr";
-  std::string for_loop = "kwd_for [type] identifier assign expr; bool_expr; expr block_delim_o [block] block_delim_c";
+  std::string for_loop = "kwd_for [type] identifier op_assign expr; bool_expr; expr block_delim_o [block] block_delim_c";
   std::string package = "kwd_package [identifier op_structure]* identifier";
+  std::string module = "kwd_module identifier block_delim_o [block] block_delim_c";
 
   Parser2 p2;
   //p2.addTokenPattern(var_decl);
   //p2.addTokenPattern(assignment_expr);
-  //p2.addTokenPattern(for_loop);
+  //p2.addTokenPattern("for_loop", for_loop);
+  p2.addTokenPattern("module", module);
   p2.addTokenPattern("package", package);
 
   std::list<Token*> program;
@@ -871,6 +997,20 @@ int main(int argc, char** args) {
   program2.push_back(new Token("name", TokenTypeEnum::Identifier));
 
   p2.parse(program2);
+
+  std::list<Token*> program3;
+
+  program3.push_back(new Token("module", TokenTypeEnum::Identifier));
+  program3.push_back(new Token("name", TokenTypeEnum::Identifier));
+  program3.push_back(new Token("{", TokenTypeEnum::BlockDelimO));
+  program3.push_back(new Token("module", TokenTypeEnum::Identifier));
+  program3.push_back(new Token("nested", TokenTypeEnum::Identifier));
+  program3.push_back(new Token("{", TokenTypeEnum::BlockDelimO));
+  // no content yet.
+  program3.push_back(new Token("}", TokenTypeEnum::BlockDelimC));
+  program3.push_back(new Token("}", TokenTypeEnum::BlockDelimC));
+
+  //p2.parse(program3); crashes when it tries to print the tree.
 
   EnhancedToken *enhancedPackageKwd = new EnhancedToken(new Token("package", TokenTypeEnum::Identifier));
   std::cout << toString(keyword -> matches(enhancedPackageKwd)) << "\n";
