@@ -76,10 +76,12 @@ template<> std::string EchelonLookup::toString(TokenTypeEnum t) {
 
 template<> std::string EchelonLookup::toString(AstNodeType t) {
   switch(t) {
+    case AstNodeType::Program:
+      return "program";
     case AstNodeType::Package:
       return "package";
     case AstNodeType::Module:
-    return "module";
+      return "module";
     default:
       return "none";
   }
@@ -563,6 +565,8 @@ class AstConstructionManager {
 public:
   AstConstructionManager() {
     root = new AstNode();
+    root -> setData("root"); // use project name?
+    root -> setType(AstNodeType::Program);
     workingNode = root;
   }
 
@@ -656,37 +660,24 @@ private:
           int matchCount = 0;
 
           for (auto element = (*g) -> getElements() -> begin(); element != (*g) -> getElements() -> end(); element++) {
-            std::cout << "_\n";
             EnhancedToken *enhancedToken = new EnhancedToken(*itt);
 
             std::cout << "Matches: {"; stream_dump(std::cout, enhancedToken); std::cout << "} ? ";
 
             if ((*element) -> isSubProcess()) {
-              // PLAN:
-              // call self, from current iterator position.
-              // pass down the NEXT group from this one, then we can suppress "no patterns match" in the next level
-              // down if the first non-matching token in the level below matches this next group.
+              // Try to match this pattern element by starting a new parse from the working iterator's position.
+              auto subOutput = subProcess(itt, tokens.end(), *(std::next(g, 1)));
 
-              // this will involve extracting the group match below?
-
-              std::list<Token*> subList(itt, tokens.end());
-              std::cout << "Sub process list "; stream_dump(std::cout, subList); std::cout << "\n";
-              ParserInternalInput subInput;
-              subInput.setTokens(&subList);
-              subInput.setSubProcessFinishGroup(*(std::next(g, 1)));
-
-              auto subOutput = _parse(subInput);
-              std::cout << "Sub process result:\n"; stream_dump(std::cout, subOutput.getAstNode()); std::cout << "\n";
+              // Queue the sub process result for processing in an ast transformer.
               subProcessAstNodes.push(subOutput.getAstNode());
-              std::cout << "Advance by [" << subOutput.getTokensConsumedCount() << "]\n";
+              // Advance the working iterator to skip the tokens which were matched in the sub process.
               std::advance(itt, subOutput.getTokensConsumedCount());
-
+              // Since the recursive call hasn't thrown an exception the sub process suceeded, so this element is a match.
               matchCount++;
-              continue;
-              // now just resume matching this pattern.
             }
+            else if ((*element) -> getMatcher() -> matches(enhancedToken)) {
+              // The pattern matches directly using a matcher.
 
-            if ((*element) -> getMatcher() -> matches(enhancedToken)) {
               std::cout << "Yes\n" << std::endl;
               matchCount++;
               itt++;
@@ -697,6 +688,7 @@ private:
               }
             }
             else {
+              // This patten element can't be processed or matched.
               std::cout << "No\n";
               break;
             }
@@ -800,7 +792,7 @@ private:
       }
     }
 
-    std::cout << "built result "; stream_dump(std::cout, astConstructionManager.getRoot()); std::cout << "\n";
+    std::cout << "built result:\n"; stream_dump(std::cout, astConstructionManager.getRoot()); std::cout << "\n";
     output.setAstNode(astConstructionManager.getRoot());
     return output;
   }
@@ -832,6 +824,16 @@ private:
     }
 
     return matchCount == group -> getElements() -> size();
+  }
+
+  ParserInternalOutput subProcess(std::list<Token*>::iterator start, std::list<Token*>::iterator end, TokenPatternGroup* nextGroup) {
+    ParserInternalInput subInput;
+
+    std::list<Token*> subList(start, end);
+    subInput.setTokens(&subList);
+    subInput.setSubProcessFinishGroup(nextGroup);
+
+    return _parse(subInput);
   }
 public:
   AstNode* parse(std::list<Token*> tokens) {
@@ -1002,7 +1004,10 @@ int main(int argc, char** args) {
 
     // think I'm creating an extra level that I don't need.
     if (!astTransformData -> getSubProcessAstNodes() -> empty()) {
-      base -> putChild(astTransformData -> getSubProcessAstNodes() -> front());
+      // Map all children of the sub process node as children of "base".
+      for (int i = 0; i < astTransformData -> getSubProcessAstNodes() -> front() -> getChildCount(); i++) {
+        base -> putChild(astTransformData -> getSubProcessAstNodes() -> front() -> getChild(i));
+      }
       astTransformData -> getSubProcessAstNodes() -> pop();
     }
 
