@@ -16,7 +16,8 @@ add_library(${parser_lib_name}
   tokenizer-impl/extractor-for-equality.cpp
   tokenizer-impl/extractor-for-line-comment.cpp
   tokenizer-impl/extractor-for-multi-line-comment.cpp
-  tokenizer-impl/extractor-for-strings.cpp)
+  tokenizer-impl/extractor-for-strings.cpp
+  lookup/echelon-lookup.cpp)
 
 include_directories(tokenizer-impl)
 

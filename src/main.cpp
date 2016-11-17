@@ -18,74 +18,10 @@
 
 #define ECHELON_DEBUG
 
-class EchelonLookup {
-private:
-  static EchelonLookup *self;
+#include <echelon/parser/lookup/echelon-lookup.hpp>
 
-  std::set<std::string> dataTypeKeywordSet;
-  std::set<std::string> keywordSet;
 
-  EchelonLookup() {}
-  EchelonLookup(const EchelonLookup& _) {}
-  void operator=(const EchelonLookup& _) {}
-public:
-  static EchelonLookup* getInstance() {
-    if (self == nullptr) {
-      self = new EchelonLookup();
-    }
 
-    return self;
-  }
-
-  template<typename T>
-  static std::string toString(T t);
-
-  void addDataTypeKeyword(std::string dataTypeKeyword) {
-    dataTypeKeywordSet.insert(dataTypeKeyword);
-
-    keywordSet.insert(dataTypeKeyword);
-  }
-
-  bool isDataTypeKeyword(std::string str) {
-    return dataTypeKeywordSet.find(str) != dataTypeKeywordSet.end();
-  }
-
-  void addKeyword(std::string keyword) {
-    keywordSet.insert(keyword);
-  }
-
-  bool isKeyword(std::string str) {
-    return keywordSet.find(str) != keywordSet.end();
-  }
-};
-
-EchelonLookup* EchelonLookup::self = nullptr;
-
-template<> std::string EchelonLookup::toString(TokenTypeEnum t) {
-  switch(t) {
-    case TokenTypeEnum::Identifier:
-      return "identifier";
-    case TokenTypeEnum::BlockDelimO:
-      return "block delim open";
-    case TokenTypeEnum::BlockDelimC:
-      return "block delim close";
-    default:
-      return "none";
-  }
-}
-
-template<> std::string EchelonLookup::toString(AstNodeType t) {
-  switch(t) {
-    case AstNodeType::Program:
-      return "program";
-    case AstNodeType::Package:
-      return "package";
-    case AstNodeType::Module:
-      return "module";
-    default:
-      return "none";
-  }
-}
 
 template<typename T>
 bool eq(T e, std::string s) {
