@@ -1,4 +1,4 @@
-#include <echelon/parser/lookup/echelon-lookup.hpp>
+#include <echelon/parser/stage2/echelon-lookup.hpp>
 
 #include <echelon/parser/token-type-enum.hpp>
 #include <echelon/ast/AstNodeType.hpp>

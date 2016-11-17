@@ -18,10 +18,13 @@
 
 #define ECHELON_DEBUG
 
-#include <echelon/parser/lookup/echelon-lookup.hpp>
-
-
-
+#include <echelon/parser/stage2/echelon-lookup.hpp>
+#include <echelon/parser/stage2/enhanced-token.hpp>
+#include <echelon/parser/stage2/matcher.hpp>
+#include <echelon/parser/stage2/matcher-lookup.hpp>
+#include <echelon/parser/stage2/pattern-match-info.hpp>
+#include <echelon/parser/stage2/ast-transform-data.hpp>
+#include <echelon/parser/stage2/ast-transform.hpp>
 
 template<typename T>
 bool eq(T e, std::string s) {
@@ -31,163 +34,6 @@ bool eq(T e, std::string s) {
 void stream_dump(std::ostream& s, const Token* t) {
   s << "`" << t -> getData() << ", " << EchelonLookup::getInstance() -> toString(t -> getTokenType()) << "`";
 }
-
-class EnhancedToken {
-private:
-  TokenTypeEnum tokenType;
-  std::string data;
-
-  bool keyword = false;
-  bool dataTypeKeyword;
-public:
-  EnhancedToken(Token* t) {
-    data = t -> getData();
-    tokenType = t -> getTokenType();
-
-    switch(tokenType) {
-      case TokenTypeEnum::Identifier:
-        keyword = EchelonLookup::getInstance() -> isKeyword(data);
-        dataTypeKeyword = EchelonLookup::getInstance() -> isDataTypeKeyword(data);
-        break;
-      default:
-        //std::cout << "Unhandled case in EnhancedToken constructor.\n";
-        // do nothing.
-        break;
-    }
-  }
-
-  TokenTypeEnum getTokenType() {
-    return tokenType;
-  }
-
-  std::string getData() {
-    return data;
-  }
-
-  bool isKeyword() {
-    return keyword;
-  }
-
-  bool isDataTypeKeyword() {
-    return dataTypeKeyword;
-  }
-};
-
-class Matcher {
-  std::function<bool()> matcher;
-
-  EnhancedToken* enhancedToken;
-public:
-  void setMatcher(std::function<bool()> matcher) {
-    this -> matcher = matcher;
-  }
-
-  bool matches(EnhancedToken* enhancedToken) {
-    this -> enhancedToken = enhancedToken;
-    return matcher();
-  }
-
-  EnhancedToken* getEnhancedToken() {
-    return enhancedToken;
-  }
-};
-
-class MatcherLookup {
-  static MatcherLookup *self;
-
-  std::map<std::string, Matcher*> matcherHash;
-
-  MatcherLookup() {};
-  MatcherLookup(const MatcherLookup& _) {}
-  void operator=(const MatcherLookup& _) {}
-public:
-  static MatcherLookup* getInstance() {
-    if (self == nullptr) {
-      self = new MatcherLookup();
-    }
-
-    return self;
-  }
-
-  void addMatcher(std::string key, Matcher* matcher) {
-    matcherHash.insert({key, matcher});
-  }
-
-  Matcher* getMatcher(std::string key) {
-    #ifdef ECHELON_DEBUG
-    if (matcherHash.find(key) == matcherHash.end()) {
-      std::cout << "Missing matcher for " << key << std::endl;
-      throw std::runtime_error("Missing matcher");
-    }
-    #endif
-
-    return matcherHash.at(key);
-  }
-};
-
-MatcherLookup *MatcherLookup::self = nullptr;
-
-class PatternMatchInfo {
-  std::vector<int> groupMatchCounts;
-
-public:
-  PatternMatchInfo(int groupSize) : groupMatchCounts(groupSize) {
-  }
-
-  void setGroupMatchCount(int groupIndex, int count) {
-    groupMatchCounts[groupIndex] = count;
-  }
-
-  int getGroupMatchCount(int groupIndex) {
-    return groupMatchCounts[groupIndex];
-  }
-
-  int increment(int groupIndex) {
-    setGroupMatchCount(groupIndex, getGroupMatchCount(groupIndex) + 1);
-    return getGroupMatchCount(groupIndex);
-  }
-};
-
-class AstTransformData {
-  std::list<EnhancedToken*> tokens;
-  PatternMatchInfo* patternMatchInfo;
-
-  std::queue<AstNode*>* subProcessAstNodes;
-public:
-  void setTokens(std::list<EnhancedToken*> tokens) {
-    this -> tokens = tokens;
-  }
-  std::list<EnhancedToken*>* getTokens() {
-    return &tokens;
-  }
-
-  void setPatternMatchInfo(PatternMatchInfo* patternMatchInfo) {
-    this -> patternMatchInfo = patternMatchInfo;
-  }
-  PatternMatchInfo* getPatternMatchInfo() {
-    return patternMatchInfo;
-  }
-
-  void setSubProcessAstNodes(std::queue<AstNode*>* subProcessAstNodes) {
-    this -> subProcessAstNodes = subProcessAstNodes;
-  }
-  std::queue<AstNode*>* getSubProcessAstNodes() {
-    return subProcessAstNodes;
-  }
-};
-
-class AstTransform {
-  std::function<AstNode*(AstTransformData*)> transformer;
-
-public:
-  AstTransform(std::function<AstNode*(AstTransformData*)> transformer) {
-    this -> transformer = transformer;
-  }
-
-  AstNode* transform(AstTransformData* astTransformData) {
-    return transformer(astTransformData);
-  }
-};
 
 class AstTransformLookup {
   static AstTransformLookup *self;

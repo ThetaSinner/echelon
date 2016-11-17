@@ -17,7 +17,12 @@ add_library(${parser_lib_name}
   tokenizer-impl/extractor-for-line-comment.cpp
   tokenizer-impl/extractor-for-multi-line-comment.cpp
   tokenizer-impl/extractor-for-strings.cpp
-  lookup/echelon-lookup.cpp)
+  stage2/echelon-lookup.cpp
+  stage2/enhanced-token.cpp
+  stage2/matcher.cpp
+  stage2/matcher-lookup.cpp
+  stage2/pattern-match-info.cpp
+  stage2/ast-transform.cpp)
 
 include_directories(tokenizer-impl)
 
