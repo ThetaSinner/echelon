@@ -22,7 +22,16 @@ add_library(${parser_lib_name}
   stage2/matcher.cpp
   stage2/matcher-lookup.cpp
   stage2/pattern-match-info.cpp
-  stage2/ast-transform.cpp)
+  stage2/ast-transform.cpp
+  stage2/ast-transform-lookup.cpp
+  stage2/token-pattern-element.cpp
+  stage2/token-pattern-group.cpp
+  stage2/token-pattern.cpp
+  stage2/pattern-translator.cpp
+  stage2/ast-construction-manager.cpp
+  stage2/parser-internal-input.cpp
+  stage2/parser-internal-output.cpp
+  stage2/parser.cpp)
 
 include_directories(tokenizer-impl)
 

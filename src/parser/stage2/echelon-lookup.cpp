@@ -2,6 +2,7 @@
 
 #include <echelon/parser/token-type-enum.hpp>
 #include <echelon/ast/AstNodeType.hpp>
+#include <echelon/parser/keyword-enum.hpp>
 
 EchelonLookup* EchelonLookup::self = nullptr;
 
@@ -51,6 +52,17 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
     case AstNodeType::Package:
       return "package";
     case AstNodeType::Module:
+      return "module";
+    default:
+      return "none";
+  }
+}
+
+template<> std::string EchelonLookup::toString(Keyword t) {
+  switch(t) {
+    case Keyword::Package:
+      return "package";
+    case Keyword::Module:
       return "module";
     default:
       return "none";

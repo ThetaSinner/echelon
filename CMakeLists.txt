@@ -11,7 +11,7 @@ file(GLOB project_test_source_files "${CMAKE_CURRENT_SOURCE_DIR}/test/*.hpp")
 
 set(parser_lib_name "${PROJECT_NAME}_lib_parser")
 set(ast_lib_name "${PROJECT_NAME}_lib_ast")
-set(string_lib_name "${PROJECT_NAME}_lib_string")
+set(util_lib_name "${PROJECT_NAME}_lib_util")
 
 # Set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -36,8 +36,8 @@ target_link_libraries(${project_binary_name} ${parser_lib_name})
 add_subdirectory(src/ast)
 target_link_libraries(${project_binary_name} ${ast_lib_name})
 
-add_subdirectory(src/string)
-target_link_libraries(${project_binary_name} ${string_lib_name})
+add_subdirectory(src/util)
+target_link_libraries(${project_binary_name} ${util_lib_name})
 
 find_package(CxxTest)
 if (CXXTEST_FOUND)
@@ -47,7 +47,7 @@ if (CXXTEST_FOUND)
   target_compile_features(${project_test_binary_name} PRIVATE cxx_range_for)
   target_link_libraries(${project_test_binary_name} ${parser_lib_name})
   target_link_libraries(${project_test_binary_name} ${ast_lib_name})
-  target_link_libraries(${project_test_binary_name} ${string_lib_name})
+  target_link_libraries(${project_test_binary_name} ${util_lib_name})
 else()
   message("CxxTest not found.")
 endif()
