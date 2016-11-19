@@ -37,13 +37,11 @@
 #include <echelon/parser/stage2/parser-internal-output.hpp>
 #include <echelon/parser/stage2/parser.hpp>
 
+#include <echelon/util/stream-dump.hpp>
+
 template<typename T>
 bool eq(T e, std::string s) {
   return EchelonLookup::toString(e) == s;
-}
-
-void stream_dump(std::ostream& s, const Token* t) {
-  s << "`" << t -> getData() << ", " << EchelonLookup::getInstance() -> toString(t -> getTokenType()) << "`";
 }
 
 bool operator==(const Keyword& l, const std::string& r) {
@@ -56,59 +54,6 @@ bool operator==(const TokenTypeEnum& l, const std::string& r) {
 
 std::string toString(bool b) {
   return b ? "true" : "false";
-}
-
-void stream_dump(std::ostream& s, std::vector<Token> tokens) {
-  for (auto& i : tokens) {
-    s << toString(i.getTokenType()) << " ["<< i.getData() << "], ";
-  }
-}
-
-void stream_dump(std::ostream& s, std::list<Token*> tokens) {
-  for (auto& i : tokens) {
-    s << toString(i -> getTokenType()) << " ["<< i -> getData() << "], ";
-  }
-}
-
-void stream_dump(std::ostream& s, TokenPatternElement* tokenPatternElement) {
-  s << tokenPatternElement -> getData();
-}
-
-void stream_dump(std::ostream& s, TokenPatternGroup* tokenPatternGroup) {
-  s << "'";
-  int sp = false;
-  for (auto& i : *tokenPatternGroup -> getElements()) {
-    if (sp) {
-      s << " ";
-    }
-    stream_dump(s, i);
-    sp = true;
-  }
-  s << "'{" << tokenPatternGroup -> getRepeatLowerBound() << "," << tokenPatternGroup -> getRepeatUpperBound() << "}";
-}
-
-void stream_dump(std::ostream& s, TokenPattern* tokenPattern) {
-  for (auto& i : *tokenPattern -> getGroups()) {
-    stream_dump(s, i);
-    s << " ";
-  }
-}
-
-void stream_dump(std::ostream& s, EnhancedToken* enhancedToken) {
-  s << enhancedToken -> getData() << ", " << EchelonLookup::getInstance() -> toString(enhancedToken -> getTokenType());
-}
-
-void stream_dump(std::ostream& s, AstNode* node, int level = 1) {
-  s << "Level " << level << "\n";
-
-  s << EchelonLookup::toString(node -> getType()) << ", ";
-  s << node -> getData();
-  s << "\n";
-
-  for (int i = 0; i < node -> getChildCount(); i++) {
-    stream_dump(s, node -> getChild(i), level + 1);
-    s << "\n";
-  }
 }
 
 int main(int argc, char** args) {
