@@ -19,7 +19,9 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
   auto i = tokens.begin();
   while (i != tokens.end()) {
 
+    #ifdef ECHELON_DEBUG
     std::cout << "Start processing at token "; stream_dump(std::cout, *i); std::cout << "\n";
+    #endif
 
     bool somePatternMatches = false;
     for (auto p = tokenPatterns.begin(); p != tokenPatterns.end(); p++) {
@@ -27,7 +29,9 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
       bool patternMatches = true;
 
+      #ifdef ECHELON_DEBUG
       std::cout << "Trying pattern "; stream_dump(std::cout, *p); std::cout << "\n";
+      #endif
 
       auto it = i;
 
@@ -36,16 +40,22 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
       // match each group in this pattern against the token.
       for (auto g = (*p) -> getGroups() -> begin(); g != (*p) -> getGroups() -> end(); g++) {
+        #ifdef ECHELON_DEBUG
         std::cout << "Process group "; stream_dump(std::cout, *g); std::cout << "\n";
+        #endif
 
         auto itt = it;
+        #ifdef ECHELON_DEBUG
         std::cout << "Current starting token "; stream_dump(std::cout, *itt); std::cout << "\n";
+        #endif
 
         int matchCount = 0;
         for (auto element = (*g) -> getElements() -> begin(); element != (*g) -> getElements() -> end(); element++) {
           EnhancedToken *enhancedToken = new EnhancedToken(*itt);
 
+          #ifdef ECHELON_DEBUG
           std::cout << "Matches: {"; stream_dump(std::cout, enhancedToken); std::cout << "} ? ";
+          #endif
 
           if ((*element) -> isSubProcess()) {
             // Try to match this pattern element by starting a new parse from the working iterator's position.
@@ -172,7 +182,9 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
     }
   }
 
+  #ifdef ECHELON_DEBUG
   std::cout << "built result:\n"; stream_dump(std::cout, astConstructionManager.getRoot()); std::cout << "\n";
+  #endif
   output.setAstNode(astConstructionManager.getRoot());
   return output;
 }
