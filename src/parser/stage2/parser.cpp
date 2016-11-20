@@ -1,7 +1,7 @@
 #include <echelon/parser/stage2/parser.hpp>
 
 #include <iostream>
-#include <echelon/parser/stage2/pattern-translator.hpp>
+#include <echelon/parser/stage2/token-pattern-lookup.hpp>
 
 #ifdef ECHELON_DEBUG
 #include <echelon/util/stream-dump.hpp>
@@ -24,7 +24,8 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
     #endif
 
     bool somePatternMatches = false;
-    for (auto p = tokenPatterns.begin(); p != tokenPatterns.end(); p++) {
+    auto tokenPatterns = TokenPatternLookup::getInstance() -> getTokenPatterns();
+    for (auto p = tokenPatterns -> begin(); p != tokenPatterns -> end(); p++) {
       std::queue<AstNode*> subProcessAstNodes;
 
       bool patternMatches = true;
@@ -235,15 +236,4 @@ AstNode* Parser2::parse(std::list<Token*> tokens) {
   auto out = _parse(parserInternalInput);
 
   return out.getAstNode();
-}
-
-void Parser2::addTokenPattern(TokenPattern* tokenPattern) {
-  tokenPatterns.push_back(tokenPattern);
-}
-
-void Parser2::addTokenPattern(std::string id, std::string tokenPattern) {
-  static PatternTranslator patternTranslator;
-  auto pattern = patternTranslator.translate(tokenPattern);
-  pattern -> setId(id);
-  tokenPatterns.push_back(pattern);
 }

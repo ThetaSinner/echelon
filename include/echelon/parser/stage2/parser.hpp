@@ -16,8 +16,6 @@
 
 class Parser2 {
 private:
-  std::vector<TokenPattern*> tokenPatterns;
-
   ParserInternalOutput _parse(ParserInternalInput& parserInternalInput);
 
   bool simpleGroupMatch(std::list<Token*>& tokens, TokenPatternGroup* group);
@@ -25,10 +23,6 @@ private:
   ParserInternalOutput subProcess(std::list<Token*>::iterator start, std::list<Token*>::iterator end, TokenPatternGroup* nextGroup);
 public:
   AstNode* parse(std::list<Token*> tokens);
-
-  void addTokenPattern(TokenPattern* tokenPattern);
-
-  void addTokenPattern(std::string id, std::string tokenPattern);
 };
 
 #endif
