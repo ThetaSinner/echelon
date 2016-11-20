@@ -8,8 +8,6 @@
 #endif
 
 ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
-  std::cout << "Start parse." << std::endl;
-
   ParserInternalOutput output;
 
   std::list<Token*> tokens = *parserInternalInput.getTokens();
@@ -72,18 +70,24 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
           else if ((*element) -> getMatcher() -> matches(enhancedToken)) {
             // The pattern matches directly using a matcher.
 
+            #ifdef ECHELON_DEBUG
             std::cout << "Yes\n" << std::endl;
+            #endif
             matchCount++;
             itt++;
 
             if (itt == tokens.end()) {
+              #ifdef ECHELON_DEBUG
               std::cout << "Ran out of tokens.\n";
+              #endif
               break;
             }
           }
           else {
             // This patten element can't be processed or matched.
+            #ifdef ECHELON_DEBUG
             std::cout << "No\n";
+            #endif
             break;
           }
         }
@@ -100,11 +104,15 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
           // Go again if we're under the uppper bound or are allowed unlimited matches.
           if (groupMatchCount < (*g) -> getRepeatUpperBound() || (*g) -> getRepeatUpperBound() == -1) {
+            #ifdef ECHELON_DEBUG
             std::cout << "Match this group again.\n";
+            #endif
             g--; // repeat this group.
           }
           else {
+            #ifdef ECHELON_DEBUG
             std::cout << "Finished with this group. Move on.\n";
+            #endif
             // matched but no need to repeat, therefore we just let the loop continue;
           }
         }
@@ -115,7 +123,9 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
           if (groupMatchCount >= (*g) -> getRepeatLowerBound()) {
             // We've actually matched enough to allow the match even though this one failed.
+            #ifdef ECHELON_DEBUG
             std::cout << "No group match, allowing anyway.\n";
+            #endif
 
             // However, we need to reset itt to give back the tokens we've used so far.
             itt = it;
@@ -127,7 +137,9 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
         }
 
         // This group matches so we want to consume the tokens matched by this group.
+        #ifdef ECHELON_DEBUG
         std::cout << "Consume " << std::distance(it, itt) << " tokens.\n";
+        #endif
         // need to be more careful than this?
         std::advance(it, std::distance(it, itt));
       }
