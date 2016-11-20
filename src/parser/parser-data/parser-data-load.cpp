@@ -1,5 +1,4 @@
-#ifndef PARSER_DATA_LOAD
-#define PARSER_DATA_LOAD
+#include <echelon/parser/parser-data/parser-data-load.hpp>
 
 #include <echelon/parser/stage2/echelon-lookup.hpp>
 #include <echelon/parser/stage2/matcher.hpp>
@@ -192,5 +191,3 @@ void loadParserData() {
     loaded = true;
   }
 }
-
-#endif

@@ -32,9 +32,9 @@ add_library(${parser_lib_name}
   stage2/parser-internal-input.cpp
   stage2/parser-internal-output.cpp
   stage2/parser.cpp
-  stage2/token-pattern-lookup.cpp)
+  stage2/token-pattern-lookup.cpp
+parser-data/parser-data-load.cpp)
 
-include_directories(parser-data)
 include_directories(tokenizer-impl)
 
 # Disable prefixing library name with 'lib'

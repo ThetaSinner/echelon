@@ -2,7 +2,7 @@
 #include <string>
 #include <list>
 
-#include "parser/parser-data/parser-data-load.hpp"
+#include <echelon/parser/parser-data/parser-data-load.hpp>
 #include <echelon/parser/stage2/parser.hpp>
 #include <echelon/parser/token.hpp>
 
@@ -16,15 +16,6 @@ int main(int argc, char** args) {
   loadParserData();
 
   Parser2 p2;
-
-  std::list<Token*> program;
-  // package echelon::test_package
-  program.push_back(new Token("package", TokenTypeEnum::Identifier));
-  program.push_back(new Token("echelon", TokenTypeEnum::Identifier));
-  program.push_back(new Token("::", TokenTypeEnum::StructureOperator));
-  program.push_back(new Token("test_package", TokenTypeEnum::Identifier));
-
-  p2.parse(program);
 
   std::list<Token*> program2;
   program2.push_back(new Token("package", TokenTypeEnum::Identifier));
