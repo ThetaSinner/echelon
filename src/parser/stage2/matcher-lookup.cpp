@@ -1,5 +1,9 @@
 #include <echelon/parser/stage2/matcher-lookup.hpp>
 
+#ifdef ECHELON_DEBUG
+#include <iostream>
+#endif
+
 MatcherLookup *MatcherLookup::self = nullptr;
 
 MatcherLookup* MatcherLookup::getInstance() {

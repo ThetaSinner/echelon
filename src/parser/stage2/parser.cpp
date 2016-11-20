@@ -3,7 +3,13 @@
 #include <iostream>
 #include <echelon/parser/stage2/pattern-translator.hpp>
 
+#ifdef ECHELON_DEBUG
+#include <echelon/util/stream-dump.hpp>
+#endif
+
 ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
+  std::cout << "Start parse." << std::endl;
+
   ParserInternalOutput output;
 
   std::list<Token*> tokens = *parserInternalInput.getTokens();
@@ -13,7 +19,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
   auto i = tokens.begin();
   while (i != tokens.end()) {
 
-    //std::cout << "Start processing at token "; stream_dump(std::cout, *i); std::cout << "\n";
+    std::cout << "Start processing at token "; stream_dump(std::cout, *i); std::cout << "\n";
 
     bool somePatternMatches = false;
     for (auto p = tokenPatterns.begin(); p != tokenPatterns.end(); p++) {
@@ -21,7 +27,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
       bool patternMatches = true;
 
-      //std::cout << "Trying pattern "; stream_dump(std::cout, *p); std::cout << "\n";
+      std::cout << "Trying pattern "; stream_dump(std::cout, *p); std::cout << "\n";
 
       auto it = i;
 
@@ -30,16 +36,16 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
       // match each group in this pattern against the token.
       for (auto g = (*p) -> getGroups() -> begin(); g != (*p) -> getGroups() -> end(); g++) {
-        //std::cout << "Process group "; stream_dump(std::cout, *g); std::cout << "\n";
+        std::cout << "Process group "; stream_dump(std::cout, *g); std::cout << "\n";
 
         auto itt = it;
-        //std::cout << "Current starting token "; stream_dump(std::cout, *itt); std::cout << "\n";
+        std::cout << "Current starting token "; stream_dump(std::cout, *itt); std::cout << "\n";
 
         int matchCount = 0;
         for (auto element = (*g) -> getElements() -> begin(); element != (*g) -> getElements() -> end(); element++) {
           EnhancedToken *enhancedToken = new EnhancedToken(*itt);
 
-          //std::cout << "Matches: {"; stream_dump(std::cout, enhancedToken); std::cout << "} ? ";
+          std::cout << "Matches: {"; stream_dump(std::cout, enhancedToken); std::cout << "} ? ";
 
           if ((*element) -> isSubProcess()) {
             // Try to match this pattern element by starting a new parse from the working iterator's position.
@@ -60,7 +66,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
             itt++;
 
             if (itt == tokens.end()) {
-              //std::cout << "Ran out of tokens.\n";
+              std::cout << "Ran out of tokens.\n";
               break;
             }
           }
@@ -83,11 +89,11 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
           // Go again if we're under the uppper bound or are allowed unlimited matches.
           if (groupMatchCount < (*g) -> getRepeatUpperBound() || (*g) -> getRepeatUpperBound() == -1) {
-            //std::cout << "Match this group again.\n";
+            std::cout << "Match this group again.\n";
             g--; // repeat this group.
           }
           else {
-            //std::cout << "Finished with this group. Move on.\n";
+            std::cout << "Finished with this group. Move on.\n";
             // matched but no need to repeat, therefore we just let the loop continue;
           }
         }
@@ -98,7 +104,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
           if (groupMatchCount >= (*g) -> getRepeatLowerBound()) {
             // We've actually matched enough to allow the match even though this one failed.
-            //std::cout << "No group match, allowing anyway.\n";
+            std::cout << "No group match, allowing anyway.\n";
 
             // However, we need to reset itt to give back the tokens we've used so far.
             itt = it;
@@ -110,7 +116,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
         }
 
         // This group matches so we want to consume the tokens matched by this group.
-        //std::cout << "Consume " << std::distance(it, itt) << " tokens.\n";
+        std::cout << "Consume " << std::distance(it, itt) << " tokens.\n";
         // need to be more careful than this?
         std::advance(it, std::distance(it, itt));
       }
@@ -166,7 +172,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
     }
   }
 
-  //std::cout << "built result:\n"; stream_dump(std::cout, astConstructionManager.getRoot()); std::cout << "\n";
+  std::cout << "built result:\n"; stream_dump(std::cout, astConstructionManager.getRoot()); std::cout << "\n";
   output.setAstNode(astConstructionManager.getRoot());
   return output;
 }

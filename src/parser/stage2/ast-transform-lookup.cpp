@@ -1,5 +1,9 @@
 #include <echelon/parser/stage2/ast-transform-lookup.hpp>
 
+#ifdef ECHELON_DEBUG
+#include <iostream>
+#endif
+
 AstTransformLookup* AstTransformLookup::self = nullptr;
 
 AstTransformLookup* AstTransformLookup::getInstance() {

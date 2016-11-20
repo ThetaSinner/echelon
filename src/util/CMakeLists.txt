@@ -3,7 +3,8 @@
 add_library(${util_lib_name}
   string-util.cpp
   tizer.cpp
-  iterator-util.cpp)
+  iterator-util.cpp
+stream-dump.cpp)
 
 # Disable prefixing library name with 'lib'
 set_target_properties(${util_lib_name} PROPERTIES PREFIX "")

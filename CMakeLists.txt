@@ -3,6 +3,10 @@ cmake_minimum_required (VERSION 3.2.0)
 # Set the project name
 project(echelon VERSION 0.0.1)
 
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+  add_definitions(-DECHELON_DEBUG)
+endif()
+
 set(project_binary_name ${PROJECT_NAME})
 set(project_test_binary_name "test-${PROJECT_NAME}")
 

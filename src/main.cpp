@@ -16,8 +16,6 @@
 #include <echelon/ast/AstNode.hpp>
 #include <echelon/ast/AstNodeType.hpp>
 
-#define ECHELON_DEBUG
-
 #include <echelon/parser/stage2/echelon-lookup.hpp>
 #include <echelon/parser/stage2/enhanced-token.hpp>
 #include <echelon/parser/stage2/matcher.hpp>
@@ -56,117 +54,116 @@ std::string toString(bool b) {
   return b ? "true" : "false";
 }
 
-int main(int argc, char** args) {
-  if (Keyword::Integer == "integer") {
-    std::cout << "wow.\n";
-  }
-
+void loadDataTypeKeywords() {
   EchelonLookup::getInstance() -> addDataTypeKeyword("integer");
   EchelonLookup::getInstance() -> addDataTypeKeyword("string");
+}
 
+void loadKeywords() {
   EchelonLookup::getInstance() -> addKeyword("package");
+}
 
-  std::cout << EchelonLookup::toString(Keyword::Module) << std::endl;
-  std::cout << EchelonLookup::toString(TokenTypeEnum::Identifier) << std::endl;
-
+void loadMatchers() {
   Matcher *type = new Matcher();
-  type -> setMatcher([&type] () -> bool {
-    if (type -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+  type -> setMatcher([] (Matcher* self) -> bool {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
       return false;
     }
 
-    return EchelonLookup::getInstance() -> isDataTypeKeyword(type -> getEnhancedToken() -> getData());
+    return EchelonLookup::getInstance() -> isDataTypeKeyword(self -> getEnhancedToken() -> getData());
   });
 
   MatcherLookup::getInstance() -> addMatcher("type", type);
 
   Matcher *keyword = new Matcher();
-  keyword -> setMatcher([&keyword] () -> bool {
-    if (keyword -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+  keyword -> setMatcher([] (Matcher* self) -> bool {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
       return false;
     }
 
-    return EchelonLookup::getInstance() -> isKeyword(keyword -> getEnhancedToken() -> getData());
+    return EchelonLookup::getInstance() -> isKeyword(self -> getEnhancedToken() -> getData());
   });
 
   MatcherLookup::getInstance() -> addMatcher("keyword", keyword);
 
   Matcher *identifier = new Matcher();
-  identifier -> setMatcher([&identifier] () -> bool {
+  identifier -> setMatcher([] (Matcher* self) -> bool {
     // need to check not a keyword? or seperate matcher for that might be better.
-    return identifier -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::Identifier;
+    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::Identifier;
   });
 
   MatcherLookup::getInstance() -> addMatcher("identifier", identifier);
 
   Matcher *kwd_package = new Matcher();
-  kwd_package -> setMatcher([&kwd_package] () -> bool {
-    if (kwd_package -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+  kwd_package -> setMatcher([] (Matcher* self) -> bool {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
       return false;
     }
 
-    return kwd_package -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Package);
+    return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Package);
   });
 
   MatcherLookup::getInstance() -> addMatcher("kwd_package", kwd_package);
 
   Matcher *kwd_for = new Matcher();
-  kwd_for -> setMatcher([&kwd_for] () -> bool {
-    if (kwd_for -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+  kwd_for -> setMatcher([] (Matcher* self) -> bool {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
       return false;
     }
 
-    return kwd_for -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::For);
+    return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::For);
   });
 
   MatcherLookup::getInstance() -> addMatcher("kwd_for", kwd_for);
 
   Matcher *kwd_module = new Matcher();
-  kwd_module -> setMatcher([&kwd_module] () -> bool {
-    if (kwd_module -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+  kwd_module -> setMatcher([] (Matcher* self) -> bool {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
       return false;
     }
 
-    return kwd_module -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Module);
+    return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Module);
   });
 
   MatcherLookup::getInstance() -> addMatcher("kwd_module", kwd_module);
 
   Matcher *op_structure = new Matcher();
-  op_structure -> setMatcher([&op_structure] () -> bool {
-    return op_structure -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::StructureOperator;
+  op_structure -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::StructureOperator;
   });
 
   MatcherLookup::getInstance() -> addMatcher("op_structure", op_structure);
 
   Matcher *op_assign = new Matcher();
-  op_assign -> setMatcher([&op_assign] () -> bool {
-    return op_assign -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::Assign;
+  op_assign -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::Assign;
   });
 
   MatcherLookup::getInstance() -> addMatcher("op_assign", op_assign);
 
   Matcher *block_delim_o = new Matcher();
-  block_delim_o -> setMatcher([&block_delim_o] () -> bool {
-    return block_delim_o -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::BlockDelimO;
+  block_delim_o -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::BlockDelimO;
   });
 
   MatcherLookup::getInstance() -> addMatcher("block_delim_o", block_delim_o);
 
   Matcher *block_delim_c = new Matcher();
-  block_delim_c -> setMatcher([&block_delim_c] () -> bool {
-    return block_delim_c -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::BlockDelimC;
+  block_delim_c -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::BlockDelimC;
   });
 
   MatcherLookup::getInstance() -> addMatcher("block_delim_c", block_delim_c);
 
   Matcher *block = new Matcher();
-  block -> setMatcher([&block] () -> bool {
+  block -> setMatcher([] (Matcher* self) -> bool {
     throw std::runtime_error("Cannot match block directly.");
   });
 
   MatcherLookup::getInstance() -> addMatcher("block", block);
+}
 
+void loadTransformers() {
   AstTransform *packageTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     AstNode *currentNode = base;
@@ -214,6 +211,23 @@ int main(int argc, char** args) {
   });
 
   AstTransformLookup::getInstance() -> addAstTransform("module", moduleTransform);
+}
+
+int main(int argc, char** args) {
+  std::cout << "Hello Echelon." << std::endl;
+
+  if (Keyword::Integer == "integer") {
+    std::cout << "wow.\n" << std::endl;
+  }
+
+  std::cout << "Start load." << std::endl;
+
+  loadDataTypeKeywords();
+  loadKeywords();
+  loadMatchers();
+  loadTransformers();
+
+  std::cout << "Load done." << std::endl;
 
   // may contain the toString of any token type.
   std::string var_decl = "[type] identifier assign"; // should check non-kwd identifier.
@@ -228,6 +242,8 @@ int main(int argc, char** args) {
   //p2.addTokenPattern("for_loop", for_loop);
   p2.addTokenPattern("module", module);
   p2.addTokenPattern("package", package);
+
+  std::cout << "Parser ready." << std::endl;
 
   std::list<Token*> program;
   // package echelon::test_package
@@ -278,10 +294,6 @@ int main(int argc, char** args) {
   program4.push_back(new Token("}", TokenTypeEnum::BlockDelimC));
 
   p2.parse(program4);
-
-  EnhancedToken *enhancedPackageKwd = new EnhancedToken(new Token("package", TokenTypeEnum::Identifier));
-  std::cout << toString(keyword -> matches(enhancedPackageKwd)) << "\n";
-  std::cout << toString(type -> matches(enhancedPackageKwd)) << "\n";
 
   return 0;
 }
