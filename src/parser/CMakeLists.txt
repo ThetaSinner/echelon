@@ -33,7 +33,9 @@ add_library(${parser_lib_name}
   stage2/parser-internal-output.cpp
   stage2/parser.cpp
   stage2/token-pattern-lookup.cpp
-parser-data/parser-data-load.cpp)
+  parser-data/parser-data-load.cpp
+  stage2/nested-pattern-lookup.cpp
+  )
 
 include_directories(tokenizer-impl)
 
