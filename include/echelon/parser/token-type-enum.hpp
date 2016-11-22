@@ -10,6 +10,8 @@ enum class TokenTypeEnum {
   BlockDelimO,
   BlockDelimC,
   Paren,
+  ParenO,
+  ParenC,
   SqBracket,
   Assign,
   Equality,

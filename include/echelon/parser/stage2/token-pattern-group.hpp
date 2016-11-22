@@ -5,6 +5,9 @@
 
 #include <echelon/parser/stage2/token-pattern-element.hpp>
 
+// Forward declare so that TokenPatternElement can contain TokenPattern.
+class TokenPatternElement;
+
 class TokenPatternGroup {
   std::vector<TokenPatternElement*> tokenPatternElements;
 

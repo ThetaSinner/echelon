@@ -109,6 +109,55 @@ void loadMatchers() {
 
   MatcherLookup::getInstance() -> addMatcher("block_delim_c", block_delim_c);
 
+  Matcher *paren_open = new Matcher();
+  paren_open -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::ParenO;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("paren_open", paren_open);
+
+  Matcher *paren_close = new Matcher();
+  paren_close -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::ParenC;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("paren_close", paren_close);
+
+  Matcher *list_seperator = new Matcher();
+  list_seperator -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getData() == ",";
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("list_seperator", list_seperator);
+
+  Matcher *add_operator = new Matcher();
+  add_operator -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getData() == "+";
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("add_operator", add_operator);
+
+  Matcher *subtract_operator = new Matcher();
+  subtract_operator -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getData() == "-";
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("subtract_operator", subtract_operator);
+
+  Matcher *multiply_operator = new Matcher();
+  multiply_operator -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getData() == "*";
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("multiply_operator", multiply_operator);
+
+  Matcher *divide_operator = new Matcher();
+  divide_operator -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getData() == "/";
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("divide_operator", divide_operator);
+
   Matcher *block = new Matcher();
   block -> setMatcher([] (Matcher* self) -> bool {
     throw std::runtime_error("Cannot match block directly.");
