@@ -11,12 +11,17 @@ class ParserInternalInput {
 
   TokenPatternGroup *subProcessFinishGroup = nullptr;
 
+  std::list<TokenPattern*>* nestedPatterns = nullptr;
+
 public:
   void setTokens(std::list<Token*>* tokens);
   std::list<Token*>* getTokens();
 
   void setSubProcessFinishGroup(TokenPatternGroup* subProcessFinishGroup);
   TokenPatternGroup* getSubProcessFinishGroup();
+
+  void setNestedPatterns(std::list<TokenPattern*>* nestedPatterns);
+  std::list<TokenPattern*>* getNestedPatterns() const;
 };
 
 #endif

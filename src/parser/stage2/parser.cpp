@@ -67,6 +67,23 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
             // Since the recursive call hasn't thrown an exception the sub process suceeded, so this element is a match.
             matchCount++;
           }
+          else if ((*element) -> isUseNestedPatterns()) {
+            #ifdef ECHELON_DEBUG
+            std::cout << "Nested pattern.\n";
+            #endif
+
+            ParserInternalInput subInput;
+            std::list<Token*> subList(itt, tokens.end());
+            subInput.setTokens(&subList);
+            subInput.setNestedPatterns((*element) -> getNestedPatterns());
+
+            auto subOutput = _parse(subInput);
+
+            // do something with nodes...
+
+            std::advance(itt, subOutput.getTokensConsumedCount());
+            matchCount++;
+          }
           else if ((*element) -> getMatcher() -> matches(enhancedToken)) {
             // The pattern matches directly using a matcher.
 

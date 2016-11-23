@@ -12,6 +12,7 @@ enum class TokenTypeEnum {
   Paren,
   ParenO,
   ParenC,
+  OperatorAdd,
   SqBracket,
   Assign,
   Equality,

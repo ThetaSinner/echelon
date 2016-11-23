@@ -1,5 +1,6 @@
 #include <echelon/parser/parser-data/parser-data-load.hpp>
 
+#include <echelon/parser/stage2/nested-pattern-lookup.hpp>
 #include <echelon/parser/stage2/echelon-lookup.hpp>
 #include <echelon/parser/stage2/matcher.hpp>
 #include <echelon/parser/stage2/matcher-lookup.hpp>
@@ -216,9 +217,28 @@ void loadTransformers() {
   AstTransformLookup::getInstance() -> addAstTransform("module", moduleTransform);
 }
 
+void loadNested() {
+  std::string binaryOperator = "binary_operator";
+
+  std::string add = "add_operator";
+  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, add);
+  std::string subtract = "subtract_operator";
+  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, subtract);
+  std::string multiply = "multiply_operator";
+  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, multiply);
+  std::string divide = "divide_operator";
+  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, divide);
+
+  std::string expr = "expr";
+
+  std::string function_call = "identifier paren_open [expr list_seperator]* [expr] paren_close [binary_operator expr]";
+  NestedPatternLookup::getInstance() -> registerNested(expr, function_call);
+}
+
 void loadPatterns() {
   std::string var_decl = "[type] identifier assign"; // should check non-kwd identifier.
-  std::string assignment_expr = "[type] identifier assign expr";
+  std::string assignment_expr = "[type] identifier op_assign expr";
+  TokenPatternLookup::getInstance() -> addTokenPattern("assignment_expr", assignment_expr);
   std::string for_loop = "kwd_for [type] identifier op_assign expr; bool_expr; expr block_delim_o [block] block_delim_c";
 
   std::string package = "kwd_package [identifier op_structure]* identifier";
@@ -235,6 +255,7 @@ void loadParserData() {
     loadDataTypeKeywords();
     loadKeywords();
     loadMatchers();
+    loadNested();
     loadPatterns();
     loadTransformers();
     loaded = true;

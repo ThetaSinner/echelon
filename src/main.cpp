@@ -3,8 +3,8 @@
 #include <list>
 
 #include <echelon/parser/parser-data/parser-data-load.hpp>
-#include <echelon/parser/stage2/nested-pattern-lookup.hpp>
 #include <echelon/parser/stage2/pattern-translator.hpp>
+#include <echelon/parser/stage2/parser.hpp>
 
 std::string toString(bool b) {
   return b ? "true" : "false";
@@ -15,26 +15,20 @@ int main(int argc, char** args) {
 
   loadParserData();
 
-  std::string binaryOperator = "binary_operator";
+  std::list<Token*> program;
+  program.push_back(new Token("my_val", TokenTypeEnum::Identifier));
+  program.push_back(new Token("=", TokenTypeEnum::Assign));
+  program.push_back(new Token("helloWorld", TokenTypeEnum::Identifier));
+  program.push_back(new Token("(", TokenTypeEnum::ParenO));
+  program.push_back(new Token(")", TokenTypeEnum::ParenC));
+  program.push_back(new Token("+", TokenTypeEnum::OperatorAdd));
+  program.push_back(new Token("byeWorld", TokenTypeEnum::Identifier));
+  program.push_back(new Token("(", TokenTypeEnum::ParenO));
+  program.push_back(new Token(")", TokenTypeEnum::ParenC));
 
-  std::string add = "add_operator";
-  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, add);
-  std::string subtract = "subtract_operator";
-  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, subtract);
-  std::string multiply = "multiply_operator";
-  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, multiply);
-  std::string divide = "divide_operator";
-  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, divide);
-
-  std::string expr = "expr";
-
-  std::string function_call = "identifier paren_open [expr list_seperator]* [expr] paren_close [binary_operator expr]";
-  NestedPatternLookup::getInstance() -> registerNested(expr, function_call);
-
-  PatternTranslator patternTranslator;
-  auto expressionPattern = patternTranslator.translate(expr);
+  Parser2 parser;
+  //parser.parse(program);
 
   std::cout << std::endl;
-
   return 0;
 }

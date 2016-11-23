@@ -15,3 +15,11 @@ void ParserInternalInput::setSubProcessFinishGroup(TokenPatternGroup* subProcess
 TokenPatternGroup* ParserInternalInput::getSubProcessFinishGroup() {
   return subProcessFinishGroup;
 }
+
+void ParserInternalInput::setNestedPatterns(std::list<TokenPattern*>* nestedPatterns) {
+  this -> nestedPatterns = nestedPatterns;
+}
+
+std::list<TokenPattern*>* ParserInternalInput::getNestedPatterns() const {
+  return nestedPatterns;
+}
