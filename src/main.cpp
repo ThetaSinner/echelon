@@ -11,7 +11,11 @@ std::string toString(bool b) {
 }
 
 int main(int argc, char** args) {
-  std::cout << "Clean main.\n";
+  #ifdef ECHELON_DEBUG
+  std::cout << "This is a debug build.\n";
+  #else
+  std::cout << "This is a release build.\n";
+  #endif
 
   loadParserData();
 

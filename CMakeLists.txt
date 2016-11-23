@@ -3,10 +3,6 @@ cmake_minimum_required (VERSION 3.2.0)
 # Set the project name
 project(echelon VERSION 0.0.1)
 
-if (CMAKE_BUILD_TYPE MATCHES Debug)
-  add_definitions(-DECHELON_DEBUG)
-endif()
-
 set(project_binary_name ${PROJECT_NAME})
 set(project_test_binary_name "test-${PROJECT_NAME}")
 
@@ -31,6 +27,10 @@ add_executable(${project_binary_name} ${project_source_files})
 # Specify required features for compilation.
 target_compile_features(${project_binary_name} PRIVATE cxx_range_for)
 target_compile_features(${project_binary_name} PRIVATE cxx_nullptr)
+
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+  target_compile_definitions(${project_binary_name} PUBLIC -DECHELON_DEBUG)
+endif()
 
 # Link the parser to the executable.
 add_subdirectory(src/parser)
