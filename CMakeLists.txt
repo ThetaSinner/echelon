@@ -28,10 +28,6 @@ add_executable(${project_binary_name} ${project_source_files})
 target_compile_features(${project_binary_name} PRIVATE cxx_range_for)
 target_compile_features(${project_binary_name} PRIVATE cxx_nullptr)
 
-if (CMAKE_BUILD_TYPE MATCHES Debug)
-  target_compile_definitions(${project_binary_name} PUBLIC -DECHELON_DEBUG)
-endif()
-
 # Link the parser to the executable.
 add_subdirectory(src/parser)
 target_link_libraries(${project_binary_name} ${parser_lib_name})
@@ -42,6 +38,10 @@ target_link_libraries(${project_binary_name} ${ast_lib_name})
 
 add_subdirectory(src/util)
 target_link_libraries(${project_binary_name} ${util_lib_name})
+
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+  target_compile_definitions(${project_binary_name} PUBLIC ECHELON_DEBUG)
+endif()
 
 find_package(CxxTest)
 if (CXXTEST_FOUND)

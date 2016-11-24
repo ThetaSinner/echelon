@@ -40,6 +40,14 @@ template<> std::string EchelonLookup::toString(TokenTypeEnum t) {
       return "block delim open";
     case TokenTypeEnum::BlockDelimC:
       return "block delim close";
+    case TokenTypeEnum::Assign:
+      return "assign";
+    case TokenTypeEnum::OperatorAdd:
+      return "add operator";
+    case TokenTypeEnum::ParenO:
+      return "paren open";
+    case TokenTypeEnum::ParenC:
+      return "paren close";
     default:
       return "none";
   }

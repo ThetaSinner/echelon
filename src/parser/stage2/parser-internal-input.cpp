@@ -23,3 +23,11 @@ void ParserInternalInput::setNestedPatterns(std::list<TokenPattern*>* nestedPatt
 std::list<TokenPattern*>* ParserInternalInput::getNestedPatterns() const {
   return nestedPatterns;
 }
+
+void ParserInternalInput::setUseNestedPatterns(bool useNestedPatterns) {
+  this -> useNestedPatterns = useNestedPatterns;
+}
+
+bool ParserInternalInput::isUseNestedPatterns() {
+  return useNestedPatterns;
+}

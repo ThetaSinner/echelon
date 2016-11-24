@@ -23,7 +23,13 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
     bool somePatternMatches = false;
     auto tokenPatterns = TokenPatternLookup::getInstance() -> getTokenPatterns();
+    // If this is a nested call then use the nested patterns instead.
+    if (parserInternalInput.isUseNestedPatterns()) {
+      tokenPatterns = parserInternalInput.getNestedPatterns();
+    }
+    std::cout << "blooper.\n";
     for (auto p = tokenPatterns -> begin(); p != tokenPatterns -> end(); p++) {
+      std::cout << "and pals.";
       std::queue<AstNode*> subProcessAstNodes;
 
       bool patternMatches = true;
@@ -40,7 +46,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
       // match each group in this pattern against the token.
       for (auto g = (*p) -> getGroups() -> begin(); g != (*p) -> getGroups() -> end(); g++) {
         #ifdef ECHELON_DEBUG
-        std::cout << "Process group "; stream_dump(std::cout, *g); std::cout << "\n";
+        std::cout << "Process group "; stream_dump(std::cout, *g); std::cout << std::endl;
         #endif
 
         auto itt = it;
@@ -76,6 +82,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
             std::list<Token*> subList(itt, tokens.end());
             subInput.setTokens(&subList);
             subInput.setNestedPatterns((*element) -> getNestedPatterns());
+            subInput.setUseNestedPatterns(true);
 
             auto subOutput = _parse(subInput);
 
@@ -155,14 +162,16 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
         // This group matches so we want to consume the tokens matched by this group.
         #ifdef ECHELON_DEBUG
-        std::cout << "Consume " << std::distance(it, itt) << " tokens.\n";
+        std::cout << "Consume " << std::distance(it, itt) << " tokens." << std::endl;
         #endif
         // need to be more careful than this?
         std::advance(it, std::distance(it, itt));
       }
 
       if (patternMatches) {
-        //std::cout << "Pattern matches.\n";
+        #ifdef ECHELON_DEBUG
+        std::cout << "Pattern matches." << std::endl;
+        #endif
         somePatternMatches = true;
 
         // We've matched this whole pattern, so we want to consume tokens.
@@ -178,6 +187,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
         td -> setPatternMatchInfo(patternMatchInfo);
         td -> setTokens(matchedTokens);
 
+        // TODO nested patterns don't have an id, hence the runtime error, fix me.
         auto transformer = AstTransformLookup::getInstance() -> getAstTransform((*p) -> getId());
 
         // TODO
@@ -206,8 +216,15 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
           break;
         }
       }
+      else if (parserInternalInput.isUseNestedPatterns()) {
+        std::cout << "Failed but we were using nested patterns so never mind?\n";
+        break;
+      }
       else {
-        //std::cerr << "ERROR, unhandled token. "; stream_dump(std::cout, *i); std::cout << "\n" ;
+        #ifdef ECHELON_DEBUG
+        std::cerr << "ERROR, unhandled token. "; stream_dump(std::cout, *i); std::cout << "\n" ;
+        throw std::runtime_error("Unhandled token.");
+        #endif
       }
     }
   }
