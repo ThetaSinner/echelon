@@ -61,6 +61,14 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
       return "package";
     case AstNodeType::Module:
       return "module";
+    case AstNodeType::Block:
+      return "block";
+    case AstNodeType::AssignmentExpr:
+      return "assignment expr";
+    case AstNodeType::BinaryOperator:
+      return "binary operator";
+    case AstNodeType::FunctionCall:
+      return "function call";
     default:
       return "none";
   }

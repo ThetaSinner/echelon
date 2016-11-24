@@ -218,13 +218,35 @@ void loadTransformers() {
 
   AstTransform *addTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
-    base -> setType(AstNodeType::binaryOperator);
+    base -> setType(AstNodeType::BinaryOperator);
     base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
 
     return base;
   });
 
   AstTransformLookup::getInstance() -> addAstTransform("add", addTransform);
+
+  AstTransform *functionCallTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::FunctionCall);
+
+    // TODO
+
+    return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("function_call", functionCallTransform);
+
+  AstTransform *assignmentExprTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::AssignmentExpr);
+
+    // TODO
+
+    return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("assignment_expr", assignmentExprTransform);
 }
 
 void loadNested() {
