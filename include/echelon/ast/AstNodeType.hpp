@@ -8,6 +8,7 @@ enum class AstNodeType {
   ExplicitType,
   Package,
   Module,
+  binaryOperator,
 };
 
 #endif

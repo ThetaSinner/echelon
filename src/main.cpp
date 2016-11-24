@@ -33,7 +33,7 @@ int main(int argc, char** args) {
   program.push_back(new Token(")", TokenTypeEnum::ParenC));
 
   Parser2 parser;
-  //parser.parse(program);
+  parser.parse(program);
 
   std::cout << std::endl;
   return 0;

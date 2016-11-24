@@ -27,9 +27,8 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
     if (parserInternalInput.isUseNestedPatterns()) {
       tokenPatterns = parserInternalInput.getNestedPatterns();
     }
-    std::cout << "blooper.\n";
+
     for (auto p = tokenPatterns -> begin(); p != tokenPatterns -> end(); p++) {
-      std::cout << "and pals.";
       std::queue<AstNode*> subProcessAstNodes;
 
       bool patternMatches = true;
@@ -59,7 +58,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
           EnhancedToken *enhancedToken = new EnhancedToken(*itt);
 
           #ifdef ECHELON_DEBUG
-          std::cout << "Matches: {"; stream_dump(std::cout, enhancedToken); std::cout << "} ? ";
+          std::cout << "Matches: "; stream_dump(std::cout, enhancedToken); std::cout << " ? ";
           #endif
 
           if ((*element) -> isSubProcess()) {
@@ -192,7 +191,10 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
         // TODO
         auto frag = transformer -> transform(td);
-        //std::cout << "frag:\n"; stream_dump(std::cout, frag); std::cout << "\n";
+        #ifdef ECHELON_DEBUG
+        std::cout << "frag:\n"; stream_dump(std::cout, frag); std::cout << "\n";
+        #endif
+
         astConstructionManager.pushFragment(frag);
         //stream_dump(std::cout, transformer -> transform(td));
 

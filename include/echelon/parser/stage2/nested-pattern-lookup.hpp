@@ -29,14 +29,16 @@ public:
     return self;
   }
 
-  void registerNested(std::string nest, std::string pattern) {
+  void registerNested(std::string nest, std::string id, std::string pattern) {
     static PatternTranslator patternTranslator;
 
     if (nestedPatternLookup.find(nest) == nestedPatternLookup.end()) {
       registerNest(nest);
     }
 
-    nestedPatternLookup.at(nest) -> push_back(patternTranslator.translate(pattern));
+    auto p = patternTranslator.translate(pattern);
+    p -> setId(id);
+    nestedPatternLookup.at(nest) -> push_back(p);
   }
 
   bool isNest(std::string nest) {

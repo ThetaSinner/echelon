@@ -215,24 +215,34 @@ void loadTransformers() {
   });
 
   AstTransformLookup::getInstance() -> addAstTransform("module", moduleTransform);
+
+  AstTransform *addTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::binaryOperator);
+    base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
+
+    return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("add", addTransform);
 }
 
 void loadNested() {
   std::string binaryOperator = "binary_operator";
 
   std::string add = "add_operator";
-  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, add);
+  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, "add", add);
   std::string subtract = "subtract_operator";
-  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, subtract);
+  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, "subtract", subtract);
   std::string multiply = "multiply_operator";
-  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, multiply);
+  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, "multiply", multiply);
   std::string divide = "divide_operator";
-  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, divide);
+  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, "divide", divide);
 
   std::string expr = "expr";
 
   std::string function_call = "identifier paren_open [expr list_seperator]* [expr] paren_close [binary_operator expr]";
-  NestedPatternLookup::getInstance() -> registerNested(expr, function_call);
+  NestedPatternLookup::getInstance() -> registerNested(expr, "function_call", function_call);
 }
 
 void loadPatterns() {
