@@ -9,6 +9,11 @@
 #include <echelon/parser/stage2/token-pattern-lookup.hpp>
 #include <echelon/parser/keyword-enum.hpp>
 
+#ifdef ECHELON_DEBUG
+#include <iostream>
+#include <echelon/util/stream-dump.hpp>
+#endif
+
 void loadDataTypeKeywords() {
   EchelonLookup::getInstance() -> addDataTypeKeyword("integer");
   EchelonLookup::getInstance() -> addDataTypeKeyword("string");
@@ -221,6 +226,12 @@ void loadTransformers() {
     base -> setType(AstNodeType::BinaryOperator);
     base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
 
+    auto nested = astTransformData -> getNestedAstNodes();
+    if (nested != nullptr && nested -> size()) {
+      base -> putChild(nested -> front());
+      nested -> pop();
+    }
+
     return base;
   });
 
@@ -230,7 +241,23 @@ void loadTransformers() {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::FunctionCall);
 
-    // TODO
+    auto nested = astTransformData -> getNestedAstNodes();
+    if (nested != nullptr && nested -> size()) {
+      auto node = nested -> front();
+      nested -> pop();
+      // TODO deal with params to function call.
+      if (node -> getType() == AstNodeType::BinaryOperator) {
+        node -> putChildFront(base);
+        base = node;
+      }
+    }
+
+    // TODO this isn't doing what I expect, are things not done in the order I think?
+
+    #ifdef ECHELON_DEBUG
+    std::cout << "Build function call: "; stream_dump(std::cout, base); std::cout << std::endl;
+    std::cin.get();
+    #endif
 
     return base;
   });

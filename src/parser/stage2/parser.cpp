@@ -1,9 +1,9 @@
 #include <echelon/parser/stage2/parser.hpp>
 
-#include <iostream>
 #include <echelon/parser/stage2/token-pattern-lookup.hpp>
 
 #ifdef ECHELON_DEBUG
+#include <iostream>
 #include <echelon/util/stream-dump.hpp>
 #endif
 
@@ -30,6 +30,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
     for (auto p = tokenPatterns -> begin(); p != tokenPatterns -> end(); p++) {
       std::queue<AstNode*> subProcessAstNodes;
+      std::queue<AstNode*> nestedAstNodes;
 
       bool patternMatches = true;
 
@@ -47,6 +48,27 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
         #ifdef ECHELON_DEBUG
         std::cout << "Process group "; stream_dump(std::cout, *g); std::cout << std::endl;
         #endif
+
+        if (it == tokens.end()) {
+          #ifdef ECHELON_DEBUG
+          std::cout << "End of program, but there are more groups." << std::endl;
+          #endif
+          int groupMatchCount = patternMatchInfo -> getGroupMatchCount(std::distance((*p) -> getGroups() -> begin(), g));
+          std::cout << groupMatchCount << std::endl;
+          if (groupMatchCount >= (*g) -> getRepeatLowerBound()) {
+            #ifdef ECHELON_DEBUG
+            std::cout << "Allowing match at EOP." << std::endl;
+            #endif
+            continue;
+          }
+          else {
+            #ifdef ECHELON_DEBUG
+            std::cout << "Not allowing match at EOP." << std::endl;
+            #endif
+            patternMatches = false;
+            break;
+          }
+        }
 
         auto itt = it;
         #ifdef ECHELON_DEBUG
@@ -85,7 +107,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
             auto subOutput = _parse(subInput);
 
-            // do something with nodes...
+            nestedAstNodes.push(subOutput.getAstNode());
 
             std::advance(itt, subOutput.getTokensConsumedCount());
             matchCount++;
@@ -116,11 +138,9 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
         }
 
         bool completeGroupMatch = matchCount == (*g) -> getElements() -> size();
-        //std::cout << "Complete group match? " << toString(completeGroupMatch) << "\n";
-
-        // doesn't match but is optional or repeating
-        // does match and can't match again
-        // does match and can match again
+        #ifdef ECHELON_DEBUG
+        std::cout << "Complete group match? " << EchelonLookup::toString(completeGroupMatch) << "\n";
+        #endif
 
         if (completeGroupMatch) {
           int groupMatchCount = patternMatchInfo -> increment(std::distance((*p) -> getGroups() -> begin(), g));
@@ -183,20 +203,18 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
         AstTransformData *td = new AstTransformData();
         td -> setSubProcessAstNodes(&subProcessAstNodes);
+        td -> setNestedAstNodes(&nestedAstNodes);
         td -> setPatternMatchInfo(patternMatchInfo);
         td -> setTokens(matchedTokens);
 
-        // TODO nested patterns don't have an id, hence the runtime error, fix me.
         auto transformer = AstTransformLookup::getInstance() -> getAstTransform((*p) -> getId());
 
-        // TODO
         auto frag = transformer -> transform(td);
         #ifdef ECHELON_DEBUG
         std::cout << "frag:\n"; stream_dump(std::cout, frag); std::cout << "\n";
         #endif
 
         astConstructionManager.pushFragment(frag);
-        //stream_dump(std::cout, transformer -> transform(td));
 
         // after this point it is not safe to access i without checking against tokens.end()
         std::advance(i, std::distance(i, it));
@@ -232,8 +250,9 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
   }
 
   #ifdef ECHELON_DEBUG
-  std::cout << "built result:\n"; stream_dump(std::cout, astConstructionManager.getRoot()); std::cout << "\n";
+  std::cout << "built result:\n"; stream_dump(std::cout, astConstructionManager.getRoot()); std::cout << std::endl;
   #endif
+  std::cout << "done dump." << std::endl;
   output.setAstNode(astConstructionManager.getRoot());
   return output;
 }

@@ -53,6 +53,10 @@ template<> std::string EchelonLookup::toString(TokenTypeEnum t) {
   }
 }
 
+template<> std::string EchelonLookup::toString(bool b) {
+  return b ? "true" : "false";
+}
+
 template<> std::string EchelonLookup::toString(AstNodeType t) {
   switch(t) {
     case AstNodeType::Program:

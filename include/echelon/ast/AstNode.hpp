@@ -14,6 +14,7 @@ public:
   int getChildCount();
 
   void putChild(AstNode* child);
+  void putChildFront(AstNode* child);
   AstNode* getChild(int index);
 
   void setType(AstNodeType type);

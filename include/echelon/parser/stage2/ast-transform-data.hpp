@@ -13,6 +13,7 @@ class AstTransformData {
   PatternMatchInfo* patternMatchInfo;
 
   std::queue<AstNode*>* subProcessAstNodes;
+  std::queue<AstNode*>* nestedAstNodes;
 public:
   void setTokens(std::list<EnhancedToken*> tokens) {
     this -> tokens = tokens;
@@ -33,6 +34,13 @@ public:
   }
   std::queue<AstNode*>* getSubProcessAstNodes() {
     return subProcessAstNodes;
+  }
+
+  void setNestedAstNodes(std::queue<AstNode*>* nestedAstNodes) {
+    this -> nestedAstNodes = nestedAstNodes;
+  }
+  std::queue<AstNode*>* getNestedAstNodes() {
+    return nestedAstNodes;
   }
 };
 

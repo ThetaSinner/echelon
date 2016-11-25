@@ -6,10 +6,6 @@
 #include <echelon/parser/stage2/pattern-translator.hpp>
 #include <echelon/parser/stage2/parser.hpp>
 
-std::string toString(bool b) {
-  return b ? "true" : "false";
-}
-
 int main(int argc, char** args) {
   #ifdef ECHELON_DEBUG
   std::cout << "This is a debug build.\n";
@@ -35,6 +31,7 @@ int main(int argc, char** args) {
   Parser2 parser;
   parser.parse(program);
 
+  std::cout << std::endl << "Program will exit normally.";
   std::cout << std::endl;
   return 0;
 }

@@ -4,6 +4,10 @@ void AstNode::putChild(AstNode* child) {
   children.push_back(child);
 }
 
+void AstNode::putChildFront(AstNode* child) {
+  children.insert(children.begin(), child);
+}
+
 int AstNode::getChildCount() {
   return children.size();
 }
