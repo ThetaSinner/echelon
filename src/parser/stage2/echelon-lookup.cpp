@@ -75,6 +75,8 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
       return "function call";
     case AstNodeType::Type:
       return "type";
+    case AstNodeType::String:
+      return "string";
     default:
       return "none";
   }

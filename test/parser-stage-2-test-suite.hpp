@@ -201,4 +201,40 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::FunctionCall, ast -> getChild(0) -> getChild(1) -> getChild(1) -> getType());
     TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(1) -> getChild(1) -> getChildCount());
   }
+
+  void testAddTwoStringsAndAssignToVariable(void) {
+    std::list<Token*> program;
+    program.push_back(new Token("string", TokenTypeEnum::Identifier));
+    program.push_back(new Token("my_val", TokenTypeEnum::Identifier));
+    program.push_back(new Token("=", TokenTypeEnum::Assign));
+    program.push_back(new Token("my string data ", TokenTypeEnum::String));
+    program.push_back(new Token("+", TokenTypeEnum::OperatorAdd));
+    program.push_back(new Token("other string data", TokenTypeEnum::String));
+
+    auto ast = parser.parse(program);
+
+    TS_ASSERT_EQUALS("root", ast -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Program, ast -> getType());
+    TS_ASSERT_EQUALS(1, ast -> getChildCount());
+
+    TS_ASSERT_EQUALS("my_val", ast -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Variable, ast -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS("string", ast -> getChild(0) -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Type, ast -> getChild(0) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS("+", ast -> getChild(0) -> getChild(1) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, ast -> getChild(0) -> getChild(1) -> getType());
+    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChild(1) -> getChildCount());
+
+    TS_ASSERT_EQUALS("my string data ", ast -> getChild(0) -> getChild(1) -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::String, ast -> getChild(0) -> getChild(1) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(1) -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS("other string data", ast -> getChild(0) -> getChild(1) -> getChild(1) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::String, ast -> getChild(0) -> getChild(1) -> getChild(1) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(1) -> getChild(1) -> getChildCount());
+  }
 };

@@ -164,6 +164,13 @@ void loadMatchers() {
 
   MatcherLookup::getInstance() -> addMatcher("divide_operator", divide_operator);
 
+  Matcher *string = new Matcher();
+  string -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::String;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("string", string);
+
   Matcher *block = new Matcher();
   block -> setMatcher([] (Matcher* self) -> bool {
     throw std::runtime_error("Cannot match block directly.");
@@ -266,6 +273,28 @@ void loadTransformers() {
 
   AstTransformLookup::getInstance() -> addAstTransform("function_call", functionCallTransform);
 
+  AstTransform *exprStringTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::String);
+    base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
+
+    auto nested = astTransformData -> getNestedAstNodes();
+    if (nested != nullptr && nested -> size() == 2) {
+      auto oper = nested -> front();
+      nested -> pop();
+      auto nextExpr = nested -> front();
+      nested -> pop();
+
+      oper -> getChild(0) -> putChild(base);
+      oper -> getChild(0) -> putChild(nextExpr -> getChild(0));
+      base = oper;
+    }
+
+    return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("string", exprStringTransform);
+
   AstTransform *assignmentExprTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     auto tokenIterator = astTransformData -> getTokens() -> begin();
 
@@ -312,6 +341,8 @@ void loadNested() {
 
   std::string function_call = "identifier paren_open [expr list_seperator]* [expr] paren_close [binary_operator expr]";
   NestedPatternLookup::getInstance() -> registerNested(expr, "function_call", function_call);
+  std::string expr_string = "string [binary_operator expr]";
+  NestedPatternLookup::getInstance() -> registerNested(expr, "string", expr_string);
 }
 
 void loadPatterns() {
