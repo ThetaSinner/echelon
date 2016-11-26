@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <list>
+#include <queue>
 
 #include <echelon/parser/stage2/echelon-lookup.hpp>
 
@@ -27,5 +28,7 @@ void stream_dump(std::ostream& s, EnhancedToken* enhancedToken);
 
 #include <echelon/ast/AstNode.hpp>
 void stream_dump(std::ostream& s, AstNode* node, int level = 1);
+
+void stream_dump(std::ostream& s, std::queue<AstNode*>* enhancedToken);
 
 #endif

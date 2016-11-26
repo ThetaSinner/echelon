@@ -226,11 +226,9 @@ void loadTransformers() {
     base -> setType(AstNodeType::BinaryOperator);
     base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
 
-    auto nested = astTransformData -> getNestedAstNodes();
-    if (nested != nullptr && nested -> size()) {
-      base -> putChild(nested -> front());
-      nested -> pop();
-    }
+    #ifdef ECHELON_DEBUG
+    //std::cout << "Build add "; stream_dump(std::cout, base); std::cout << std::endl;
+    #endif
 
     return base;
   });
@@ -238,25 +236,29 @@ void loadTransformers() {
   AstTransformLookup::getInstance() -> addAstTransform("add", addTransform);
 
   AstTransform *functionCallTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    // TODO deal with params to function call.
+
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::FunctionCall);
+    base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
 
     auto nested = astTransformData -> getNestedAstNodes();
-    if (nested != nullptr && nested -> size()) {
-      auto node = nested -> front();
+    #ifdef ECHELON_DEBUG
+    stream_dump(std::cout, nested);
+    #endif
+    if (nested != nullptr && nested -> size() == 2) {
+      auto oper = nested -> front();
       nested -> pop();
-      // TODO deal with params to function call.
-      if (node -> getType() == AstNodeType::BinaryOperator) {
-        node -> putChildFront(base);
-        base = node;
-      }
+      auto nextExpr = nested -> front();
+      nested -> pop();
+
+      oper -> getChild(0) -> putChild(base);
+      oper -> getChild(0) -> putChild(nextExpr -> getChild(0));
+      base = oper;
     }
 
-    // TODO this isn't doing what I expect, are things not done in the order I think?
-
     #ifdef ECHELON_DEBUG
-    std::cout << "Build function call: "; stream_dump(std::cout, base); std::cout << std::endl;
-    std::cin.get();
+    //std::cout << "Build function call: "; stream_dump(std::cout, base); std::cout << std::endl;
     #endif
 
     return base;
@@ -265,10 +267,28 @@ void loadTransformers() {
   AstTransformLookup::getInstance() -> addAstTransform("function_call", functionCallTransform);
 
   AstTransform *assignmentExprTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
-    AstNode *base = new AstNode();
-    base -> setType(AstNodeType::AssignmentExpr);
+    auto tokenIterator = astTransformData -> getTokens() -> begin();
 
-    // TODO
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::Variable);
+
+    if (!(*tokenIterator) -> isDataTypeKeyword()) {
+      base -> setData((*tokenIterator) -> getData());
+    }
+    else {
+      AstNode *type = new AstNode();
+      type -> setType(AstNodeType::Type);
+      type -> setData((*tokenIterator) -> getData());
+      base -> putChild(type);
+
+      tokenIterator++;
+      base -> setData((*tokenIterator) -> getData());
+    }
+
+    auto nested = astTransformData -> getNestedAstNodes();
+    if (nested != nullptr && !nested -> empty()) {
+      base -> putChild(nested -> front() -> getChild(0));
+    }
 
     return base;
   });

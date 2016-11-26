@@ -7,11 +7,15 @@
 class AstConstructionManager {
   AstNode *root;
   AstNode *workingNode;
+
+  bool anyFragmentsPushed = false;
 public:
   AstConstructionManager();
 
   void pushFragment(AstNode* fragment);
   AstNode* getRoot();
+
+  bool areAnyFragmentsPushed();
 };
 
 #endif

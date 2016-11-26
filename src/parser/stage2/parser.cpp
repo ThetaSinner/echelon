@@ -54,7 +54,6 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
           std::cout << "End of program, but there are more groups." << std::endl;
           #endif
           int groupMatchCount = patternMatchInfo -> getGroupMatchCount(std::distance((*p) -> getGroups() -> begin(), g));
-          std::cout << groupMatchCount << std::endl;
           if (groupMatchCount >= (*g) -> getRepeatLowerBound()) {
             #ifdef ECHELON_DEBUG
             std::cout << "Allowing match at EOP." << std::endl;
@@ -107,8 +106,15 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
             auto subOutput = _parse(subInput);
 
-            nestedAstNodes.push(subOutput.getAstNode());
+            #ifdef ECHELON_DEBUG
+            //std::cout << "Nested result." << std::endl; stream_dump(std::cout, subOutput.getAstNode()); std::cout << std::endl;
+            #endif
 
+            if (!isEmptyProgram(subOutput.getAstNode())) {
+              nestedAstNodes.push(subOutput.getAstNode());
+            }
+
+            // do we do these if the returned program was empty? that just means nothing actually happened at the level below...
             std::advance(itt, subOutput.getTokensConsumedCount());
             matchCount++;
           }
@@ -237,7 +243,9 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
         }
       }
       else if (parserInternalInput.isUseNestedPatterns()) {
+        #ifdef ECHELON_DEBUG
         std::cout << "Failed but we were using nested patterns so never mind?\n";
+        #endif
         break;
       }
       else {
@@ -252,7 +260,6 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
   #ifdef ECHELON_DEBUG
   std::cout << "built result:\n"; stream_dump(std::cout, astConstructionManager.getRoot()); std::cout << std::endl;
   #endif
-  std::cout << "done dump." << std::endl;
   output.setAstNode(astConstructionManager.getRoot());
   return output;
 }
@@ -272,6 +279,7 @@ bool Parser2::simpleGroupMatch(std::list<Token*>& tokens, TokenPatternGroup* gro
       matchCount++;
       it++;
 
+
       if (it == tokens.end()) {
         //std::cout << "Ran out of tokens.\n";
         break;
@@ -284,6 +292,14 @@ bool Parser2::simpleGroupMatch(std::list<Token*>& tokens, TokenPatternGroup* gro
   }
 
   return matchCount == group -> getElements() -> size();
+}
+
+bool Parser2::isEmptyProgram(AstNode* program) {
+  if (program == nullptr) {
+    return true;
+  }
+
+  return program -> getChildCount() == 0;
 }
 
 ParserInternalOutput Parser2::subProcess(std::list<Token*>::iterator start, std::list<Token*>::iterator end, TokenPatternGroup* nextGroup) {

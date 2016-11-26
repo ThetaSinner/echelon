@@ -18,6 +18,7 @@ int main(int argc, char** args) {
   std::cout << "Parser data loaded." << std::endl;
 
   std::list<Token*> program;
+  program.push_back(new Token("integer", TokenTypeEnum::Identifier));
   program.push_back(new Token("my_val", TokenTypeEnum::Identifier));
   program.push_back(new Token("=", TokenTypeEnum::Assign));
   program.push_back(new Token("helloWorld", TokenTypeEnum::Identifier));

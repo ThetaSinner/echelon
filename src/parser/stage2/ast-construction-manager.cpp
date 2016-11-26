@@ -8,11 +8,19 @@ AstConstructionManager::AstConstructionManager() {
 }
 
 void AstConstructionManager::pushFragment(AstNode* fragment) {
-  // handle special cases
-
-  workingNode -> putChild(fragment);
+  if (fragment -> getType() == AstNodeType::Program) {
+    workingNode -> putChild(fragment -> getChild(0));
+  }
+  else {
+    workingNode -> putChild(fragment);
+  }
+  anyFragmentsPushed = true;
 }
 
 AstNode* AstConstructionManager::getRoot() {
   return root;
+}
+
+bool AstConstructionManager::areAnyFragmentsPushed() {
+  return anyFragmentsPushed;
 }

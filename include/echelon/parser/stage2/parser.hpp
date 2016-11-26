@@ -21,6 +21,8 @@ private:
   bool simpleGroupMatch(std::list<Token*>& tokens, TokenPatternGroup* group);
 
   ParserInternalOutput subProcess(std::list<Token*>::iterator start, std::list<Token*>::iterator end, TokenPatternGroup* nextGroup);
+
+  bool isEmptyProgram(AstNode* program);
 public:
   AstNode* parse(std::list<Token*> tokens);
 };

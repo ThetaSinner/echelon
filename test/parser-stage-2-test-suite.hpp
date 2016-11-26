@@ -126,4 +126,79 @@ public:
     TS_ASSERT_EQUALS("nested2", ast -> getChild(0) -> getChild(1) -> getData());
     TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(1) -> getChildCount());
   }
+
+  void testVariableDeclaration(void) {
+    std::list<Token*> program;
+    program.push_back(new Token("my_val", TokenTypeEnum::Identifier));
+    program.push_back(new Token("=", TokenTypeEnum::Assign));
+    program.push_back(new Token("helloWorld", TokenTypeEnum::Identifier));
+    program.push_back(new Token("(", TokenTypeEnum::ParenO));
+    program.push_back(new Token(")", TokenTypeEnum::ParenC));
+    program.push_back(new Token("+", TokenTypeEnum::OperatorAdd));
+    program.push_back(new Token("byeWorld", TokenTypeEnum::Identifier));
+    program.push_back(new Token("(", TokenTypeEnum::ParenO));
+    program.push_back(new Token(")", TokenTypeEnum::ParenC));
+
+    auto ast = parser.parse(program);
+
+    TS_ASSERT_EQUALS("root", ast -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Program, ast -> getType());
+    TS_ASSERT_EQUALS(1, ast -> getChildCount());
+
+    TS_ASSERT_EQUALS("my_val", ast -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Variable, ast -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(1, ast -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS("+", ast -> getChild(0) -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, ast -> getChild(0) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS("helloWorld", ast -> getChild(0) -> getChild(0) -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS("byeWorld", ast -> getChild(0) -> getChild(0) -> getChild(1) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChildCount());
+  }
+
+  void testVariableDeclarationWithType(void) {
+    std::list<Token*> program;
+    program.push_back(new Token("integer", TokenTypeEnum::Identifier));
+    program.push_back(new Token("my_val", TokenTypeEnum::Identifier));
+    program.push_back(new Token("=", TokenTypeEnum::Assign));
+    program.push_back(new Token("helloWorld", TokenTypeEnum::Identifier));
+    program.push_back(new Token("(", TokenTypeEnum::ParenO));
+    program.push_back(new Token(")", TokenTypeEnum::ParenC));
+    program.push_back(new Token("+", TokenTypeEnum::OperatorAdd));
+    program.push_back(new Token("byeWorld", TokenTypeEnum::Identifier));
+    program.push_back(new Token("(", TokenTypeEnum::ParenO));
+    program.push_back(new Token(")", TokenTypeEnum::ParenC));
+
+    auto ast = parser.parse(program);
+
+    TS_ASSERT_EQUALS("root", ast -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Program, ast -> getType());
+    TS_ASSERT_EQUALS(1, ast -> getChildCount());
+
+    TS_ASSERT_EQUALS("my_val", ast -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Variable, ast -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS("integer", ast -> getChild(0) -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Type, ast -> getChild(0) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS("+", ast -> getChild(0) -> getChild(1) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, ast -> getChild(0) -> getChild(1) -> getType());
+    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChild(1) -> getChildCount());
+
+    TS_ASSERT_EQUALS("helloWorld", ast -> getChild(0) -> getChild(1) -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, ast -> getChild(0) -> getChild(1) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(1) -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS("byeWorld", ast -> getChild(0) -> getChild(1) -> getChild(1) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, ast -> getChild(0) -> getChild(1) -> getChild(1) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(1) -> getChild(1) -> getChildCount());
+  }
 };

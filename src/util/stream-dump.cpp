@@ -59,3 +59,12 @@ void stream_dump(std::ostream& s, AstNode* node, int level) {
     s << "\n";
   }
 }
+
+void stream_dump(std::ostream& s, std::queue<AstNode*>* enhancedToken) {
+  std::queue<AstNode*> queueCopy(*enhancedToken);
+  while (!queueCopy.empty()) {
+    stream_dump(s, queueCopy.front());
+    std::cout << std::endl;
+    queueCopy.pop();
+  }
+}

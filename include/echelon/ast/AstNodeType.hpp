@@ -4,12 +4,13 @@
 enum class AstNodeType {
   Program,
   Block,
-  AssignmentExpr,
+  Variable,
   ExplicitType,
   Package,
   Module,
   BinaryOperator,
   FunctionCall,
+  Type,
 };
 
 #endif
