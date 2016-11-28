@@ -21,6 +21,7 @@ void loadDataTypeKeywords() {
 
 void loadKeywords() {
   EchelonLookup::getInstance() -> addKeyword("package");
+  EchelonLookup::getInstance() -> addKeyword("if");
 }
 
 void loadMatchers() {
@@ -343,6 +344,20 @@ void loadNested() {
   NestedPatternLookup::getInstance() -> registerNested(expr, "function_call", function_call);
   std::string expr_string = "string [binary_operator expr]";
   NestedPatternLookup::getInstance() -> registerNested(expr, "string", expr_string);
+
+/*
+  std::string bool_val_expr = "bool_val_expr";
+
+
+
+  std::string bool_expr = "bool_expr";
+
+  std::string bool_expr_equality_check = "bool_val_expr op_equality bool_val_expr";
+  std::string bool_expr_equality_check = "bool_val_expr op_inequality bool_val_expr";
+  std::string bool_expr_equality_check = "bool_val_expr op_less_than bool_val_expr";
+  std::string bool_expr_equality_check = "bool_val_expr op_greater_than bool_val_expr";
+  std::string bool_expr_bool_val_expr = "bool_val_expr";
+  */
 }
 
 void loadPatterns() {
@@ -356,6 +371,9 @@ void loadPatterns() {
 
   std::string module = "kwd_module identifier block_delim_o [block] block_delim_c";
   TokenPatternLookup::getInstance() -> addTokenPattern("module", module);
+
+  //std::string _if = "kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c";
+  //TokenPatternLookup::getInstance() -> addTokenPattern("if", _if);
 }
 
 void loadParserData() {
