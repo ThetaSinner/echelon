@@ -4,6 +4,11 @@
 #include <echelon/ast/AstNodeType.hpp>
 #include <echelon/parser/keyword-enum.hpp>
 
+#ifdef ECHELON_DEBUG
+#include <stdexcept>
+#include <iostream>
+#endif
+
 EchelonLookup* EchelonLookup::self = nullptr;
 
 EchelonLookup* EchelonLookup::getInstance() {
@@ -34,21 +39,32 @@ bool EchelonLookup::isKeyword(std::string str) {
 
 template<> std::string EchelonLookup::toString(TokenTypeEnum t) {
   switch(t) {
+    case TokenTypeEnum::String:
+      return "string";
     case TokenTypeEnum::Identifier:
       return "identifier";
+    case TokenTypeEnum::Integer:
+      return "integer";
     case TokenTypeEnum::BlockDelimO:
       return "block delim open";
     case TokenTypeEnum::BlockDelimC:
       return "block delim close";
-    case TokenTypeEnum::Assign:
-      return "assign";
-    case TokenTypeEnum::OperatorAdd:
-      return "add operator";
     case TokenTypeEnum::ParenO:
       return "paren open";
     case TokenTypeEnum::ParenC:
       return "paren close";
+    case TokenTypeEnum::OperatorAdd:
+      return "add operator";
+    case TokenTypeEnum::Assign:
+      return "assign";
+    case TokenTypeEnum::Equality:
+      return "equality";
+    case TokenTypeEnum::AndOperator:
+      return "and operator";
     default:
+      #ifdef ECHELON_DEBUG
+      throw std::runtime_error("Missing to string case for token type enum.");
+      #endif
       return "none";
   }
 }
@@ -77,7 +93,14 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
       return "type";
     case AstNodeType::String:
       return "string";
+    case AstNodeType::Integer:
+      return "integer";
+    case AstNodeType::EqualityOperator:
+      return "equality operator";
     default:
+      #ifdef ECHELON_DEBUG
+      throw std::runtime_error("Mising to string case for ast node type.");
+      #endif
       return "none";
   }
 }
@@ -88,7 +111,12 @@ template<> std::string EchelonLookup::toString(Keyword t) {
       return "package";
     case Keyword::Module:
       return "module";
+    case Keyword::If:
+      return "if";
     default:
+      #ifdef ECHELON_DEBUG
+      throw std::runtime_error("Mising to string case for keyword.");
+      #endif
       return "none";
   }
 }

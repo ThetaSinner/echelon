@@ -21,14 +21,16 @@ int main(int argc, char** args) {
   program.push_back(new Token("if", TokenTypeEnum::Identifier));
   program.push_back(new Token("(", TokenTypeEnum::ParenO));
   program.push_back(new Token("1", TokenTypeEnum::Integer));
-  program.push_back(new Token("==", TokenTypeEnum::String));
-  program.push_back(new Token("2", TokenTypeEnum::Equality));
+  program.push_back(new Token("==", TokenTypeEnum::Equality));
+  program.push_back(new Token("2", TokenTypeEnum::Integer));
   program.push_back(new Token(")", TokenTypeEnum::ParenC));
   program.push_back(new Token("{", TokenTypeEnum::BlockDelimO));
   program.push_back(new Token("}", TokenTypeEnum::BlockDelimC));
 
   Parser2 parser;
+  // creates infinite loop, won't back off far enough to match the top level pattern again.
   //parser.parse(program);
+
 
   std::cout << std::endl << "Program will exit normally.";
   std::cout << std::endl;

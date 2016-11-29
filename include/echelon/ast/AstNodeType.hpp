@@ -11,7 +11,9 @@ enum class AstNodeType {
   BinaryOperator,
   FunctionCall,
   Type,
-  String
+  String,
+  Integer,
+  EqualityOperator,
 };
 
 #endif

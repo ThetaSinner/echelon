@@ -172,6 +172,39 @@ void loadMatchers() {
 
   MatcherLookup::getInstance() -> addMatcher("string", string);
 
+  Matcher *integer = new Matcher();
+  integer -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::Integer;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("integer", integer);
+
+  Matcher *op_equality = new Matcher();
+  op_equality -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::Equality;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("op_equality", op_equality);
+
+  Matcher *op_and = new Matcher();
+  op_and -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::AndOperator;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("op_and", op_and);
+
+  Matcher *kwd_if = new Matcher();
+  kwd_if -> setMatcher([] (Matcher* self) -> bool {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+      return false;
+    }
+
+    return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::If);
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("kwd_if", kwd_if);
+
+
   Matcher *block = new Matcher();
   block -> setMatcher([] (Matcher* self) -> bool {
     throw std::runtime_error("Cannot match block directly.");
@@ -296,6 +329,52 @@ void loadTransformers() {
 
   AstTransformLookup::getInstance() -> addAstTransform("string", exprStringTransform);
 
+  AstTransform *exprIntegerTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::Integer);
+    base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
+
+    auto nested = astTransformData -> getNestedAstNodes();
+    if (nested != nullptr && nested -> size() == 2) {
+      auto oper = nested -> front();
+      nested -> pop();
+      auto nextExpr = nested -> front();
+      nested -> pop();
+
+      oper -> getChild(0) -> putChild(base);
+      oper -> getChild(0) -> putChild(nextExpr -> getChild(0));
+      base = oper;
+    }
+
+    return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("integer", exprIntegerTransform);
+
+  AstTransform *assignOperatorTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::EqualityOperator);
+    base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
+
+    /*
+    auto nested = astTransformData -> getNestedAstNodes();
+    if (nested != nullptr && nested -> size() == 2) {
+      auto oper = nested -> front();
+      nested -> pop();
+      auto nextExpr = nested -> front();
+      nested -> pop();
+
+      oper -> getChild(0) -> putChild(base);
+      oper -> getChild(0) -> putChild(nextExpr -> getChild(0));
+      base = oper;
+    }
+    */
+
+    return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("op_equality", assignOperatorTransform);
+
   AstTransform *assignmentExprTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     auto tokenIterator = astTransformData -> getTokens() -> begin();
 
@@ -344,20 +423,28 @@ void loadNested() {
   NestedPatternLookup::getInstance() -> registerNested(expr, "function_call", function_call);
   std::string expr_string = "string [binary_operator expr]";
   NestedPatternLookup::getInstance() -> registerNested(expr, "string", expr_string);
+  std::string expr_integer = "integer [binary_operator expr]";
+  NestedPatternLookup::getInstance() -> registerNested(expr, "integer", expr_integer);
 
-/*
-  std::string bool_val_expr = "bool_val_expr";
+  std::string any_compare_op = "any_compare_op";
 
+  std::string op_equality = "op_equality";
+  NestedPatternLookup::getInstance() -> registerNested(any_compare_op, "op_equality", op_equality);
 
+  std::string any_logic_op = "any_logic_op";
+
+  std::string op_and = "op_and";
+  NestedPatternLookup::getInstance() -> registerNested(any_logic_op, "op_and", op_and);
 
   std::string bool_expr = "bool_expr";
 
-  std::string bool_expr_equality_check = "bool_val_expr op_equality bool_val_expr";
-  std::string bool_expr_equality_check = "bool_val_expr op_inequality bool_val_expr";
-  std::string bool_expr_equality_check = "bool_val_expr op_less_than bool_val_expr";
-  std::string bool_expr_equality_check = "bool_val_expr op_greater_than bool_val_expr";
-  std::string bool_expr_bool_val_expr = "bool_val_expr";
-  */
+  std::string bool_expr_compare = "expr any_compare_op bool_expr";
+  NestedPatternLookup::getInstance() -> registerNested(bool_expr, "bool_expr_compare", bool_expr_compare);
+  std::string bool_expr_logic = "expr any_logic_op bool_expr";
+  NestedPatternLookup::getInstance() -> registerNested(bool_expr, "bool_expr_logic", bool_expr_logic);
+  // Important this is loaded last.
+  std::string bool_expr_val = "expr";
+  NestedPatternLookup::getInstance() -> registerNested(bool_expr, "bool_expr_val", bool_expr_val);
 }
 
 void loadPatterns() {
@@ -372,8 +459,8 @@ void loadPatterns() {
   std::string module = "kwd_module identifier block_delim_o [block] block_delim_c";
   TokenPatternLookup::getInstance() -> addTokenPattern("module", module);
 
-  //std::string _if = "kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c";
-  //TokenPatternLookup::getInstance() -> addTokenPattern("if", _if);
+  std::string _if = "kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c";
+  TokenPatternLookup::getInstance() -> addTokenPattern("if", _if);
 }
 
 void loadParserData() {
