@@ -36,6 +36,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
       #ifdef ECHELON_DEBUG
       std::cout << "Trying pattern "; stream_dump(std::cout, *p); std::cout << "\n";
+      //std::cin.get();
       #endif
 
       auto it = i;
@@ -112,11 +113,13 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
             if (!isEmptyProgram(subOutput.getAstNode())) {
               nestedAstNodes.push(subOutput.getAstNode());
+              std::advance(itt, subOutput.getTokensConsumedCount());
+              matchCount++;
             }
-
-            // do we do these if the returned program was empty? that just means nothing actually happened at the level below...
-            std::advance(itt, subOutput.getTokensConsumedCount());
-            matchCount++;
+            else {
+              // The level below didn't match, shortcut.
+              break;
+            }
           }
           else if ((*element) -> getMatcher() -> matches(enhancedToken)) {
             // The pattern matches directly using a matcher.
@@ -217,11 +220,11 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
         auto frag = transformer -> transform(td);
         #ifdef ECHELON_DEBUG
-        std::cout << "frag:\n"; stream_dump(std::cout, frag); std::cout << "\n";
+        std::cout << "frag:\n"; stream_dump(std::cout, frag); std::cout << std::endl;
         #endif
 
         astConstructionManager.pushFragment(frag);
-
+        
         // after this point it is not safe to access i without checking against tokens.end()
         std::advance(i, std::distance(i, it));
         break;
@@ -232,7 +235,9 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
     output.setTokensConsumedCount(std::distance(tokens.begin(), i));
 
     if (!somePatternMatches) {
-      //std::cout << "No matching patterns for "; stream_dump(std::cout, *i); std::cout << "\n";
+      #ifdef ECHELON_DEBUG
+      std::cout << "No matching patterns for "; stream_dump(std::cout, *i); std::cout << std::endl;
+      #endif
 
       // This is the case where a sub-process has been requested, check if we can safely return control to the caller.
       if (parserInternalInput.getSubProcessFinishGroup() != nullptr) {

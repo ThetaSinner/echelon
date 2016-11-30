@@ -54,10 +54,12 @@ void stream_dump(std::ostream& s, AstNode* node, int level) {
   s << node -> getData();
   s << "\n";
 
+  s << "Children: " << node -> getChildCount() << "\n";
   for (int i = 0; i < node -> getChildCount(); i++) {
     stream_dump(s, node -> getChild(i), level + 1);
     s << "\n";
   }
+  std::cout << "Finished level " << level << "\n";
 }
 
 void stream_dump(std::ostream& s, std::queue<AstNode*>* enhancedToken) {

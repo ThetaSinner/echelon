@@ -29,7 +29,7 @@ int main(int argc, char** args) {
 
   Parser2 parser;
   // creates infinite loop, won't back off far enough to match the top level pattern again.
-  //parser.parse(program);
+  parser.parse(program);
 
 
   std::cout << std::endl << "Program will exit normally.";

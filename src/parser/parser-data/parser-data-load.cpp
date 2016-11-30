@@ -375,6 +375,28 @@ void loadTransformers() {
 
   AstTransformLookup::getInstance() -> addAstTransform("op_equality", assignOperatorTransform);
 
+  AstTransform *boolExpressionTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    return base;
+    // ?? return astTransformData -> getNestedAstNodes() -> front();
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("bool_expr_val", boolExpressionTransform);
+
+  AstTransform *boolExpressionCompareTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("bool_expr_compare", boolExpressionCompareTransform);
+
+  AstTransform *ifTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("if", ifTransform);
+
   AstTransform *assignmentExprTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     auto tokenIterator = astTransformData -> getTokens() -> begin();
 
@@ -442,7 +464,7 @@ void loadNested() {
   NestedPatternLookup::getInstance() -> registerNested(bool_expr, "bool_expr_compare", bool_expr_compare);
   std::string bool_expr_logic = "expr any_logic_op bool_expr";
   NestedPatternLookup::getInstance() -> registerNested(bool_expr, "bool_expr_logic", bool_expr_logic);
-  // Important this is loaded last.
+  // Important this is loaded last
   std::string bool_expr_val = "expr";
   NestedPatternLookup::getInstance() -> registerNested(bool_expr, "bool_expr_val", bool_expr_val);
 }
