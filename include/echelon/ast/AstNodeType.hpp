@@ -14,6 +14,7 @@ enum class AstNodeType {
   String,
   Integer,
   EqualityOperator,
+  If,
 };
 
 #endif

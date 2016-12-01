@@ -97,6 +97,8 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
       return "integer";
     case AstNodeType::EqualityOperator:
       return "equality operator";
+    case AstNodeType::If:
+      return "if";
     default:
       #ifdef ECHELON_DEBUG
       throw std::runtime_error("Mising to string case for ast node type.");

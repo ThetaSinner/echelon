@@ -375,16 +375,30 @@ void loadTransformers() {
 
   AstTransformLookup::getInstance() -> addAstTransform("op_equality", assignOperatorTransform);
 
-  AstTransform *boolExpressionTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
-    AstNode *base = new AstNode();
-    return base;
-    // ?? return astTransformData -> getNestedAstNodes() -> front();
+  AstTransform *boolExpressionValueTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    // This transform is just a wrapper around a "expr" type, so just map the result from the "expr" transform.
+    auto node = astTransformData -> getNestedAstNodes() -> front();
+    astTransformData -> getNestedAstNodes() -> pop();
+    return node;
   });
 
-  AstTransformLookup::getInstance() -> addAstTransform("bool_expr_val", boolExpressionTransform);
+  AstTransformLookup::getInstance() -> addAstTransform("bool_expr_val", boolExpressionValueTransform);
 
   AstTransform *boolExpressionCompareTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    auto left = astTransformData -> getNestedAstNodes() -> front();
+    astTransformData -> getNestedAstNodes() -> pop();
+    auto op = astTransformData -> getNestedAstNodes() -> front();
+    astTransformData -> getNestedAstNodes() -> pop();
+    auto right = astTransformData -> getNestedAstNodes() -> front();
+    astTransformData -> getNestedAstNodes() -> pop();
+
     AstNode *base = new AstNode();
+    base -> setType(AstNodeType::EqualityOperator);
+    base -> setData(op -> getData()); // this is redundant
+
+    base -> putChild(left -> getChild(0));
+    base -> putChild(right -> getChild(0));
+
     return base;
   });
 
@@ -392,6 +406,16 @@ void loadTransformers() {
 
   AstTransform *ifTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
+    base -> setType(AstNodeType::If);
+
+    base -> putChild(astTransformData -> getNestedAstNodes() -> front() -> getChild(0));
+    astTransformData -> getNestedAstNodes() -> pop();
+    // The block will always exist but may be empty.
+    if (!astTransformData -> getSubProcessAstNodes() -> empty() && astTransformData -> getSubProcessAstNodes() -> front() -> getChildCount() > 0) {
+      base -> putChild(astTransformData -> getSubProcessAstNodes() -> front() -> getChild(0));
+      astTransformData -> getSubProcessAstNodes() -> pop();
+    }
+
     return base;
   });
 

@@ -47,6 +47,15 @@ void stream_dump(std::ostream& s, EnhancedToken* enhancedToken) {
   s << enhancedToken -> getData() << ", " << EchelonLookup::getInstance() -> toString(enhancedToken -> getTokenType());
 }
 
+void stream_dump(std::ostream& s, std::list<EnhancedToken*>* enhancedToken) {
+  std::list<EnhancedToken*> copy(*enhancedToken);
+  while (copy.size() > 0) {
+    stream_dump(s, * copy.end());
+    std::cout << std::endl;
+    copy.pop_back();
+  }
+}
+
 void stream_dump(std::ostream& s, AstNode* node, int level) {
   s << "Level " << level << "\n";
 
@@ -54,16 +63,14 @@ void stream_dump(std::ostream& s, AstNode* node, int level) {
   s << node -> getData();
   s << "\n";
 
-  s << "Children: " << node -> getChildCount() << "\n";
   for (int i = 0; i < node -> getChildCount(); i++) {
     stream_dump(s, node -> getChild(i), level + 1);
     s << "\n";
   }
-  std::cout << "Finished level " << level << "\n";
 }
 
-void stream_dump(std::ostream& s, std::queue<AstNode*>* enhancedToken) {
-  std::queue<AstNode*> queueCopy(*enhancedToken);
+void stream_dump(std::ostream& s, std::queue<AstNode*>* astNodeQueue) {
+  std::queue<AstNode*> queueCopy(*astNodeQueue);
   while (!queueCopy.empty()) {
     stream_dump(s, queueCopy.front());
     std::cout << std::endl;

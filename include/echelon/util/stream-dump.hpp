@@ -26,9 +26,12 @@ void stream_dump(std::ostream& s, TokenPattern* tokenPattern);
 #include <echelon/parser/stage2/enhanced-token.hpp>
 void stream_dump(std::ostream& s, EnhancedToken* enhancedToken);
 
+void stream_dump(std::ostream& s, std::list<EnhancedToken*>* enhancedToken);
+
 #include <echelon/ast/AstNode.hpp>
 void stream_dump(std::ostream& s, AstNode* node, int level = 1);
 
-void stream_dump(std::ostream& s, std::queue<AstNode*>* enhancedToken);
+void stream_dump(std::ostream& s, std::queue<AstNode*>* astNodeQueue);
+
 
 #endif
