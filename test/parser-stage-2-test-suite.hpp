@@ -283,4 +283,84 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::String, ast -> getChild(0) -> getChild(1) -> getChild(1) -> getChild(1) -> getType());
     TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(1) -> getChild(1) -> getChild(1) -> getChildCount());
   }
+
+  void testIfStatementWithEmptyBlock(void) {
+    std::list<Token*> program;
+    program.push_back(new Token("if", TokenTypeEnum::Identifier));
+    program.push_back(new Token("(", TokenTypeEnum::ParenO));
+    program.push_back(new Token("1", TokenTypeEnum::Integer));
+    program.push_back(new Token("==", TokenTypeEnum::Equality));
+    program.push_back(new Token("2", TokenTypeEnum::Integer));
+    program.push_back(new Token(")", TokenTypeEnum::ParenC));
+    program.push_back(new Token("{", TokenTypeEnum::BlockDelimO));
+    program.push_back(new Token("}", TokenTypeEnum::BlockDelimC));
+
+    auto ast = parser.parse(program);
+
+    TS_ASSERT_EQUALS("root", ast -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Program, ast -> getType());
+    TS_ASSERT_EQUALS(1, ast -> getChildCount());
+
+    TS_ASSERT_EQUALS(AstNodeType::If, ast -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(1, ast -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS(AstNodeType::EqualityOperator, ast -> getChild(0) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS("1", ast -> getChild(0) -> getChild(0) -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS("2", ast -> getChild(0) -> getChild(0) -> getChild(1) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChildCount());
+  }
+
+  void testIfStatement(void) {
+    std::list<Token*> program;
+    program.push_back(new Token("if", TokenTypeEnum::Identifier));
+    program.push_back(new Token("(", TokenTypeEnum::ParenO));
+    program.push_back(new Token("1", TokenTypeEnum::Integer));
+    program.push_back(new Token("==", TokenTypeEnum::Equality));
+    program.push_back(new Token("2", TokenTypeEnum::Integer));
+    program.push_back(new Token(")", TokenTypeEnum::ParenC));
+    program.push_back(new Token("{", TokenTypeEnum::BlockDelimO));
+    program.push_back(new Token("string", TokenTypeEnum::Identifier));
+    program.push_back(new Token("cond_var", TokenTypeEnum::Identifier));
+    program.push_back(new Token("=", TokenTypeEnum::Assign));
+    program.push_back(new Token("this string will only be assigned if 1 and 2 are equal", TokenTypeEnum::String));
+    program.push_back(new Token("}", TokenTypeEnum::BlockDelimC));
+
+    auto ast = parser.parse(program);
+
+    TS_ASSERT_EQUALS("root", ast -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Program, ast -> getType());
+    TS_ASSERT_EQUALS(1, ast -> getChildCount());
+
+    TS_ASSERT_EQUALS(AstNodeType::If, ast -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS(AstNodeType::EqualityOperator, ast -> getChild(0) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS("1", ast -> getChild(0) -> getChild(0) -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS("2", ast -> getChild(0) -> getChild(0) -> getChild(1) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChildCount());
+
+    TS_ASSERT_EQUALS("cond_var", ast -> getChild(0) -> getChild(1) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Variable, ast -> getChild(0) -> getChild(1) -> getType());
+    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChild(1) -> getChildCount());
+
+    TS_ASSERT_EQUALS("string", ast -> getChild(0) -> getChild(1) -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Type, ast -> getChild(0) -> getChild(1) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(1) -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS("this string will only be assigned if 1 and 2 are equal", ast -> getChild(0) -> getChild(1) -> getChild(1) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::String, ast -> getChild(0) -> getChild(1) -> getChild(1) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(1) -> getChild(1) -> getChildCount());
+  }
 };

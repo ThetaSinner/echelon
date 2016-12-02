@@ -491,6 +491,10 @@ void loadNested() {
   // Important this is loaded last
   std::string bool_expr_val = "expr";
   NestedPatternLookup::getInstance() -> registerNested(bool_expr, "bool_expr_val", bool_expr_val);
+
+  //NestedPatternLookup::getInstance() -> registerNested("if_stmt", "if_stmt", "kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c");
+  //NestedPatternLookup::getInstance() -> registerNested("else_if_stmt", "else_if_stmt", "kwd_else_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c");
+  //NestedPatternLookup::getInstance() -> registerNested("else_stmt", "else_stmt", "kwd_else block_delim_o [block] block_delim_c");
 }
 
 void loadPatterns() {
@@ -506,6 +510,7 @@ void loadPatterns() {
   TokenPatternLookup::getInstance() -> addTokenPattern("module", module);
 
   std::string _if = "kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c";
+  //std::string _if = "if_stmt [else_if_stmt]* [else_stmt]";
   TokenPatternLookup::getInstance() -> addTokenPattern("if", _if);
 }
 

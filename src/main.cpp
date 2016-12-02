@@ -25,12 +25,14 @@ int main(int argc, char** args) {
   program.push_back(new Token("2", TokenTypeEnum::Integer));
   program.push_back(new Token(")", TokenTypeEnum::ParenC));
   program.push_back(new Token("{", TokenTypeEnum::BlockDelimO));
+  program.push_back(new Token("string", TokenTypeEnum::Identifier));
+  program.push_back(new Token("cond_var", TokenTypeEnum::Identifier));
+  program.push_back(new Token("=", TokenTypeEnum::Assign));
+  program.push_back(new Token("this string will only be assigned if 1 and 2 are equal", TokenTypeEnum::String));
   program.push_back(new Token("}", TokenTypeEnum::BlockDelimC));
 
   Parser2 parser;
-  // creates infinite loop, won't back off far enough to match the top level pattern again.
   parser.parse(program);
-
 
   std::cout << std::endl << "Program will exit normally.";
   std::cout << std::endl;
