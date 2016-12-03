@@ -204,6 +204,16 @@ void loadMatchers() {
 
   MatcherLookup::getInstance() -> addMatcher("kwd_if", kwd_if);
 
+  Matcher *kwd_else = new Matcher();
+  kwd_else -> setMatcher([] (Matcher* self) -> bool {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+      return false;
+    }
+
+    return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Else);
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("kwd_else", kwd_else);
 
   Matcher *block = new Matcher();
   block -> setMatcher([] (Matcher* self) -> bool {
@@ -419,7 +429,39 @@ void loadTransformers() {
     return base;
   });
 
-  AstTransformLookup::getInstance() -> addAstTransform("if", ifTransform);
+  AstTransformLookup::getInstance() -> addAstTransform("if_stmt", ifTransform);
+
+  AstTransform *elseTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::Else);
+
+    // The block will always exist but may be empty.
+    if (!astTransformData -> getSubProcessAstNodes() -> empty() && astTransformData -> getSubProcessAstNodes() -> front() -> getChildCount() > 0) {
+      base -> putChild(astTransformData -> getSubProcessAstNodes() -> front() -> getChild(0));
+      astTransformData -> getSubProcessAstNodes() -> pop();
+    }
+
+    return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("else_stmt", elseTransform);
+
+  AstTransform *branchTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::Branches);
+
+    auto nested = astTransformData -> getNestedAstNodes();
+    while (!nested -> empty()) {
+      if (nested -> front() -> getChildCount() >= 1) {
+        base -> putChild(nested -> front() -> getChild(0));
+        nested -> pop();
+      }
+    }
+
+    return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("if", branchTransform);
 
   AstTransform *assignmentExprTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     auto tokenIterator = astTransformData -> getTokens() -> begin();
@@ -492,9 +534,9 @@ void loadNested() {
   std::string bool_expr_val = "expr";
   NestedPatternLookup::getInstance() -> registerNested(bool_expr, "bool_expr_val", bool_expr_val);
 
-  //NestedPatternLookup::getInstance() -> registerNested("if_stmt", "if_stmt", "kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c");
-  //NestedPatternLookup::getInstance() -> registerNested("else_if_stmt", "else_if_stmt", "kwd_else_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c");
-  //NestedPatternLookup::getInstance() -> registerNested("else_stmt", "else_stmt", "kwd_else block_delim_o [block] block_delim_c");
+  NestedPatternLookup::getInstance() -> registerNested("if_stmt", "if_stmt", "kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c");
+  NestedPatternLookup::getInstance() -> registerNested("else_if_stmt", "else_if_stmt", "kwd_else kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c");
+  NestedPatternLookup::getInstance() -> registerNested("else_stmt", "else_stmt", "kwd_else block_delim_o [block] block_delim_c");
 }
 
 void loadPatterns() {
@@ -509,8 +551,8 @@ void loadPatterns() {
   std::string module = "kwd_module identifier block_delim_o [block] block_delim_c";
   TokenPatternLookup::getInstance() -> addTokenPattern("module", module);
 
-  std::string _if = "kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c";
-  //std::string _if = "if_stmt [else_if_stmt]* [else_stmt]";
+  //std::string _if = "kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c";
+  std::string _if = "if_stmt [else_if_stmt]* [else_stmt]";
   TokenPatternLookup::getInstance() -> addTokenPattern("if", _if);
 }
 

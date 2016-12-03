@@ -86,9 +86,9 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
     case AstNodeType::Variable:
       return "variable";
     case AstNodeType::BinaryOperator:
-      return "binary operator";
+      return "binary_operator";
     case AstNodeType::FunctionCall:
-      return "function call";
+      return "function_call";
     case AstNodeType::Type:
       return "type";
     case AstNodeType::String:
@@ -96,9 +96,13 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
     case AstNodeType::Integer:
       return "integer";
     case AstNodeType::EqualityOperator:
-      return "equality operator";
+      return "equality_operator";
     case AstNodeType::If:
       return "if";
+    case AstNodeType::Else:
+      return "else";
+    case AstNodeType::Branches:
+      return "branches";
     default:
       #ifdef ECHELON_DEBUG
       throw std::runtime_error("Mising to string case for ast node type.");
@@ -115,6 +119,8 @@ template<> std::string EchelonLookup::toString(Keyword t) {
       return "module";
     case Keyword::If:
       return "if";
+    case Keyword::Else:
+      return "else";
     default:
       #ifdef ECHELON_DEBUG
       throw std::runtime_error("Mising to string case for keyword.");

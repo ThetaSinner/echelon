@@ -301,19 +301,27 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::Program, ast -> getType());
     TS_ASSERT_EQUALS(1, ast -> getChildCount());
 
-    TS_ASSERT_EQUALS(AstNodeType::If, ast -> getChild(0) -> getType());
-    TS_ASSERT_EQUALS(1, ast -> getChild(0) -> getChildCount());
+    auto branches = ast -> getChild(0);
+    TS_ASSERT_EQUALS(AstNodeType::Branches, branches -> getType());
+    TS_ASSERT_EQUALS(1, branches -> getChildCount());
 
-    TS_ASSERT_EQUALS(AstNodeType::EqualityOperator, ast -> getChild(0) -> getChild(0) -> getType());
-    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChild(0) -> getChildCount());
+    auto _if = ast -> getChild(0) -> getChild(0);
+    TS_ASSERT_EQUALS(AstNodeType::If, _if -> getType());
+    TS_ASSERT_EQUALS(1, _if -> getChildCount());
 
-    TS_ASSERT_EQUALS("1", ast -> getChild(0) -> getChild(0) -> getChild(0) -> getData());
-    TS_ASSERT_EQUALS(AstNodeType::Integer, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getType());
-    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChildCount());
+    auto eq_op = ast -> getChild(0) -> getChild(0) -> getChild(0);
+    TS_ASSERT_EQUALS(AstNodeType::EqualityOperator, eq_op -> getType());
+    TS_ASSERT_EQUALS(2, eq_op -> getChildCount());
 
-    TS_ASSERT_EQUALS("2", ast -> getChild(0) -> getChild(0) -> getChild(1) -> getData());
-    TS_ASSERT_EQUALS(AstNodeType::Integer, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getType());
-    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChildCount());
+    auto int_1 = ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChild(0);
+    TS_ASSERT_EQUALS("1", int_1 -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, int_1 -> getType());
+    TS_ASSERT_EQUALS(0, int_1 -> getChildCount());
+
+    auto int_2 = ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChild(1);
+    TS_ASSERT_EQUALS("2", int_2 -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, int_2 -> getType());
+    TS_ASSERT_EQUALS(0, int_2 -> getChildCount());
   }
 
   void testIfStatement(void) {
@@ -337,30 +345,33 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::Program, ast -> getType());
     TS_ASSERT_EQUALS(1, ast -> getChildCount());
 
-    TS_ASSERT_EQUALS(AstNodeType::If, ast -> getChild(0) -> getType());
-    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChildCount());
+    TS_ASSERT_EQUALS(AstNodeType::Branches, ast -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(1, ast -> getChild(0) -> getChildCount());
 
-    TS_ASSERT_EQUALS(AstNodeType::EqualityOperator, ast -> getChild(0) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(AstNodeType::If, ast -> getChild(0) -> getChild(0) -> getType());
     TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChild(0) -> getChildCount());
 
-    TS_ASSERT_EQUALS("1", ast -> getChild(0) -> getChild(0) -> getChild(0) -> getData());
-    TS_ASSERT_EQUALS(AstNodeType::Integer, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getType());
-    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChildCount());
+    TS_ASSERT_EQUALS(AstNodeType::EqualityOperator, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChildCount());
 
-    TS_ASSERT_EQUALS("2", ast -> getChild(0) -> getChild(0) -> getChild(1) -> getData());
-    TS_ASSERT_EQUALS(AstNodeType::Integer, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getType());
-    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChildCount());
+    TS_ASSERT_EQUALS("1", ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChild(0) -> getChildCount());
 
-    TS_ASSERT_EQUALS("cond_var", ast -> getChild(0) -> getChild(1) -> getData());
-    TS_ASSERT_EQUALS(AstNodeType::Variable, ast -> getChild(0) -> getChild(1) -> getType());
-    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChild(1) -> getChildCount());
+    TS_ASSERT_EQUALS("2", ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChild(1) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChild(1) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChild(1) -> getChildCount());
 
-    TS_ASSERT_EQUALS("string", ast -> getChild(0) -> getChild(1) -> getChild(0) -> getData());
-    TS_ASSERT_EQUALS(AstNodeType::Type, ast -> getChild(0) -> getChild(1) -> getChild(0) -> getType());
-    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(1) -> getChild(0) -> getChildCount());
+    TS_ASSERT_EQUALS("cond_var", ast -> getChild(0) -> getChild(0) -> getChild(1) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Variable, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getType());
+    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChildCount());
 
-    TS_ASSERT_EQUALS("this string will only be assigned if 1 and 2 are equal", ast -> getChild(0) -> getChild(1) -> getChild(1) -> getData());
-    TS_ASSERT_EQUALS(AstNodeType::String, ast -> getChild(0) -> getChild(1) -> getChild(1) -> getType());
-    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(1) -> getChild(1) -> getChildCount());
+    TS_ASSERT_EQUALS("string", ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Type, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChild(0) -> getChildCount());
+
+    TS_ASSERT_EQUALS("this string will only be assigned if 1 and 2 are equal", ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChild(1) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::String, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChild(1) -> getType());
+    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChild(1) -> getChildCount());
   }
 };

@@ -6,6 +6,7 @@ enum class Keyword {
   For,
   Module,
   If,
+  Else,
 
   Integer
 };

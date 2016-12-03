@@ -224,7 +224,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
         #endif
 
         astConstructionManager.pushFragment(frag);
-        
+
         // after this point it is not safe to access i without checking against tokens.end()
         std::advance(i, std::distance(i, it));
         break;
@@ -283,7 +283,6 @@ bool Parser2::simpleGroupMatch(std::list<Token*>& tokens, TokenPatternGroup* gro
       //std::cout << "Yes\n" << std::endl;
       matchCount++;
       it++;
-
 
       if (it == tokens.end()) {
         //std::cout << "Ran out of tokens.\n";

@@ -4,7 +4,9 @@ add_library(${util_lib_name}
   string-util.cpp
   tizer.cpp
   iterator-util.cpp
-stream-dump.cpp)
+  stream-dump.cpp
+  ast-to-graphviz.cpp
+)
 
 # Disable prefixing library name with 'lib'
 set_target_properties(${util_lib_name} PROPERTIES PREFIX "")

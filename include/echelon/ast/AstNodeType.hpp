@@ -15,6 +15,8 @@ enum class AstNodeType {
   Integer,
   EqualityOperator,
   If,
+  Else,
+  Branches,
 };
 
 #endif
