@@ -1,0 +1,14 @@
+digraph Program {
+program_ -> branches__0;
+branches__0 -> if__0_0;
+if__0_0 -> equality_operator__0_0_0 [label="root"];
+equality_operator__0_0_0 -> integer__0_0_0_0 [label="1"];
+equality_operator__0_0_0 -> integer__0_0_0_1 [label="2"];
+if__0_0 -> variable__0_0_1 [label="cond_var"];
+variable__0_0_1 -> type__0_0_1_0 [label="string"];
+variable__0_0_1 -> string__0_0_1_1 [label="string_one"];
+branches__0 -> else__0_1;
+else__0_1 -> variable__0_1_0 [label="alt_cond_var"];
+variable__0_1_0 -> type__0_1_0_0 [label="string"];
+variable__0_1_0 -> string__0_1_0_1 [label="string_two"];
+}

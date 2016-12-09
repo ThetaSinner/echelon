@@ -9,6 +9,10 @@
 
 #include <echelon/util/ast-to-graphviz.hpp>
 
+#include <echelon/transform/TypeDeductionEngine.hpp>
+
+#include <echelon/util/stream-dump.hpp>
+
 int main(int argc, char** args) {
   #ifdef ECHELON_DEBUG
   std::cout << "This is a debug build.\n";
@@ -50,6 +54,23 @@ int main(int argc, char** args) {
   // dot test.gv -Tjpeg > img.jpeg
   out << gv;
   out.close();
+
+  // Need a good data scructure which has all the declared data, types and functions.
+  // It needs to be such that it is simple to find out whether something is defined in the current context or parent context
+  // for example. Maybe it will be a complementary structure to the existing tree.
+
+  std::list<Token*> program2;
+  program2.push_back(new Token("my_str_var", TokenTypeEnum::Identifier));
+  program2.push_back(new Token("=", TokenTypeEnum::Assign));
+  program2.push_back(new Token("str data", TokenTypeEnum::String));
+
+  auto str_no_type_ast = parser.parse(program2);
+
+  TypeDeductionEngine typeDeductionEngine;
+  typeDeductionEngine.deduceTypes(str_no_type_ast);
+
+  stream_dump(std::cout, str_no_type_ast);
+
 
   std::cout << std::endl << "Program will exit normally.";
   std::cout << std::endl;

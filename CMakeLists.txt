@@ -11,6 +11,7 @@ file(GLOB project_test_source_files "${CMAKE_CURRENT_SOURCE_DIR}/test/*.hpp")
 
 set(parser_lib_name "${PROJECT_NAME}_lib_parser")
 set(ast_lib_name "${PROJECT_NAME}_lib_ast")
+set(transform_lib_name "${PROJECT_NAME}_lib_transform")
 set(util_lib_name "${PROJECT_NAME}_lib_util")
 
 # Set output directories
@@ -35,6 +36,10 @@ target_link_libraries(${project_binary_name} ${parser_lib_name})
 # Link the ast to the executable.
 add_subdirectory(src/ast)
 target_link_libraries(${project_binary_name} ${ast_lib_name})
+
+# Link the transform lib to the executable.
+add_subdirectory(src/transform)
+target_link_libraries(${project_binary_name} ${transform_lib_name})
 
 add_subdirectory(src/util)
 target_link_libraries(${project_binary_name} ${util_lib_name})

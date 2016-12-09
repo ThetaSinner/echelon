@@ -8,7 +8,8 @@ enum class Keyword {
   If,
   Else,
 
-  Integer
+  Integer,
+  String,
 };
 
 #endif

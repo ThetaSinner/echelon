@@ -17,7 +17,13 @@ void _toGraphviz(AstNode* currentNode, std::stringstream& stream, std::string tr
     stream << EchelonLookup::getInstance() -> toString(currentNode -> getType()) << "_" << tracker;
     stream << " -> ";
     stream << EchelonLookup::getInstance() -> toString(currentNode -> getChild(i) -> getType()) << "_" << tracker << "_" << i;
-    stream << ";" << std::endl;
+    if (currentNode -> getChild(i) -> getData() != "") {
+      stream << " [label=\"" << currentNode -> getChild(i) -> getData() << "\"];";
+    }
+    else {
+      stream << ";";
+    }
+    stream << std::endl;
 
     std::stringstream s;
     s << tracker << "_" << i;

@@ -559,6 +559,8 @@ void loadPatterns() {
 void loadParserData() {
   static bool loaded = false;
 
+  // TODO force the program to exit if the data loaded here isn't complete (when detectable).
+
   if (!loaded) {
     loadDataTypeKeywords();
     loadKeywords();

@@ -121,6 +121,8 @@ template<> std::string EchelonLookup::toString(Keyword t) {
       return "if";
     case Keyword::Else:
       return "else";
+    case Keyword::String:
+      return "string";
     default:
       #ifdef ECHELON_DEBUG
       throw std::runtime_error("Mising to string case for keyword.");
