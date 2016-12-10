@@ -73,9 +73,8 @@ int main(int argc, char** args) {
 
   stream_dump(std::cout, str_no_type_ast);
 
-
   CodeGenerator codeGenerator;
-  std::cout << codeGenerator.generate(nullptr) << std::endl;
+  std::cout << codeGenerator.generate(str_no_type_ast) << std::endl;
 
   std::cout << std::endl << "Program will exit normally.";
   std::cout << std::endl;

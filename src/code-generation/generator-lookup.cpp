@@ -22,11 +22,11 @@ void GeneratorLookup::addGenerator(AstNodeType astNodeType, Generator* generator
 
 Generator* GeneratorLookup::getGenerator(AstNodeType astNodeType) {
   #ifdef ECHELON_DEBUG
-  if (generatorHash.find(astNodeType) != generatorHash.end()) {
+  if (generatorHash.find(astNodeType) == generatorHash.end()) {
     std::cout << "Missing generator [" << EchelonLookup::toString(astNodeType) << "]" << std::endl;
     throw std::runtime_error("Missing generator");
   }
   #endif
 
-  generatorHash.at(astNodeType);
+  return generatorHash.at(astNodeType);
 }

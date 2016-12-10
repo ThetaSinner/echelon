@@ -1,9 +1,16 @@
 #include <echelon/code-generation/generator.hpp>
 
-void Generator::setGenerator(GeneratorFunction generatorFunction) {
+#ifdef ECHELON_DEBUG
+#include <iostream>
+#include <sstream>
+#include <echelon/util/stream-dump.hpp>
+#include <echelon/code-generation/generator-lookup.hpp>
+#endif
+
+Generator::Generator(GeneratorFunction generatorFunction) {
   this -> generatorFunction = generatorFunction;
 }
 
-GeneratorFunction Generator::getGenerator() {
-  return generatorFunction;
+std::string Generator::generate(AstNode* astNode) {
+  return generatorFunction(astNode);
 }

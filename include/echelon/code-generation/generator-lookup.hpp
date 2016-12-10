@@ -16,7 +16,7 @@ private:
   GeneratorLookup(const GeneratorLookup& gl) {}
   GeneratorLookup& operator=(const GeneratorLookup& gl) {}
 public:
-  GeneratorLookup* getInstance();
+  static GeneratorLookup* getInstance();
 
   void addGenerator(AstNodeType astNodeType, Generator* generator);
   Generator* getGenerator(AstNodeType astNodeType);

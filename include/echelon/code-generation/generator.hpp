@@ -2,17 +2,18 @@
 #define GENERATOR_HPP_INCLUDED
 
 #include <functional>
+#include <string>
 
 #include <echelon/ast/AstNode.hpp>
 
-typedef std::function<void(AstNode* node)> GeneratorFunction;
+typedef std::function<std::string(AstNode*)> GeneratorFunction;
 
 class Generator {
 private:
-  GeneratorFunction generatorFunction;
+   GeneratorFunction generatorFunction;
 public:
-  void setGenerator(GeneratorFunction generatorFunction);
-  GeneratorFunction getGenerator();
+  Generator(GeneratorFunction generatorFunction);
+  std::string generate(AstNode* astNode);
 };
 
 #endif
