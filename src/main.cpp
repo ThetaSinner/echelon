@@ -13,6 +13,8 @@
 
 #include <echelon/util/stream-dump.hpp>
 
+#include <echelon/code-generation/code-generator.hpp>
+
 int main(int argc, char** args) {
   #ifdef ECHELON_DEBUG
   std::cout << "This is a debug build.\n";
@@ -71,6 +73,9 @@ int main(int argc, char** args) {
 
   stream_dump(std::cout, str_no_type_ast);
 
+
+  CodeGenerator codeGenerator;
+  std::cout << codeGenerator.generate(nullptr) << std::endl;
 
   std::cout << std::endl << "Program will exit normally.";
   std::cout << std::endl;
