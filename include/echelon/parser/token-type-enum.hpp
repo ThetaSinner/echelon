@@ -1,6 +1,7 @@
 #ifndef TOKEN_ENUM_HPP_INCLUDED
 #define TOKEN_ENUM_HPP_INCLUDED
 
+#include <vector>
 #include <string>
 
 enum class TokenTypeEnum {
@@ -20,8 +21,11 @@ enum class TokenTypeEnum {
   MultiLineComment,
   StructureOperator,
   AndOperator,
-};
 
-std::string toString(TokenTypeEnum tokenType);
+  #ifdef ECHELON_DEBUG
+  First = String,
+  Last = AndOperator,
+  #endif
+};
 
 #endif

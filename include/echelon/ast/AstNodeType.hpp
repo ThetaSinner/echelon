@@ -17,6 +17,11 @@ enum class AstNodeType {
   If,
   Else,
   Branches,
+
+  #ifdef ECHELON_DEBUG
+  First = Program,
+  Last = Branches,
+  #endif
 };
 
 #endif

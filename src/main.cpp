@@ -11,15 +11,33 @@
 
 #include <echelon/transform/TypeDeductionEngine.hpp>
 
+#include <echelon/parser/keyword-enum.hpp>
+
 #include <echelon/util/stream-dump.hpp>
 
 #include <echelon/code-generation/code-generator.hpp>
+
+#include <echelon/util/enum-class-iterator.hpp>
 
 int main(int argc, char** args) {
   #ifdef ECHELON_DEBUG
   std::cout << "This is a debug build.\n";
   #else
   std::cout << "This is a release build.\n";
+  #endif
+
+  #ifdef ECHELON_DEBUG
+  for (auto tte : Enum<TokenTypeEnum>()) {
+    EchelonLookup::toString(tte);
+  }
+
+  for (auto k : Enum<Keyword>()) {
+    EchelonLookup::toString(k);
+  }
+
+  for (auto ant : Enum<AstNodeType>()) {
+    EchelonLookup::toString(ant);
+  }
   #endif
 
   loadParserData();
