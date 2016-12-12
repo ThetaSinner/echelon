@@ -13,6 +13,7 @@ set(parser_lib_name "${PROJECT_NAME}_lib_parser")
 set(ast_lib_name "${PROJECT_NAME}_lib_ast")
 set(transform_lib_name "${PROJECT_NAME}_lib_transform")
 set(code_generator_lib_name "${PROJECT_NAME}_lib_code_generator")
+set(compiler_lib_name "${PROJECT_NAME}_lib_compiler")
 set(util_lib_name "${PROJECT_NAME}_lib_util")
 
 # Set output directories
@@ -45,6 +46,10 @@ target_link_libraries(${project_binary_name} ${transform_lib_name})
 # Link the code-generator lib to the executable.
 add_subdirectory(src/code-generation)
 target_link_libraries(${project_binary_name} ${code_generator_lib_name})
+
+# Link the compiler lib to the executable.
+add_subdirectory(src/compiler)
+target_link_libraries(${project_binary_name} ${compiler_lib_name})
 
 add_subdirectory(src/util)
 target_link_libraries(${project_binary_name} ${util_lib_name})
