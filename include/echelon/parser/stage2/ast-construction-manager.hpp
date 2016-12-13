@@ -1,8 +1,8 @@
 #ifndef AST_CONSTRUCTION_MANAGER_HPP_INCLUDED
 #define AST_CONSTRUCTION_MANAGER_HPP_INCLUDED
 
-#include <echelon/ast/AstNode.hpp>
-#include <echelon/ast/AstNodeType.hpp>
+#include <echelon/ast/ast-node.hpp>
+#include <echelon/ast/ast-node-type.hpp>
 
 class AstConstructionManager {
   AstNode *root;

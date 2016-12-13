@@ -1,4 +1,4 @@
-#include <echelon/ast/AstNode.hpp>
+#include <echelon/ast/ast-node.hpp>
 
 void AstNode::putChild(AstNode* child) {
   children.push_back(child);

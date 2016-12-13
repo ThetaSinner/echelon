@@ -28,7 +28,7 @@ void stream_dump(std::ostream& s, EnhancedToken* enhancedToken);
 
 void stream_dump(std::ostream& s, std::list<EnhancedToken*>* enhancedToken);
 
-#include <echelon/ast/AstNode.hpp>
+#include <echelon/ast/ast-node.hpp>
 void stream_dump(std::ostream& s, AstNode* node, int level = 1);
 
 void stream_dump(std::ostream& s, std::queue<AstNode*>* astNodeQueue);

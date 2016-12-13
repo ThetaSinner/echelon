@@ -4,7 +4,7 @@
 #include <list>
 #include <queue>
 
-#include <echelon/ast/AstNode.hpp>
+#include <echelon/ast/ast-node.hpp>
 #include <echelon/parser/stage2/enhanced-token.hpp>
 #include <echelon/parser/stage2/pattern-match-info.hpp>
 

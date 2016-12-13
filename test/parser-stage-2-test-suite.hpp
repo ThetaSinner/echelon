@@ -6,7 +6,7 @@
 #include <echelon/parser/token.hpp>
 #include <echelon/parser/stage2/parser.hpp>
 #include <echelon/parser/token-type-enum.hpp>
-#include <echelon/ast/AstNodeType.hpp>
+#include <echelon/ast/ast-node-type.hpp>
 
 class ParserStage2TestSuite : public CxxTest::TestSuite
 {

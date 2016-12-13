@@ -9,7 +9,7 @@
 
 #include <echelon/util/ast-to-graphviz.hpp>
 
-#include <echelon/transform/TypeDeductionEngine.hpp>
+#include <echelon/transform/type-deduction-engine.hpp>
 
 #include <echelon/util/stream-dump.hpp>
 

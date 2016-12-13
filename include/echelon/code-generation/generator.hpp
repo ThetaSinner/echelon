@@ -4,7 +4,7 @@
 #include <functional>
 #include <string>
 
-#include <echelon/ast/AstNode.hpp>
+#include <echelon/ast/ast-node.hpp>
 
 typedef std::function<std::string(AstNode*)> GeneratorFunction;
 

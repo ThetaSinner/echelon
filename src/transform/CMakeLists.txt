@@ -1,8 +1,8 @@
 # This will be compiled into the executable if BUILD_SHARED_LIBS is OFF
 # otherwise it is output to CMAKE_LIBRARY_OUTPUT_DIRECTORY
 add_library(${transform_lib_name}
-  TreeWalker.cpp
-  TypeDeductionEngine.cpp
+  tree-walker.cpp
+  type-deduction-engine.cpp
 )
 
 # Disable prefixing library name with 'lib'

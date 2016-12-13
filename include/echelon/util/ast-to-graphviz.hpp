@@ -2,7 +2,7 @@
 #define AST_TO_GRAPHVIZ_HPP_INCLUDED
 
 #include <string>
-#include <echelon/ast/AstNode.hpp>
+#include <echelon/ast/ast-node.hpp>
 
 std::string toGraphviz(AstNode* program);
 

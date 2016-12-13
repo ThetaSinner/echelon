@@ -1,7 +1,7 @@
 #include <echelon/parser/stage2/echelon-lookup.hpp>
 
 #include <echelon/parser/token-type-enum.hpp>
-#include <echelon/ast/AstNodeType.hpp>
+#include <echelon/ast/ast-node-type.hpp>
 #include <echelon/parser/keyword-enum.hpp>
 
 #ifdef ECHELON_DEBUG

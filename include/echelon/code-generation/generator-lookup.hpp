@@ -4,7 +4,7 @@
 #include <map>
 
 #include <echelon/code-generation/generator.hpp>
-#include <echelon/ast/AstNodeType.hpp>
+#include <echelon/ast/ast-node-type.hpp>
 
 class GeneratorLookup {
 private:

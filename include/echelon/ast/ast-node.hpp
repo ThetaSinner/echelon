@@ -1,7 +1,7 @@
 #ifndef AST_NODE_HPP_INCLUDED
 #define AST_NODE_HPP_INCLUDED
 
-#include <echelon/ast/AstNodeType.hpp>
+#include <echelon/ast/ast-node-type.hpp>
 #include <vector>
 #include <string>
 
