@@ -6,13 +6,9 @@
 #include <echelon/parser/parser-data/parser-data-load.hpp>
 #include <echelon/parser/stage2/pattern-translator.hpp>
 #include <echelon/parser/stage2/parser.hpp>
-
 #include <echelon/util/ast-to-graphviz.hpp>
-
 #include <echelon/transform/type-deduction-engine.hpp>
-
 #include <echelon/util/stream-dump.hpp>
-
 #include <echelon/code-generation/code-generator.hpp>
 
 int main(int argc, char** args) {
@@ -21,6 +17,27 @@ int main(int argc, char** args) {
   #else
   std::cout << "This is a release build.\n";
   #endif
+
+
+  std::string exampleTokenString = "abc { } {{ 4321 432.1 () (( <> << [] [[ || | && & # \"\" ! '' ' * ^ $ , .";
+
+  std::string numberPattern = "number*";
+  std::string identifierPattern = "(letter|underscore)*";
+  std::string floatPattern = "number* full_stop number*";
+  std::string stringPattern = "double_quote any* double_quote";
+  std::string commentPattern = "forward_slash forward_slash any* end_of_line";
+  std::string multiLineCommentPattern = "forward_slash star any* star forward_slash";
+
+
+
+
+
+
+
+
+
+
+
 
   loadParserData();
 
