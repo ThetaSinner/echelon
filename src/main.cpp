@@ -64,6 +64,10 @@ public:
     return data;
   }
 
+  CharacterMatcher getMatcher() {
+    return matcher;
+  }
+
   void setRepeatable(bool repeatable) {
     this -> repeatable = repeatable;
   }
@@ -74,17 +78,17 @@ public:
 };
 
 class CharacterPatternGroup {
-  std::list<CharacterPatternElement> elements;
+  std::list<CharacterPatternElement*> elements;
 
   bool repeatable = false;
 
 public:
-  void addElement(CharacterPatternElement cpe) {
+  void addElement(CharacterPatternElement* cpe) {
     elements.push_back(cpe);
   }
 
-  std::list<CharacterPatternElement> getElements() {
-    return elements;
+  std::list<CharacterPatternElement*>* getElements() {
+    return &elements;
   }
 
   void setRepeatable(bool repeatable) {
@@ -97,19 +101,19 @@ public:
 };
 
 class CharacterPattern {
-  std::list<CharacterPatternGroup> groups;
+  std::list<CharacterPatternGroup*> groups;
 public:
-  void addGroup(CharacterPatternGroup cpg) {
+  void addGroup(CharacterPatternGroup* cpg) {
     groups.push_back(cpg);
   }
 
-  std::list<CharacterPatternGroup> getGroups() {
-    return groups;
+  std::list<CharacterPatternGroup*>* getGroups() {
+    return &groups;
   }
 };
 
-CharacterPattern parseCharacterPattern(std::string pattern) {
-  CharacterPattern characterPattern;
+CharacterPattern* parseCharacterPattern(std::string pattern) {
+  CharacterPattern *characterPattern = new CharacterPattern();
 
   int strPos = 0;
   int strLen = pattern.size();
@@ -119,14 +123,14 @@ CharacterPattern parseCharacterPattern(std::string pattern) {
     if (currentChar == '(') {
       int subStrPos = strPos + 1;
 
-      CharacterPatternGroup group;
+      CharacterPatternGroup *group = new CharacterPatternGroup();
       while (subStrPos < strLen && pattern[subStrPos] != ')') {
         int start = subStrPos;
         while (isIdent(pattern[subStrPos])) {
           subStrPos++;
         }
 
-        group.addElement(CharacterPatternElement(pattern.substr(start, subStrPos - start)));
+        group -> addElement(new CharacterPatternElement(pattern.substr(start, subStrPos - start)));
         if (pattern[subStrPos] == ' ') {
           subStrPos++;
         }
@@ -137,11 +141,11 @@ CharacterPattern parseCharacterPattern(std::string pattern) {
       }
 
       if (pattern[subStrPos] == '*') {
-        group.setRepeatable(true);
+        group -> setRepeatable(true);
         subStrPos++;
       }
 
-      characterPattern.addGroup(group);
+      characterPattern -> addGroup(group);
       strPos = subStrPos;
       continue;
     }
@@ -153,22 +157,20 @@ CharacterPattern parseCharacterPattern(std::string pattern) {
         subStrPos++;
       }
 
-      CharacterPatternElement cpe(pattern.substr(start, subStrPos - start));
+      CharacterPatternElement *cpe = new CharacterPatternElement(pattern.substr(start, subStrPos - start));
 
-      CharacterPatternGroup cpg;
-      cpg.addElement(cpe);
+      CharacterPatternGroup *cpg = new CharacterPatternGroup();
+      cpg -> addElement(cpe);
 
-      characterPattern.addGroup(cpg);
+      characterPattern -> addGroup(cpg);
 
       if (pattern[subStrPos] == '*') {
-        cpe.setRepeatable(true);
+        cpe -> setRepeatable(true);
         subStrPos++;
       }
       strPos = subStrPos;
       continue;
     }
-
-    std::cout << std::endl;
 
     strPos++;
   }
@@ -176,14 +178,71 @@ CharacterPattern parseCharacterPattern(std::string pattern) {
   return characterPattern;
 }
 
-void tokenize(std::string input, std::list<CharacterPattern> patternList) {
-  for (int i = 0; i < input.size(); i++) {
+void tokenize(std::string input, std::list<CharacterPattern*> patternList) {
 
+  auto i = input.begin();
+  bool matchedAll = true;
+  while (i != input.end()) {
     for (auto pattern : patternList) {
-      for (auto group : pattern.getGroups()) {
-        
+
+      auto ip = i;
+      bool patternMatches = true;
+      int groupMatchCount = 0;
+      for (auto group : *(pattern -> getGroups())) {
+
+        auto ig = ip;
+        bool groupMatches = true;
+        int elementMatchCount = 0;
+        auto elements = group -> getElements();
+        for (auto element = elements -> begin(); element != elements -> end(); element++) {
+          auto matcher = (*element) -> getMatcher();
+
+          if (matcher(*ig)) {
+            ig++;
+
+            if ((*element) -> isRepeatable()) {
+              std::cout << "repeatable, run element again\n";
+              elementMatchCount++;
+              element--;
+              continue;
+            }
+          }
+          else {
+            std::cout << "match count " << elementMatchCount << std::endl;
+            if (elementMatchCount == 0) {
+              groupMatches = false;
+            }
+
+            break;
+          }
+
+          elementMatchCount = 0;
+        }
+
+        if (groupMatches) {
+          std::cout << "group matches.\n";
+          ip += ig - ip;
+        }
+        else {
+          std::cout << "group does not match.\n";
+          patternMatches = false;
+          break;
+        }
+      }
+
+      if (patternMatches) {
+        std::cout << input.substr(i - input.begin(), ip - i) << std::endl;
+        i += ip - i;
+      }
+      else {
+        matchedAll = false;
+        break;
       }
     }
+  }
+
+  if (!matchedAll) {
+    std::cout << "Tokenize failed.\n";
   }
 }
 
@@ -221,9 +280,12 @@ int main(int argc, char** args) {
 
   std::string coverageString = "test1 test2* (test3) (test4)* (test5 test6)*";
 
-  parseCharacterPattern(numberPattern);
-  parseCharacterPattern(identifierPattern);
-  parseCharacterPattern(floatPattern);
+  std::list<CharacterPattern*> patternList;
+  patternList.push_back(parseCharacterPattern(numberPattern));
+  patternList.push_back(parseCharacterPattern(identifierPattern));
+  patternList.push_back(parseCharacterPattern(floatPattern));
+
+  tokenize("9011", patternList);
 
   return 0;
 
