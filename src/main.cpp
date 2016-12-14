@@ -11,6 +11,134 @@
 #include <echelon/util/stream-dump.hpp>
 #include <echelon/code-generation/code-generator.hpp>
 
+bool isIdent(char c) {
+  return (97 <= c && c <= 122) || (48 <= c && c <= 57) || c == '_';
+}
+
+class CharacterPatternElement {
+  std::string data;
+
+  bool repeatable = false;
+
+public:
+  CharacterPatternElement(std::string data) : data(data) {}
+
+  std::string getData() {
+    return data;
+  }
+
+  void setRepeatable(bool repeatable) {
+    this -> repeatable = repeatable;
+  }
+
+  bool isRepeatable() {
+    return repeatable;
+  }
+};
+
+class CharacterPatternGroup {
+  std::list<CharacterPatternElement> elements;
+
+  bool repeatable = false;
+
+public:
+  void addElement(CharacterPatternElement cpe) {
+    elements.push_back(cpe);
+  }
+
+  std::list<CharacterPatternElement> getElements() {
+    return elements;
+  }
+
+  void setRepeatable(bool repeatable) {
+    this -> repeatable = repeatable;
+  }
+
+  bool isRepeatable() {
+    return repeatable;
+  }
+};
+
+class CharacterPattern {
+  std::list<CharacterPatternGroup> groups;
+public:
+  void addGroup(CharacterPatternGroup cpg) {
+    groups.push_back(cpg);
+  }
+
+  std::list<CharacterPatternGroup> getGroups() {
+    return groups;
+  }
+};
+
+CharacterPattern parseCharacterPattern(std::string pattern) {
+  CharacterPattern characterPattern;
+
+  int strPos = 0;
+  int strLen = pattern.size();
+  while (strPos < strLen) {
+    auto currentChar = pattern[strPos];
+
+    if (currentChar == '(') {
+      int subStrPos = strPos + 1;
+
+      CharacterPatternGroup group;
+      while (subStrPos < strLen && pattern[subStrPos] != ')') {
+        int start = subStrPos;
+        while (isIdent(pattern[subStrPos])) {
+          subStrPos++;
+        }
+
+        group.addElement(CharacterPatternElement(pattern.substr(start, subStrPos - start)));
+        if (pattern[subStrPos] == ' ') {
+          subStrPos++;
+        }
+      }
+
+      if (pattern[subStrPos] == ')') {
+        subStrPos++;
+      }
+
+      if (pattern[subStrPos] == '*') {
+        group.setRepeatable(true);
+        subStrPos++;
+      }
+
+      characterPattern.addGroup(group);
+      strPos = subStrPos;
+      continue;
+    }
+
+    if (isIdent(pattern[strPos])) {
+      int start = strPos;
+      int subStrPos = strPos;
+      while (isIdent(pattern[subStrPos])) {
+        subStrPos++;
+      }
+
+      CharacterPatternElement cpe(pattern.substr(start, subStrPos - start));
+
+      CharacterPatternGroup cpg;
+      cpg.addElement(cpe);
+
+      characterPattern.addGroup(cpg);
+
+      if (pattern[subStrPos] == '*') {
+        cpe.setRepeatable(true);
+        subStrPos++;
+      }
+      strPos = subStrPos;
+      continue;
+    }
+
+    std::cout << std::endl;
+
+    strPos++;
+  }
+
+  return characterPattern;
+}
+
 int main(int argc, char** args) {
   #ifdef ECHELON_DEBUG
   std::cout << "This is a debug build.\n";
@@ -18,19 +146,21 @@ int main(int argc, char** args) {
   std::cout << "This is a release build.\n";
   #endif
 
-
   std::string exampleTokenString = "abc { } {{ 4321 432.1 () (( <> << [] [[ || | && & # \"\" ! '' ' * ^ $ , .";
 
   std::string numberPattern = "number*";
-  std::string identifierPattern = "(letter|underscore)*";
+  std::string identifierPattern = "(letter underscore)*";
   std::string floatPattern = "number* full_stop number*";
   std::string stringPattern = "double_quote any* double_quote";
   std::string commentPattern = "forward_slash forward_slash any* end_of_line";
   std::string multiLineCommentPattern = "forward_slash star any* star forward_slash";
 
+  std::string coverageString = "test1 test2* (test3) (test4)* (test5 test6)*";
 
+  parseCharacterPattern(numberPattern);
+  parseCharacterPattern(identifierPattern);
 
-
+  return 0;
 
 
 
