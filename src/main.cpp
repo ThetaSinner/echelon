@@ -15,13 +15,50 @@ bool isIdent(char c) {
   return (97 <= c && c <= 122) || (48 <= c && c <= 57) || c == '_';
 }
 
+typedef std::function<bool(char)> CharacterMatcher;
+
+class CharacterMatcherLookup {
+  static CharacterMatcherLookup *instance;
+
+  std::map<std::string, CharacterMatcher> matcherHash;
+public:
+  static CharacterMatcherLookup* getInstance() {
+    if (instance == nullptr) {
+      instance = new CharacterMatcherLookup();
+    }
+
+    return instance;
+  }
+
+  void addCharacterMatcher(std::string key, CharacterMatcher matcher) {
+    matcherHash.insert({key, matcher});
+  }
+
+  CharacterMatcher getMatcher(std::string key) {
+    #ifdef ECHELON_DEBUG
+    if (matcherHash.find(key) == matcherHash.end()) {
+      std::cout << "Missing character matcher [" << key << "]" << std::endl;
+      throw std::runtime_error("Missing character matcher");
+    }
+    #endif
+
+    return matcherHash.at(key);
+  }
+};
+
+CharacterMatcherLookup* CharacterMatcherLookup::instance = nullptr;
+
 class CharacterPatternElement {
   std::string data;
 
   bool repeatable = false;
 
+  CharacterMatcher matcher;
+
 public:
-  CharacterPatternElement(std::string data) : data(data) {}
+  CharacterPatternElement(std::string data) : data(data) {
+    matcher = CharacterMatcherLookup::getInstance() -> getMatcher(data);
+  }
 
   std::string getData() {
     return data;
@@ -139,6 +176,17 @@ CharacterPattern parseCharacterPattern(std::string pattern) {
   return characterPattern;
 }
 
+void tokenize(std::string input, std::list<CharacterPattern> patternList) {
+  for (int i = 0; i < input.size(); i++) {
+
+    for (auto pattern : patternList) {
+      for (auto group : pattern.getGroups()) {
+        
+      }
+    }
+  }
+}
+
 int main(int argc, char** args) {
   #ifdef ECHELON_DEBUG
   std::cout << "This is a debug build.\n";
@@ -147,6 +195,22 @@ int main(int argc, char** args) {
   #endif
 
   std::string exampleTokenString = "abc { } {{ 4321 432.1 () (( <> << [] [[ || | && & # \"\" ! '' ' * ^ $ , .";
+
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("number", [] (char c) -> bool {
+    return '0' <= c && c <= '9';
+  });
+
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("letter", [] (char c) -> bool {
+    return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
+  });
+
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("underscore", [] (char c) -> bool {
+    return c == '_';
+  });
+
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("full_stop", [] (char c) -> bool {
+    return c == '.';
+  });
 
   std::string numberPattern = "number*";
   std::string identifierPattern = "(letter underscore)*";
@@ -159,6 +223,7 @@ int main(int argc, char** args) {
 
   parseCharacterPattern(numberPattern);
   parseCharacterPattern(identifierPattern);
+  parseCharacterPattern(floatPattern);
 
   return 0;
 
