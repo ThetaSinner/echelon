@@ -181,69 +181,75 @@ CharacterPattern* parseCharacterPattern(std::string pattern) {
 void tokenize(std::string input, std::list<CharacterPattern*> patternList) {
 
   auto i = input.begin();
-  bool matchedAll = true;
+
   while (i != input.end()) {
+    if (*i == ' ') {
+      i++;
+      continue;
+    }
+
     for (auto pattern : patternList) {
 
       auto ip = i;
       bool patternMatches = true;
       int groupMatchCount = 0;
-      for (auto group : *(pattern -> getGroups())) {
+      auto groups = pattern -> getGroups();
+      for (auto group = groups -> begin(); group != groups -> end(); group++) {
 
         auto ig = ip;
-        bool groupMatches = true;
-        int elementMatchCount = 0;
-        auto elements = group -> getElements();
+        bool groupMatches = false;
+        auto elements = (*group) -> getElements();
         for (auto element = elements -> begin(); element != elements -> end(); element++) {
           auto matcher = (*element) -> getMatcher();
 
+          std::cout << "Test [" << (*element) -> getData() << "], [" << *ig << "]\n";
+          std::cin.get();
+
           if (matcher(*ig)) {
             ig++;
+            groupMatches = true;
 
             if ((*element) -> isRepeatable()) {
-              std::cout << "repeatable, run element again\n";
-              elementMatchCount++;
-              element--;
-              continue;
-            }
-          }
-          else {
-            std::cout << "match count " << elementMatchCount << std::endl;
-            if (elementMatchCount == 0) {
-              groupMatches = false;
+              while (matcher(*ig)) {
+                ig++;
+              }
             }
 
             break;
           }
-
-          elementMatchCount = 0;
         }
 
         if (groupMatches) {
-          std::cout << "group matches.\n";
-          ip += ig - ip;
+          std::advance(ip, ig - ip);
+          groupMatchCount++;
+
+          if ((*group) -> isRepeatable()) {
+            group--;
+          }
+          else {
+            break;
+          }
         }
         else {
-          std::cout << "group does not match.\n";
-          patternMatches = false;
+          if (groupMatchCount == 0) {
+            patternMatches = false;
+          }
+
           break;
         }
       }
 
       if (patternMatches) {
         std::cout << input.substr(i - input.begin(), ip - i) << std::endl;
-        i += ip - i;
+        std::advance(i, ip - i);
       }
-      else {
-        matchedAll = false;
+
+      if (i == input.end()) {
         break;
       }
     }
   }
 
-  if (!matchedAll) {
-    std::cout << "Tokenize failed.\n";
-  }
 }
 
 int main(int argc, char** args) {
@@ -286,6 +292,10 @@ int main(int argc, char** args) {
   patternList.push_back(parseCharacterPattern(floatPattern));
 
   tokenize("9011", patternList);
+  std::cin.get();
+  tokenize("as_df", patternList);
+  std::cin.get();
+  tokenize("asdf fdas", patternList);
 
   return 0;
 
