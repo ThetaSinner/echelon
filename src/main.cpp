@@ -55,9 +55,15 @@ class CharacterPatternElement {
 
   CharacterMatcher matcher;
 
+  bool useLookahead = false;
+
 public:
   CharacterPatternElement(std::string data) : data(data) {
     matcher = CharacterMatcherLookup::getInstance() -> getMatcher(data);
+
+    if (data == "any") {
+      useLookahead = true;
+    }
   }
 
   std::string getData() {
@@ -66,6 +72,10 @@ public:
 
   CharacterMatcher getMatcher() {
     return matcher;
+  }
+
+  bool isUseLookahead() {
+    return useLookahead;
   }
 
   void setRepeatable(bool repeatable) {
@@ -202,15 +212,22 @@ void tokenize(std::string input, std::list<CharacterPattern*> patternList) {
         for (auto element = elements -> begin(); element != elements -> end(); element++) {
           auto matcher = (*element) -> getMatcher();
 
-          std::cout << "Test [" << (*element) -> getData() << "], [" << *ig << "]\n";
-          std::cin.get();
+          CharacterMatcher nextMatcher = [] (char c) -> bool {
+            return false;
+          };
+          if ((*element) -> isUseLookahead() && std::next(group, 1) != groups -> end()) {
+            nextMatcher = (*(*std::next(group, 1)) -> getElements() -> begin()) -> getMatcher();
+          }
 
-          if (matcher(*ig)) {
+          //std::cout << "Test [" << (*element) -> getData() << "], [" << *ig << "]\n";
+          //std::cin.get();
+
+          if (matcher(*ig) && !nextMatcher(*ig)) {
             ig++;
             groupMatches = true;
 
             if ((*element) -> isRepeatable()) {
-              while (matcher(*ig)) {
+              while (matcher(*ig) && !nextMatcher(*ig)) {
                 ig++;
               }
             }
@@ -225,9 +242,6 @@ void tokenize(std::string input, std::list<CharacterPattern*> patternList) {
 
           if ((*group) -> isRepeatable()) {
             group--;
-          }
-          else {
-            break;
           }
         }
         else {
@@ -277,6 +291,22 @@ int main(int argc, char** args) {
     return c == '.';
   });
 
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("double_quote", [] (char c) -> bool {
+      return c == '\"';
+  });
+
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("forward_slash", [] (char c) -> bool {
+      return c == '/';
+  });
+
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("end_of_line", [] (char c) -> bool {
+      return c == '\n';
+  });
+
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("any", [] (char c) -> bool {
+      return true;
+  });
+
   std::string numberPattern = "number*";
   std::string identifierPattern = "(letter underscore)*";
   std::string floatPattern = "number* full_stop number*";
@@ -287,15 +317,18 @@ int main(int argc, char** args) {
   std::string coverageString = "test1 test2* (test3) (test4)* (test5 test6)*";
 
   std::list<CharacterPattern*> patternList;
+  patternList.push_back(parseCharacterPattern(floatPattern));
   patternList.push_back(parseCharacterPattern(numberPattern));
   patternList.push_back(parseCharacterPattern(identifierPattern));
-  patternList.push_back(parseCharacterPattern(floatPattern));
+  patternList.push_back(parseCharacterPattern(stringPattern));
+  patternList.push_back(parseCharacterPattern(commentPattern));
 
   tokenize("9011", patternList);
-  std::cin.get();
   tokenize("as_df", patternList);
-  std::cin.get();
   tokenize("asdf fdas", patternList);
+  tokenize("234.45", patternList);
+  tokenize("\"happy elf\"", patternList);
+  tokenize("// healthy comment\n", patternList);
 
   return 0;
 

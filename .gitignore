@@ -1,3 +1,6 @@
 build
 docs.tar.gz
 release.tar.gz
+
+.idea
+cmake-build-debug
