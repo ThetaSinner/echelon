@@ -87,10 +87,17 @@ public:
   }
 };
 
+enum class CharacterPatternGroupType {
+    Union,
+    Sequence,
+};
+
 class CharacterPatternGroup {
   std::list<CharacterPatternElement*> elements;
 
   bool repeatable = false;
+
+  CharacterPatternGroupType type;
 
 public:
   void addElement(CharacterPatternElement* cpe) {
@@ -108,6 +115,14 @@ public:
   bool isRepeatable() {
     return repeatable;
   }
+
+  void setType(CharacterPatternGroupType type) {
+    this -> type = type;
+  }
+
+  CharacterPatternGroupType getType() {
+    return type;
+  }
 };
 
 class CharacterPattern {
@@ -122,6 +137,14 @@ public:
   }
 };
 
+bool matchUnionGroup(std::list<CharacterPatternGroup *> *groups, std::list<CharacterPatternGroup *>::iterator &group, std::string::iterator &ig);
+bool matchSequenceGroup(std::list<CharacterPatternGroup *> *groups, std::list<CharacterPatternGroup *>::iterator &group, std::string::iterator &ig);
+
+bool matchLookahead(std::list<CharacterPatternElement *>::iterator &element,
+                    std::list<CharacterPatternGroup *>::iterator &group,
+                    std::list<CharacterPatternGroup *> *groups,
+                    std::string::iterator &ig);
+
 CharacterPattern* parseCharacterPattern(std::string pattern) {
   CharacterPattern *characterPattern = new CharacterPattern();
 
@@ -134,6 +157,7 @@ CharacterPattern* parseCharacterPattern(std::string pattern) {
       int subStrPos = strPos + 1;
 
       CharacterPatternGroup *group = new CharacterPatternGroup();
+      group -> setType(CharacterPatternGroupType::Union);
       while (subStrPos < strLen && pattern[subStrPos] != ')') {
         int start = subStrPos;
         while (isIdent(pattern[subStrPos])) {
@@ -152,6 +176,32 @@ CharacterPattern* parseCharacterPattern(std::string pattern) {
 
       if (pattern[subStrPos] == '*') {
         group -> setRepeatable(true);
+        subStrPos++;
+      }
+
+      characterPattern -> addGroup(group);
+      strPos = subStrPos;
+      continue;
+    }
+
+    if (currentChar == '[') {
+      int subStrPos = strPos + 1;
+
+      CharacterPatternGroup *group = new CharacterPatternGroup();
+      group -> setType(CharacterPatternGroupType::Sequence);
+      while (subStrPos < strLen && pattern[subStrPos] != ']') {
+        int start = subStrPos;
+        while (isIdent(pattern[subStrPos])) {
+          subStrPos++;
+        }
+
+        group -> addElement(new CharacterPatternElement(pattern.substr(start, subStrPos - start)));
+        if (pattern[subStrPos] == ' ') {
+          subStrPos++;
+        }
+      }
+
+      if (pattern[subStrPos] == ']') {
         subStrPos++;
       }
 
@@ -193,7 +243,7 @@ void tokenize(std::string input, std::list<CharacterPattern*> patternList) {
   auto i = input.begin();
 
   while (i != input.end()) {
-    if (*i == ' ') {
+    if (*i == ' ' || *i == '\n') {
       i++;
       continue;
     }
@@ -207,41 +257,23 @@ void tokenize(std::string input, std::list<CharacterPattern*> patternList) {
       for (auto group = groups -> begin(); group != groups -> end(); group++) {
 
         auto ig = ip;
-        bool groupMatches = false;
-        auto elements = (*group) -> getElements();
-        for (auto element = elements -> begin(); element != elements -> end(); element++) {
-          auto matcher = (*element) -> getMatcher();
-
-          CharacterMatcher nextMatcher = [] (char c) -> bool {
-            return false;
-          };
-          if ((*element) -> isUseLookahead() && std::next(group, 1) != groups -> end()) {
-            nextMatcher = (*(*std::next(group, 1)) -> getElements() -> begin()) -> getMatcher();
-          }
-
-          //std::cout << "Test [" << (*element) -> getData() << "], [" << *ig << "]\n";
-          //std::cin.get();
-
-          if (matcher(*ig) && !nextMatcher(*ig)) {
-            ig++;
-            groupMatches = true;
-
-            if ((*element) -> isRepeatable()) {
-              while (matcher(*ig) && !nextMatcher(*ig)) {
-                ig++;
-              }
-            }
-
-            break;
-          }
+        bool groupMatches;
+        if ((*group) -> getType() == CharacterPatternGroupType::Union) {
+          groupMatches = matchUnionGroup(groups, group, ig);
+        }
+        else {
+          groupMatches = matchSequenceGroup(groups, group, ig);
         }
 
         if (groupMatches) {
           std::advance(ip, ig - ip);
-          groupMatchCount++;
 
           if ((*group) -> isRepeatable()) {
+            groupMatchCount++;
             group--;
+          }
+          else {
+            groupMatchCount = 0;
           }
         }
         else {
@@ -264,6 +296,69 @@ void tokenize(std::string input, std::list<CharacterPattern*> patternList) {
     }
   }
 
+}
+
+bool matchUnionGroup(std::list<CharacterPatternGroup *> *groups, std::list<CharacterPatternGroup *>::iterator &group, std::string::iterator &ig) {
+  bool groupMatches = false;
+
+  auto elements = (*group) -> getElements();
+  for (auto element = elements -> begin(); element != elements -> end(); element++) {
+    auto matcher = (*element) -> getMatcher();
+
+    if (matcher(*ig) && !matchLookahead(element, group, groups, ig)) {
+      ig++;
+      groupMatches = true;
+
+      if ((*element) -> isRepeatable()) {
+        while (matcher(*ig) && !matchLookahead(element, group, groups, ig)) {
+          ig++;
+        }
+      }
+
+      break;
+    }
+  }
+
+  return groupMatches;
+}
+
+bool matchLookahead(std::list<CharacterPatternElement *>::iterator &element,
+                    std::list<CharacterPatternGroup *>::iterator &group,
+                    std::list<CharacterPatternGroup *> *groups,
+                    std::string::iterator &ig) {
+
+  bool nextGroupMatches = false;
+  if ((*element) -> isUseLookahead()) {
+    auto next_group = std::next(group, 1);
+    std::string::iterator ig_copy = ig;
+    if ((*next_group) -> getType() == CharacterPatternGroupType::Union) {
+      nextGroupMatches = matchUnionGroup(groups, next_group, ig_copy);
+    }
+    else {
+      nextGroupMatches = matchSequenceGroup(groups, next_group, ig_copy);
+    }
+  }
+
+  return nextGroupMatches;
+}
+
+bool matchSequenceGroup(std::list<CharacterPatternGroup *> *groups, std::list<CharacterPatternGroup *>::iterator &group, std::string::iterator &ig) {
+  bool groupMatches = true;
+
+  auto elements = (*group) -> getElements();
+  for (auto element = elements -> begin(); element != elements -> end(); element++) {
+    auto matcher = (*element) -> getMatcher();
+
+    if (matcher(*ig)) {
+      ig++;
+    }
+    else {
+      groupMatches = false;
+      break;
+    }
+  }
+
+  return groupMatches;
 }
 
 int main(int argc, char** args) {
@@ -303,6 +398,38 @@ int main(int argc, char** args) {
       return c == '\n';
   });
 
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("star", [] (char c) -> bool {
+      return c == '*';
+  });
+
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("ampersand", [] (char c) -> bool {
+      return c == '&';
+  });
+
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("pipe", [] (char c) -> bool {
+      return c == '|';
+  });
+
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("open_brace", [] (char c) -> bool {
+      return c == '{';
+  });
+
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("close_brace", [] (char c) -> bool {
+      return c == '}';
+  });
+
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("open_paren", [] (char c) -> bool {
+      return c == '(';
+  });
+
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("close_paren", [] (char c) -> bool {
+      return c == ')';
+  });
+
+  CharacterMatcherLookup::getInstance() -> addCharacterMatcher("equals", [] (char c) -> bool {
+      return c == '=';
+  });
+
   CharacterMatcherLookup::getInstance() -> addCharacterMatcher("any", [] (char c) -> bool {
       return true;
   });
@@ -312,7 +439,14 @@ int main(int argc, char** args) {
   std::string floatPattern = "number* full_stop number*";
   std::string stringPattern = "double_quote any* double_quote";
   std::string commentPattern = "forward_slash forward_slash any* end_of_line";
-  std::string multiLineCommentPattern = "forward_slash star any* star forward_slash";
+  std::string multiLineCommentPattern = "[forward_slash star] any* [star forward_slash]";
+  std::string andOperator = "ampersand ampersand";
+  std::string orOperator = "pipe pipe";
+  std::string openBrace = "open_brace";
+  std::string closeBrace = "close_brace";
+  std::string openParen = "open_paren";
+  std::string closeParen = "close_paren";
+  std::string equals = "equals";
 
   std::string coverageString = "test1 test2* (test3) (test4)* (test5 test6)*";
 
@@ -322,6 +456,14 @@ int main(int argc, char** args) {
   patternList.push_back(parseCharacterPattern(identifierPattern));
   patternList.push_back(parseCharacterPattern(stringPattern));
   patternList.push_back(parseCharacterPattern(commentPattern));
+  patternList.push_back(parseCharacterPattern(multiLineCommentPattern));
+  patternList.push_back(parseCharacterPattern(andOperator));
+  patternList.push_back(parseCharacterPattern(orOperator));
+  patternList.push_back(parseCharacterPattern(openBrace));
+  patternList.push_back(parseCharacterPattern(closeBrace));
+  patternList.push_back(parseCharacterPattern(openParen));
+  patternList.push_back(parseCharacterPattern(closeParen));
+  patternList.push_back(parseCharacterPattern(equals));
 
   tokenize("9011", patternList);
   tokenize("as_df", patternList);
@@ -329,6 +471,12 @@ int main(int argc, char** args) {
   tokenize("234.45", patternList);
   tokenize("\"happy elf\"", patternList);
   tokenize("// healthy comment\n", patternList);
+  tokenize("/* some \n multi \n line \n comment */", patternList);
+  tokenize("&&", patternList);
+  tokenize("||", patternList);
+  tokenize("{", patternList);
+  tokenize("}", patternList);
+  tokenize("if (true || false) {\n  integer x = 5\n}", patternList);
 
   return 0;
 
