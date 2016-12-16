@@ -10,43 +10,12 @@
 #include <echelon/transform/type-deduction-engine.hpp>
 #include <echelon/util/stream-dump.hpp>
 #include <echelon/code-generation/code-generator.hpp>
+#include <echelon/parser/stage1/character-matcher-lookup.hpp>
 
 bool isIdent(char c) {
   return (97 <= c && c <= 122) || (48 <= c && c <= 57) || c == '_';
 }
 
-typedef std::function<bool(char)> CharacterMatcher;
-
-class CharacterMatcherLookup {
-  static CharacterMatcherLookup *instance;
-
-  std::map<std::string, CharacterMatcher> matcherHash;
-public:
-  static CharacterMatcherLookup* getInstance() {
-    if (instance == nullptr) {
-      instance = new CharacterMatcherLookup();
-    }
-
-    return instance;
-  }
-
-  void addCharacterMatcher(std::string key, CharacterMatcher matcher) {
-    matcherHash.insert({key, matcher});
-  }
-
-  CharacterMatcher getMatcher(std::string key) {
-    #ifdef ECHELON_DEBUG
-    if (matcherHash.find(key) == matcherHash.end()) {
-      std::cout << "Missing character matcher [" << key << "]" << std::endl;
-      throw std::runtime_error("Missing character matcher");
-    }
-    #endif
-
-    return matcherHash.at(key);
-  }
-};
-
-CharacterMatcherLookup* CharacterMatcherLookup::instance = nullptr;
 
 class CharacterPatternElement {
   std::string data;
