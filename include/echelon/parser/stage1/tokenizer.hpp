@@ -7,7 +7,8 @@
 #include <echelon/parser/stage1/character-pattern-group-type-enum.hpp>
 #include <echelon/parser/stage1/character-pattern-group.hpp>
 #include <echelon/parser/stage1/character-pattern.hpp>
+#include <echelon/parser/token.hpp>
 
-void tokenize(std::string input, std::list<CharacterPattern*> patternList);
+std::list<Token*> tokenize(std::string input, std::list<CharacterPattern*> patternList);
 
 #endif

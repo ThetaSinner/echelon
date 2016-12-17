@@ -7,3 +7,11 @@ void CharacterPattern::addGroup(CharacterPatternGroup* cpg) {
 std::list<CharacterPatternGroup*>* CharacterPattern::getGroups() {
   return &groups;
 }
+
+void CharacterPattern::setTokenType(TokenTypeEnum type) {
+  this -> type = type;
+}
+
+TokenTypeEnum CharacterPattern::getTokenType() {
+  return type;
+}

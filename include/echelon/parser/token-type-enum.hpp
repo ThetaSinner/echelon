@@ -8,6 +8,7 @@ enum class TokenTypeEnum {
   String,
   Identifier,
   Integer,
+  Float,
   BlockDelimO,
   BlockDelimC,
   Paren,
@@ -21,10 +22,11 @@ enum class TokenTypeEnum {
   MultiLineComment,
   StructureOperator,
   AndOperator,
+  OrOperator,
 
   #ifdef ECHELON_DEBUG
   First = String,
-  Last = AndOperator,
+  Last = OrOperator,
   #endif
 };
 

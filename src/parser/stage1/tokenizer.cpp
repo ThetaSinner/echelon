@@ -1,5 +1,8 @@
 #include <echelon/parser/stage1/tokenizer.hpp>
 
+#include <algorithm>
+#include <stdexcept>
+
 #ifdef ECHELON_DEBUG
 #include <iostream>
 #endif
@@ -16,7 +19,8 @@ bool matchLookahead(std::list<CharacterPatternElement *>::iterator &element,
                     std::list<CharacterPatternGroup *> *groups,
                     std::string::iterator &ig);
 
-void tokenize(std::string input, std::list<CharacterPattern*> patternList) {
+std::list<Token*> tokenize(std::string input, std::list<CharacterPattern*> patternList) {
+  std::list<Token*> tokens;
 
   auto i = input.begin();
 
@@ -25,6 +29,8 @@ void tokenize(std::string input, std::list<CharacterPattern*> patternList) {
       i++;
       continue;
     }
+
+    auto i_progress_check = i;
 
     for (auto pattern : patternList) {
 
@@ -64,9 +70,11 @@ void tokenize(std::string input, std::list<CharacterPattern*> patternList) {
       }
 
       if (patternMatches) {
+        std::string token_data = input.substr(i - input.begin(), ip - i);
         #ifdef ECHELON_DEBUG
-        std::cout << input.substr(i - input.begin(), ip - i) << std::endl;
+        std::cout << token_data << std::endl;
         #endif
+        tokens.push_back(new Token(token_data, pattern -> getTokenType()));
         std::advance(i, ip - i);
       }
 
@@ -74,8 +82,17 @@ void tokenize(std::string input, std::list<CharacterPattern*> patternList) {
         break;
       }
     }
+
+    if (i == i_progress_check) {
+      int error_begin = i - input.begin();
+      int error_chars = std::min((int) input.size() - (i - input.begin()), 10);
+      std::string failed_chars = input.substr((unsigned) error_begin, (unsigned) error_chars);
+      std::string message = "Unrecognised character sequence [" + failed_chars + "]";
+      throw std::runtime_error(message);
+    }
   }
 
+  return tokens;
 }
 
 bool matchUnionGroup(std::list<CharacterPatternGroup *> *groups,

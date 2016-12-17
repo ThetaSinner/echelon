@@ -13,6 +13,7 @@
 #include <echelon/parser/stage1/character-matcher-lookup.hpp>
 #include <echelon/parser/stage1/character-pattern-parser.hpp>
 #include <echelon/parser/stage1/tokenizer.hpp>
+#include <echelon/parser/token-type-enum.hpp>
 
 int main(int argc, char** args) {
   #ifdef ECHELON_DEBUG
@@ -87,36 +88,72 @@ int main(int argc, char** args) {
       return true;
   });
 
-  std::string numberPattern = "number*";
-  std::string identifierPattern = "(letter underscore)*";
-  std::string floatPattern = "number* full_stop number*";
-  std::string stringPattern = "double_quote any* double_quote";
-  std::string commentPattern = "forward_slash forward_slash any* end_of_line";
-  std::string multiLineCommentPattern = "[forward_slash star] any* [star forward_slash]";
-  std::string andOperator = "ampersand ampersand";
-  std::string orOperator = "pipe pipe";
-  std::string openBrace = "open_brace";
-  std::string closeBrace = "close_brace";
-  std::string openParen = "open_paren";
-  std::string closeParen = "close_paren";
-  std::string equals = "equals";
-
-  std::string coverageString = "test1 test2* (test3) (test4)* (test5 test6)*";
-
   std::list<CharacterPattern*> patternList;
-  patternList.push_back(parseCharacterPattern(floatPattern));
-  patternList.push_back(parseCharacterPattern(numberPattern));
-  patternList.push_back(parseCharacterPattern(identifierPattern));
-  patternList.push_back(parseCharacterPattern(stringPattern));
-  patternList.push_back(parseCharacterPattern(commentPattern));
-  patternList.push_back(parseCharacterPattern(multiLineCommentPattern));
-  patternList.push_back(parseCharacterPattern(andOperator));
-  patternList.push_back(parseCharacterPattern(orOperator));
-  patternList.push_back(parseCharacterPattern(openBrace));
-  patternList.push_back(parseCharacterPattern(closeBrace));
-  patternList.push_back(parseCharacterPattern(openParen));
-  patternList.push_back(parseCharacterPattern(closeParen));
-  patternList.push_back(parseCharacterPattern(equals));
+
+  std::string floatPattern = "number* full_stop number*";
+  auto floatCharacterPattern = parseCharacterPattern(floatPattern);
+  floatCharacterPattern -> setTokenType(TokenTypeEnum::Float);
+  patternList.push_back(floatCharacterPattern);
+
+  std::string numberPattern = "number*";
+  auto numberCharacterPattern = parseCharacterPattern(numberPattern);
+  numberCharacterPattern -> setTokenType(TokenTypeEnum::Integer);
+  patternList.push_back(numberCharacterPattern);
+
+  std::string identifierPattern = "(letter underscore)*";
+  auto identifierCharacterPattern = parseCharacterPattern(identifierPattern);
+  identifierCharacterPattern -> setTokenType(TokenTypeEnum::Identifier);
+  patternList.push_back(identifierCharacterPattern);
+
+  std::string stringPattern = "double_quote any* double_quote";
+  auto stringCharacterPattern = parseCharacterPattern(stringPattern);
+  stringCharacterPattern -> setTokenType(TokenTypeEnum::String);
+  patternList.push_back(stringCharacterPattern);
+
+  std::string commentPattern = "forward_slash forward_slash any* end_of_line";
+  auto singleLineCommentCharacterPattern = parseCharacterPattern(commentPattern);
+  singleLineCommentCharacterPattern -> setTokenType(TokenTypeEnum::SingleLineComment);
+  patternList.push_back(singleLineCommentCharacterPattern);
+
+  std::string multiLineCommentPattern = "[forward_slash star] any* [star forward_slash]";
+  auto multiLineCommentCharacterPattern = parseCharacterPattern(multiLineCommentPattern);
+  multiLineCommentCharacterPattern -> setTokenType(TokenTypeEnum::MultiLineComment);
+  patternList.push_back(multiLineCommentCharacterPattern);
+
+  std::string andOperator = "ampersand ampersand";
+  auto andOperatorCharacterPattern = parseCharacterPattern(andOperator);
+  andOperatorCharacterPattern -> setTokenType(TokenTypeEnum::AndOperator);
+  patternList.push_back(andOperatorCharacterPattern);
+
+  std::string orOperator = "pipe pipe";
+  auto orOperatorCharacterPattern = parseCharacterPattern(orOperator);
+  orOperatorCharacterPattern -> setTokenType(TokenTypeEnum::OrOperator);
+  patternList.push_back(orOperatorCharacterPattern);
+
+  std::string openBrace = "open_brace";
+  auto blockDelimOpenCharacterPattern = parseCharacterPattern(openBrace);
+  blockDelimOpenCharacterPattern -> setTokenType(TokenTypeEnum::BlockDelimO);
+  patternList.push_back(blockDelimOpenCharacterPattern);
+
+  std::string closeBrace = "close_brace";
+  auto blockDelimCloseCharacterPattern = parseCharacterPattern(closeBrace);
+  blockDelimCloseCharacterPattern -> setTokenType(TokenTypeEnum::BlockDelimC);
+  patternList.push_back(blockDelimCloseCharacterPattern);
+
+  std::string openParen = "open_paren";
+  auto parenOpenCharacterPattern = parseCharacterPattern(openParen);
+  parenOpenCharacterPattern -> setTokenType(TokenTypeEnum::ParenO);
+  patternList.push_back(parenOpenCharacterPattern);
+
+  std::string closeParen = "close_paren";
+  auto parenCloseCharacterPattern = parseCharacterPattern(closeParen);
+  parenCloseCharacterPattern -> setTokenType(TokenTypeEnum::ParenC);
+  patternList.push_back(parenCloseCharacterPattern);
+
+  std::string equals = "equals";
+  auto assignCharacterPattern = parseCharacterPattern(equals);
+  assignCharacterPattern -> setTokenType(TokenTypeEnum::Assign);
+  patternList.push_back(assignCharacterPattern);
 
   tokenize("9011", patternList);
   tokenize("as_df", patternList);
