@@ -1,0 +1,6 @@
+#ifndef PARSER_STAGE_1_DATA_LOAD_HPP_INCLUDED
+#define PARSER_STAGE_1_DATA_LOAD_HPP_INCLUDED
+
+void loadParserStage1Data();
+
+#endif

@@ -36,7 +36,7 @@ add_library(${parser_lib_name}
   stage2/nested-pattern-lookup.cpp
   stage1/character-matcher-lookup.cpp
   stage1/character-pattern-element.cpp
-        stage1/character-pattern-group.cpp stage1/character-pattern.cpp stage1/character-pattern-parser.cpp stage1/tokenizer.cpp)
+        stage1/character-pattern-group.cpp stage1/character-pattern.cpp stage1/character-pattern-parser.cpp stage1/tokenizer.cpp parser-data/parser-stage-1-data-load.cpp stage1/character-pattern-lookup.cpp)
 
 include_directories(tokenizer-impl)
 

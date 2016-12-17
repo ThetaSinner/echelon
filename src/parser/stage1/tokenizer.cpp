@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <stdexcept>
 
+#include <echelon/parser/stage1/character-pattern-lookup.hpp>
+
 #ifdef ECHELON_DEBUG
 #include <iostream>
 #endif
@@ -19,7 +21,7 @@ bool matchLookahead(std::list<CharacterPatternElement *>::iterator &element,
                     std::list<CharacterPatternGroup *> *groups,
                     std::string::iterator &ig);
 
-std::list<Token*> tokenize(std::string input, std::list<CharacterPattern*> patternList) {
+std::list<Token*> tokenize(std::string input) {
   std::list<Token*> tokens;
 
   auto i = input.begin();
@@ -32,7 +34,8 @@ std::list<Token*> tokenize(std::string input, std::list<CharacterPattern*> patte
 
     auto i_progress_check = i;
 
-    for (auto pattern : patternList) {
+    auto patternList = CharacterPatternLookup::getInstance() -> getCharacterPatternList();
+    for (auto pattern : *patternList) {
 
       auto ip = i;
       bool patternMatches = true;
@@ -84,8 +87,8 @@ std::list<Token*> tokenize(std::string input, std::list<CharacterPattern*> patte
     }
 
     if (i == i_progress_check) {
-      int error_begin = i - input.begin();
-      int error_chars = std::min((int) input.size() - (i - input.begin()), 10);
+      int error_begin = (int) (i - input.begin());
+      int error_chars = std::min((int) (input.size() - (i - input.begin())), 10);
       std::string failed_chars = input.substr((unsigned) error_begin, (unsigned) error_chars);
       std::string message = "Unrecognised character sequence [" + failed_chars + "]";
       throw std::runtime_error(message);
