@@ -146,9 +146,13 @@ void loadCharacterPatterns() {
     parenCloseCharacterPattern -> setTokenType(TokenTypeEnum::ParenC);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(parenCloseCharacterPattern);
 
+    std::string equality = "equals equals";
+    auto equalityCharacterPattern = parseCharacterPattern(equality);
+  equalityCharacterPattern -> setTokenType(TokenTypeEnum::Equality);
+    CharacterPatternLookup::getInstance() -> addCharacterPattern(equalityCharacterPattern);
+
     std::string equals = "equals";
     auto assignCharacterPattern = parseCharacterPattern(equals);
     assignCharacterPattern -> setTokenType(TokenTypeEnum::Assign);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(assignCharacterPattern);
-
 }

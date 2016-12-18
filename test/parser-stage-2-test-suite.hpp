@@ -2,7 +2,7 @@
 
 #include <list>
 
-#include <echelon/parser/parser-data/parser-data-load.hpp>
+#include <echelon/parser/parser-data/parser-stage-2-data-load.hpp>
 #include <echelon/parser/token.hpp>
 #include <echelon/parser/stage2/parser.hpp>
 #include <echelon/parser/token-type-enum.hpp>
@@ -15,7 +15,7 @@ private:
 
 public:
   ParserStage2TestSuite() {
-    loadParserData();
+    loadParserStage2Data();
   }
 
   void test_packageDeclaration(void) {

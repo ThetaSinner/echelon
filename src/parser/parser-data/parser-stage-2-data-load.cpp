@@ -1,4 +1,4 @@
-#include <echelon/parser/parser-data/parser-data-load.hpp>
+#include <echelon/parser/parser-data/parser-stage-2-data-load.hpp>
 
 #include <echelon/parser/stage2/nested-pattern-lookup.hpp>
 #include <echelon/parser/stage2/echelon-lookup.hpp>
@@ -556,7 +556,7 @@ void loadPatterns() {
   TokenPatternLookup::getInstance() -> addTokenPattern("if", _if);
 }
 
-void loadParserData() {
+void loadParserStage2Data() {
   static bool loaded = false;
 
   // TODO force the program to exit if the data loaded here isn't complete (when detectable).

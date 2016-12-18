@@ -7,6 +7,6 @@ void loadMatchers();
 void loadTransformers();
 void loadPatterns();
 
-void loadParserData();
+void loadParserStage2Data();
 
 #endif

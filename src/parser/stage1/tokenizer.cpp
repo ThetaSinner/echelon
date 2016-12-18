@@ -21,8 +21,8 @@ bool matchLookahead(std::list<CharacterPatternElement *>::iterator &element,
                     std::list<CharacterPatternGroup *> *groups,
                     std::string::iterator &ig);
 
-std::list<Token*> tokenize(std::string input) {
-  std::list<Token*> tokens;
+std::vector<Token*> tokenize(std::string input) {
+  std::vector<Token*> tokens;
 
   auto i = input.begin();
 

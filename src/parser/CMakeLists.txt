@@ -32,7 +32,7 @@ add_library(${parser_lib_name}
   stage2/parser-internal-output.cpp
   stage2/parser.cpp
   stage2/token-pattern-lookup.cpp
-  parser-data/parser-data-load.cpp
+        parser-data/parser-stage-2-data-load.cpp
   stage2/nested-pattern-lookup.cpp
   stage1/character-matcher-lookup.cpp
   stage1/character-pattern-element.cpp

@@ -3,7 +3,7 @@
 #include <list>
 #include <fstream>
 
-#include <echelon/parser/parser-data/parser-data-load.hpp>
+#include <echelon/parser/parser-data/parser-stage-2-data-load.hpp>
 #include <echelon/parser/stage2/pattern-translator.hpp>
 #include <echelon/parser/stage2/parser.hpp>
 #include <echelon/util/ast-to-graphviz.hpp>
@@ -33,22 +33,14 @@ int main(int argc, char** args) {
   tokenize("\"happy elf\"");
   tokenize("// healthy comment\n");
   tokenize("/* some \n multi \n line \n comment */");
+  tokenize("/**/"); // TODO need to introduce the upper and lower bound concept for this to work.
   tokenize("&&");
   tokenize("||");
   tokenize("{");
   tokenize("}");
   tokenize("if (true || false) {\n  integer x = 5\n}");
 
-  return 0;
-
-
-
-
-
-
-
-
-  loadParserData();
+  loadParserStage2Data();
 
   std::cout << "Parser data loaded." << std::endl;
 
