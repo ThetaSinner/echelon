@@ -7,6 +7,8 @@
 
 #ifdef ECHELON_DEBUG
 #include <iostream>
+#include <sstream>
+#include <echelon/util/stream-dump.hpp>
 #endif
 
 bool matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
@@ -20,6 +22,10 @@ bool matchLookahead(std::list<CharacterPatternElement *>::iterator &element,
                     std::list<CharacterPatternGroup *>::iterator &group,
                     std::list<CharacterPatternGroup *> *groups,
                     std::string::iterator &ig);
+
+bool checkUpperBound(int val, int upperBound) {
+  return upperBound == -1 || val < upperBound;
+}
 
 std::vector<Token*> tokenize(std::string input) {
   std::vector<Token*> tokens;
@@ -37,9 +43,14 @@ std::vector<Token*> tokenize(std::string input) {
     auto patternList = CharacterPatternLookup::getInstance() -> getCharacterPatternList();
     for (auto pattern : *patternList) {
 
+      #ifdef ECHELON_DEBUG
+      std::stringstream ss;
+      stream_dump(ss, pattern);
+      std::string t = ss.str();
+      #endif
+
       auto ip = i;
       bool patternMatches = true;
-      int groupMatchCount = 0;
       auto groups = pattern -> getGroups();
       for (auto group = groups -> begin(); group != groups -> end(); group++) {
 
@@ -53,21 +64,12 @@ std::vector<Token*> tokenize(std::string input) {
         }
 
         if (groupMatches) {
-          std::advance(ip, ig - ip);
-
-          if ((*group) -> isRepeatable()) {
-            groupMatchCount++;
-            group--;
-          }
-          else {
-            groupMatchCount = 0;
+          if (!(*group) -> isDoNotConsumeConsume()) {
+            std::advance(ip, ig - ip);
           }
         }
         else {
-          if (groupMatchCount == 0) {
-            patternMatches = false;
-          }
-
+          patternMatches = false;
           break;
         }
       }
@@ -103,22 +105,45 @@ bool matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
                      std::string::iterator &ig) {
   bool groupMatches = false;
 
+  #ifdef ECHELON_DEBUG
+  std::stringstream ss;
+  stream_dump(ss, *group);
+  std::string t = ss.str();
+  #endif
+
   auto elements = (*group) -> getElements();
-  for (auto element = elements -> begin(); element != elements -> end(); element++) {
-    auto matcher = (*element) -> getMatcher();
+  int elementMatchCount = 0;
+  while (true) {
 
-    if (matcher(*ig) && !matchLookahead(element, group, groups, ig)) {
-      ig++;
-      groupMatches = true;
+    bool noProgress = true;
+    for (auto element = elements->begin(); element != elements->end(); element++) {
+      auto matcher = (*element)->getMatcher();
 
-      if ((*element) -> isRepeatable()) {
-        while (matcher(*ig) && !matchLookahead(element, group, groups, ig)) {
+      if (checkUpperBound(elementMatchCount, (*group)->getRepeatUpperBound()) &&
+          matcher(*ig) &&
+          !matchLookahead(element, group, groups, ig)) {
+        ig++;
+        elementMatchCount++;
+
+        while (checkUpperBound(elementMatchCount, (*group)->getRepeatUpperBound()) &&
+               matcher(*ig) &&
+               !matchLookahead(element, group, groups, ig)) {
           ig++;
+          elementMatchCount++;
         }
-      }
 
+        noProgress = false;
+        break;
+      }
+    }
+
+    if (noProgress) {
       break;
     }
+  }
+
+  if (elementMatchCount >= (*group)->getRepeatLowerBound()) {
+    groupMatches = true;
   }
 
   return groupMatches;

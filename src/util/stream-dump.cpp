@@ -77,3 +77,17 @@ void stream_dump(std::ostream& s, std::queue<AstNode*>* astNodeQueue) {
     queueCopy.pop();
   }
 }
+
+void stream_dump(std::ostream& s, CharacterPattern* characterPattern) {
+  for (auto g : * characterPattern -> getGroups()) {
+    for (auto e : * g -> getElements()) {
+      s << e -> getData() << " ";
+    }
+  }
+}
+
+void stream_dump(std::ostream& s, CharacterPatternGroup* characterPatternGroup) {
+  for (auto e : * characterPatternGroup -> getElements()) {
+    s << e -> getData() << " ";
+  }
+}

@@ -34,7 +34,14 @@ CharacterPattern* parseCharacterPattern(std::string pattern) {
       }
 
       if (pattern[subStrPos] == '*') {
-        group -> setRepeatable(true);
+        group -> setRepeatLowerBound(0);
+        group -> setRepeatUpperBound(-1);
+        subStrPos++;
+      }
+
+      if (pattern[subStrPos] == '+') {
+        group -> setRepeatLowerBound(1);
+        group -> setRepeatUpperBound(-1);
         subStrPos++;
       }
 
@@ -84,9 +91,22 @@ CharacterPattern* parseCharacterPattern(std::string pattern) {
       characterPattern -> addGroup(cpg);
 
       if (pattern[subStrPos] == '*') {
-        cpe -> setRepeatable(true);
+        cpg -> setRepeatLowerBound(0);
+        cpg -> setRepeatUpperBound(-1);
         subStrPos++;
       }
+
+      if (pattern[subStrPos] == '+') {
+        cpg -> setRepeatLowerBound(1);
+        cpg -> setRepeatUpperBound(-1);
+        subStrPos++;
+      }
+
+      if (pattern[subStrPos] == '`') {
+        cpg -> setDoNotConsumeConsume(true);
+        subStrPos++;
+      }
+
       strPos = subStrPos;
       continue;
     }

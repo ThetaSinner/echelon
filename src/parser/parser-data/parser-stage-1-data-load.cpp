@@ -86,17 +86,17 @@ void loadCharacterMatchers() {
 }
 
 void loadCharacterPatterns() {
-    std::string floatPattern = "number* full_stop number*";
+    std::string floatPattern = "number+ full_stop number+";
     auto floatCharacterPattern = parseCharacterPattern(floatPattern);
     floatCharacterPattern -> setTokenType(TokenTypeEnum::Float);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(floatCharacterPattern);
 
-    std::string numberPattern = "number*";
+    std::string numberPattern = "number+";
     auto numberCharacterPattern = parseCharacterPattern(numberPattern);
     numberCharacterPattern -> setTokenType(TokenTypeEnum::Integer);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(numberCharacterPattern);
 
-    std::string identifierPattern = "(letter underscore)*";
+    std::string identifierPattern = "(letter underscore)+";
     auto identifierCharacterPattern = parseCharacterPattern(identifierPattern);
     identifierCharacterPattern -> setTokenType(TokenTypeEnum::Identifier);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(identifierCharacterPattern);
@@ -106,7 +106,7 @@ void loadCharacterPatterns() {
     stringCharacterPattern -> setTokenType(TokenTypeEnum::String);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(stringCharacterPattern);
 
-    std::string commentPattern = "forward_slash forward_slash any* end_of_line";
+    std::string commentPattern = "forward_slash forward_slash any* end_of_line`";
     auto singleLineCommentCharacterPattern = parseCharacterPattern(commentPattern);
     singleLineCommentCharacterPattern -> setTokenType(TokenTypeEnum::SingleLineComment);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(singleLineCommentCharacterPattern);

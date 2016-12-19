@@ -9,7 +9,6 @@ class CharacterPatternElement {
     std::string data;
     CharacterMatcher matcher;
 
-    bool repeatable = false;
     bool useLookahead = false;
 public:
     CharacterPatternElement(std::string data);
@@ -17,9 +16,6 @@ public:
     std::string getData();
     CharacterMatcher getMatcher();
     bool isUseLookahead();
-
-    void setRepeatable(bool repeatable);
-    bool isRepeatable();
 };
 
 #endif

@@ -33,5 +33,10 @@ void stream_dump(std::ostream& s, AstNode* node, int level = 1);
 
 void stream_dump(std::ostream& s, std::queue<AstNode*>* astNodeQueue);
 
+#include <echelon/parser/stage1/character-pattern.hpp>
+void stream_dump(std::ostream& s, CharacterPattern* characterPattern);
+
+#include <echelon/parser/stage1/character-pattern-group.hpp>
+void stream_dump(std::ostream& s, CharacterPatternGroup* characterPatternGroup);
 
 #endif

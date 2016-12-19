@@ -9,7 +9,10 @@
 class CharacterPatternGroup {
     std::list<CharacterPatternElement*> elements;
 
-    bool repeatable = false;
+    int repeatLowerBound = 1;
+    int repeatUpperBound = 1;
+
+    bool doNotConsumeConsume = false;
 
     CharacterPatternGroupType type;
 
@@ -17,8 +20,14 @@ public:
     void addElement(CharacterPatternElement* cpe);
     std::list<CharacterPatternElement*>* getElements();
 
-    void setRepeatable(bool repeatable);
-    bool isRepeatable();
+    void setRepeatLowerBound(int repeatLowerBound);
+    int getRepeatLowerBound();
+
+    void setRepeatUpperBound(int repeatUpperBound);
+    int getRepeatUpperBound();
+
+    void setDoNotConsumeConsume(bool doNotConsumeConsume);
+    bool isDoNotConsumeConsume();
 
     void setType(CharacterPatternGroupType type);
     CharacterPatternGroupType getType();
