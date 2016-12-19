@@ -14,8 +14,7 @@
 
 #include <echelon/parser/parser-data/parser-stage-1-data-load.hpp>
 #include <echelon/parser/stage1/tokenizer.hpp>
-
-
+#include <echelon/compiler/echelon-compiler.hpp>
 
 int main(int argc, char** args) {
   #ifdef ECHELON_DEBUG
@@ -75,7 +74,7 @@ int main(int argc, char** args) {
   out << gv;
   out.close();
 
-  // Need a good data scructure which has all the declared data, types and functions.
+  // Need a good data structure which has all the declared data, types and functions.
   // It needs to be such that it is simple to find out whether something is defined in the current context or parent context
   // for example. Maybe it will be a complementary structure to the existing tree.
 
@@ -93,6 +92,9 @@ int main(int argc, char** args) {
 
   CodeGenerator codeGenerator;
   std::cout << codeGenerator.generate(str_no_type_ast) << std::endl;
+
+  EchelonCompiler compiler;
+  std::cout << "Compiler output: " << compiler.compile("test_var = \"test data\"") << std::endl;
 
   std::cout << std::endl << "Program will exit normally.";
   std::cout << std::endl;
