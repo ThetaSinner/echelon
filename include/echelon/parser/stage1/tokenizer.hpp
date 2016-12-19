@@ -9,6 +9,6 @@
 #include <echelon/parser/stage1/character-pattern.hpp>
 #include <echelon/parser/token.hpp>
 
-std::vector<Token*> tokenize(std::string input);
+std::list<Token*> tokenize(std::string input);
 
 #endif

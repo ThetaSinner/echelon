@@ -101,7 +101,7 @@ void loadCharacterPatterns() {
     identifierCharacterPattern -> setTokenType(TokenTypeEnum::Identifier);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(identifierCharacterPattern);
 
-    std::string stringPattern = "double_quote any* double_quote";
+    std::string stringPattern = "double_quote` any* double_quote`";
     auto stringCharacterPattern = parseCharacterPattern(stringPattern);
     stringCharacterPattern -> setTokenType(TokenTypeEnum::String);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(stringCharacterPattern);

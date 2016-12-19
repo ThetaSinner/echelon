@@ -14,22 +14,24 @@ public:
       auto res = tokenize("teststr");
 
       TS_ASSERT_EQUALS(1, res.size());
-      TS_ASSERT_EQUALS("teststr", res.at(0) -> getData());
+      TS_ASSERT_EQUALS("teststr", (*res.begin()) -> getData());
     }
 
     void testTwoStringsOfLowerCaseLetters(void) {
       auto res = tokenize("test str");
 
       TS_ASSERT_EQUALS(2, res.size());
-      TS_ASSERT_EQUALS("test", res.at(0) -> getData());
-      TS_ASSERT_EQUALS("str", res.at(1) -> getData());
+      auto iter = res.begin();
+      TS_ASSERT_EQUALS("test", (*iter) -> getData());
+      iter++;
+      TS_ASSERT_EQUALS("str", (*iter) -> getData());
     }
 
     void testUnderscoreInIdentifier(void) {
       auto res = tokenize("test_str");
 
       TS_ASSERT_EQUALS(1, res.size());
-      TS_ASSERT_EQUALS("test_str", res.at(0) -> getData());
+      TS_ASSERT_EQUALS("test_str", (*res.begin()) -> getData());
     }
 
     void testInvalidCharacterSequence(void) {
@@ -47,38 +49,44 @@ public:
       auto res = tokenize("123456");
 
       TS_ASSERT_EQUALS(1, res.size());
-      TS_ASSERT_EQUALS("123456", res.at(0) -> getData());
+      TS_ASSERT_EQUALS("123456", (*res.begin()) -> getData());
     }
 
     void testTwoStringsOfNumbers(void) {
       auto res = tokenize("123 456");
 
       TS_ASSERT_EQUALS(2, res.size());
-      TS_ASSERT_EQUALS("123", res.at(0) -> getData());
-      TS_ASSERT_EQUALS("456", res.at(1) -> getData());
+      auto iter = res.begin();
+      TS_ASSERT_EQUALS("123", (*iter) -> getData());
+      iter++;
+      TS_ASSERT_EQUALS("456", (*iter) -> getData());
     }
 
     void testAssignmentOperator(void) {
       auto res = tokenize("=");
 
       TS_ASSERT_EQUALS(1, res.size());
-      TS_ASSERT_EQUALS("=", res.at(0) -> getData());
+      TS_ASSERT_EQUALS("=", (*res.begin()) -> getData());
     }
 
     void testEqualityOperator(void) {
       auto res = tokenize("==");
 
       TS_ASSERT_EQUALS(1, res.size());
-      TS_ASSERT_EQUALS("==", res.at(0) -> getData());
+      TS_ASSERT_EQUALS("==", (*res.begin()) -> getData());
     }
 
     void testEqualityAndAssignmentOperators(void) {
       auto res = tokenize("== = = ==");
 
       TS_ASSERT_EQUALS(4, res.size());
-      TS_ASSERT_EQUALS("==", res.at(0) -> getData());
-      TS_ASSERT_EQUALS("=", res.at(1) -> getData());
-      TS_ASSERT_EQUALS("=", res.at(2) -> getData());
-      TS_ASSERT_EQUALS("==", res.at(3) -> getData());
+      auto iter = res.begin();
+      TS_ASSERT_EQUALS("==", (*iter) -> getData());
+      iter++;
+      TS_ASSERT_EQUALS("=", (*iter) -> getData());
+      iter++;
+      TS_ASSERT_EQUALS("=", (*iter) -> getData());
+      iter++;
+      TS_ASSERT_EQUALS("==", (*iter) -> getData());
     }
 };

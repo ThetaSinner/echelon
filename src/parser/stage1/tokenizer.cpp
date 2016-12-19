@@ -27,8 +27,8 @@ bool checkUpperBound(int val, int upperBound) {
   return upperBound == -1 || val < upperBound;
 }
 
-std::vector<Token*> tokenize(std::string input) {
-  std::vector<Token*> tokens;
+std::list<Token*> tokenize(std::string input) {
+  std::list<Token*> tokens;
 
   auto i = input.begin();
 
@@ -64,9 +64,7 @@ std::vector<Token*> tokenize(std::string input) {
         }
 
         if (groupMatches) {
-          if (!(*group) -> isDoNotConsumeConsume()) {
-            std::advance(ip, ig - ip);
-          }
+          std::advance(ip, ig - ip);
         }
         else {
           patternMatches = false;
@@ -75,7 +73,17 @@ std::vector<Token*> tokenize(std::string input) {
       }
 
       if (patternMatches) {
-        std::string token_data = input.substr(i - input.begin(), ip - i);
+        int beginOffset = 0;
+        if (pattern -> getGroups() -> front() -> isDoNotConsumeConsume()) {
+          beginOffset = 1 * (pattern -> getGroups() -> front() -> getType() == CharacterPatternGroupType::Sequence ? pattern -> getGroups() -> front() -> getElements() -> size() : 1);
+        }
+
+        int endOffset = 0;
+        if (pattern -> getGroups() -> back() -> isDoNotConsumeConsume()) {
+          endOffset = 1 * (pattern -> getGroups() -> back() -> getType() == CharacterPatternGroupType::Sequence ? pattern -> getGroups() -> back() -> getElements() -> size() : 1);
+        }
+
+        std::string token_data = input.substr((i - input.begin()) + beginOffset, (ip - i) - beginOffset - endOffset);
         #ifdef ECHELON_DEBUG
         std::cout << token_data << std::endl;
         #endif

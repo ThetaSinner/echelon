@@ -2,6 +2,7 @@
 # otherwise it is output to CMAKE_LIBRARY_OUTPUT_DIRECTORY
 add_library(${compiler_lib_name}
   integrity-check.cpp
+  echelon-compiler.cpp
 )
 
 # Disable prefixing library name with 'lib'

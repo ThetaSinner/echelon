@@ -48,10 +48,14 @@ public:
       auto res = tokenize(getFileContents(file));
 
       TS_ASSERT_EQUALS(4, res.size());
-      TS_ASSERT_EQUALS("type", res.at(0) -> getData());
-      TS_ASSERT_EQUALS("MyType", res.at(1) -> getData());
-      TS_ASSERT_EQUALS("{", res.at(2) -> getData());
-      TS_ASSERT_EQUALS("}", res.at(3) -> getData());
+      auto iter = res.begin();
+      TS_ASSERT_EQUALS("type", (*iter) -> getData());
+      iter++;
+      TS_ASSERT_EQUALS("MyType", (*iter) -> getData());
+      iter++;
+      TS_ASSERT_EQUALS("{", (*iter) -> getData());
+      iter++;
+      TS_ASSERT_EQUALS("}", (*iter) -> getData());
     }
 
     void test_Fundamentals_Comment(void) {
@@ -60,9 +64,12 @@ public:
       auto res = tokenize(getFileContents(file));
 
       TS_ASSERT_EQUALS(3, res.size());
-      TS_ASSERT_EQUALS("// Single line comment", res.at(0) -> getData());
-      TS_ASSERT_EQUALS("/**/", res.at(1) -> getData());
-      TS_ASSERT_EQUALS("/*\n * Multi-line comment\n */", res.at(2) -> getData());
+      auto iter = res.begin();
+      TS_ASSERT_EQUALS("// Single line comment", (*iter) -> getData());
+      iter++;
+      TS_ASSERT_EQUALS("/**/", (*iter) -> getData());
+      iter++;
+      TS_ASSERT_EQUALS("/*\n * Multi-line comment\n */", (*iter) -> getData());
     }
 
 	void test_Fundamentals_Enum(void) {
@@ -71,12 +78,18 @@ public:
       auto res = tokenize(getFileContents(file));
 
       TS_ASSERT_EQUALS(6, res.size());
-      TS_ASSERT_EQUALS("enum", res.at(0) -> getData());
-      TS_ASSERT_EQUALS("MyEnum", res.at(1) -> getData());
-      TS_ASSERT_EQUALS("{", res.at(2) -> getData());
-	  TS_ASSERT_EQUALS("EnumConstOne", res.at(3) -> getData());
-	  TS_ASSERT_EQUALS("EnumConstTwo", res.at(4) -> getData());
-	  TS_ASSERT_EQUALS("}", res.at(5) -> getData());
+      auto iter = res.begin();
+      TS_ASSERT_EQUALS("enum", (*iter) -> getData());
+      iter++;
+      TS_ASSERT_EQUALS("MyEnum", (*iter) -> getData());
+      iter++;
+      TS_ASSERT_EQUALS("{", (*iter) -> getData());
+      iter++;
+	  TS_ASSERT_EQUALS("EnumConstOne", (*iter) -> getData());
+      iter++;
+	  TS_ASSERT_EQUALS("EnumConstTwo", (*iter) -> getData());
+      iter++;
+	  TS_ASSERT_EQUALS("}", (*iter) -> getData());
 	}
 
   void test_Fundamentals_variable(void) {
@@ -85,15 +98,25 @@ public:
     auto res = tokenize(getFileContents(file));
 
     TS_ASSERT_EQUALS(10, res.size());
-    TS_ASSERT_EQUALS("myVar", res.at(0) -> getData());
-    TS_ASSERT_EQUALS("=", res.at(1) -> getData());
-    TS_ASSERT_EQUALS("2", res.at(2) -> getData());
-    TS_ASSERT_EQUALS("myString", res.at(3) -> getData());
-    TS_ASSERT_EQUALS("=", res.at(4) -> getData());
-    TS_ASSERT_EQUALS("\"Hello, Strings\"", res.at(5) -> getData());
-    TS_ASSERT_EQUALS("integer", res.at(6) -> getData());
-    TS_ASSERT_EQUALS("myInt", res.at(7) -> getData());
-    TS_ASSERT_EQUALS("=", res.at(8) -> getData());
-    TS_ASSERT_EQUALS("60", res.at(9) -> getData());
+    auto iter = res.begin();
+    TS_ASSERT_EQUALS("myVar", (*iter) -> getData());
+    iter++;
+    TS_ASSERT_EQUALS("=", (*iter) -> getData());
+    iter++;
+    TS_ASSERT_EQUALS("2", (*iter) -> getData());
+    iter++;
+    TS_ASSERT_EQUALS("myString", (*iter) -> getData());
+    iter++;
+    TS_ASSERT_EQUALS("=", (*iter) -> getData());
+    iter++;
+    TS_ASSERT_EQUALS("Hello, Strings", (*iter) -> getData());
+    iter++;
+    TS_ASSERT_EQUALS("integer", (*iter) -> getData());
+    iter++;
+    TS_ASSERT_EQUALS("myInt", (*iter) -> getData());
+    iter++;
+    TS_ASSERT_EQUALS("=", (*iter) -> getData());
+    iter++;
+    TS_ASSERT_EQUALS("60", (*iter) -> getData());
 	}
 };
