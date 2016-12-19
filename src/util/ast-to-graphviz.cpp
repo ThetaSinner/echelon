@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include <echelon/parser/stage2/echelon-lookup.hpp>
+#include <echelon/parser/echelon-lookup.hpp>
 
 void _init(std::stringstream& stream) {
   stream << "digraph Program {" << std::endl;

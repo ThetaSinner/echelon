@@ -9,7 +9,6 @@
 typedef std::function<std::string(AstNode*)> GeneratorFunction;
 
 class Generator {
-private:
    GeneratorFunction generatorFunction;
 public:
   Generator(GeneratorFunction generatorFunction);

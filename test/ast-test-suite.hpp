@@ -1,6 +1,6 @@
 #include <cxxtest/TestSuite.h>
 #include <echelon/ast/ast-node.hpp>
-#include <echelon/ast/ast-node-type.hpp>
+#include <echelon/ast/ast-node-type-enum.hpp>
 
 #include <fstream>
 #include <sstream>

@@ -12,7 +12,7 @@ int AstNode::getChildCount() {
   return children.size();
 }
 
-AstNode* AstNode::getChild(int index) {
+AstNode* AstNode::getChild(unsigned index) {
   return children.at(index);
 }
 

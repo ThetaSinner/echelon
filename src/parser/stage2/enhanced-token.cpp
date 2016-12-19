@@ -1,13 +1,13 @@
 #include <echelon/parser/stage2/enhanced-token.hpp>
 
-#include <echelon/parser/stage2/echelon-lookup.hpp>
+#include <echelon/parser/echelon-lookup.hpp>
 
 EnhancedToken::EnhancedToken(Token* t) {
   data = t -> getData();
   tokenType = t -> getTokenType();
 
   switch(tokenType) {
-    case TokenTypeEnum::Identifier:
+    case TokenType::Identifier:
       keyword = EchelonLookup::getInstance() -> isKeyword(data);
       dataTypeKeyword = EchelonLookup::getInstance() -> isDataTypeKeyword(data);
       break;
@@ -18,7 +18,7 @@ EnhancedToken::EnhancedToken(Token* t) {
   }
 }
 
-TokenTypeEnum EnhancedToken::getTokenType() {
+TokenType EnhancedToken::getTokenType() {
   return tokenType;
 }
 

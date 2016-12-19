@@ -88,71 +88,71 @@ void loadCharacterMatchers() {
 void loadCharacterPatterns() {
     std::string floatPattern = "number+ full_stop number+";
     auto floatCharacterPattern = parseCharacterPattern(floatPattern);
-    floatCharacterPattern -> setTokenType(TokenTypeEnum::Float);
+    floatCharacterPattern -> setTokenType(TokenType::Float);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(floatCharacterPattern);
 
     std::string numberPattern = "number+";
     auto numberCharacterPattern = parseCharacterPattern(numberPattern);
-    numberCharacterPattern -> setTokenType(TokenTypeEnum::Integer);
+    numberCharacterPattern -> setTokenType(TokenType::Integer);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(numberCharacterPattern);
 
     std::string identifierPattern = "(letter underscore)+";
     auto identifierCharacterPattern = parseCharacterPattern(identifierPattern);
-    identifierCharacterPattern -> setTokenType(TokenTypeEnum::Identifier);
+    identifierCharacterPattern -> setTokenType(TokenType::Identifier);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(identifierCharacterPattern);
 
     std::string stringPattern = "double_quote` any* double_quote`";
     auto stringCharacterPattern = parseCharacterPattern(stringPattern);
-    stringCharacterPattern -> setTokenType(TokenTypeEnum::String);
+    stringCharacterPattern -> setTokenType(TokenType::String);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(stringCharacterPattern);
 
     std::string commentPattern = "forward_slash forward_slash any* end_of_line`";
     auto singleLineCommentCharacterPattern = parseCharacterPattern(commentPattern);
-    singleLineCommentCharacterPattern -> setTokenType(TokenTypeEnum::SingleLineComment);
+    singleLineCommentCharacterPattern -> setTokenType(TokenType::SingleLineComment);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(singleLineCommentCharacterPattern);
 
     std::string multiLineCommentPattern = "[forward_slash star] any* [star forward_slash]";
     auto multiLineCommentCharacterPattern = parseCharacterPattern(multiLineCommentPattern);
-    multiLineCommentCharacterPattern -> setTokenType(TokenTypeEnum::MultiLineComment);
+    multiLineCommentCharacterPattern -> setTokenType(TokenType::MultiLineComment);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(multiLineCommentCharacterPattern);
 
     std::string andOperator = "ampersand ampersand";
     auto andOperatorCharacterPattern = parseCharacterPattern(andOperator);
-    andOperatorCharacterPattern -> setTokenType(TokenTypeEnum::AndOperator);
+    andOperatorCharacterPattern -> setTokenType(TokenType::AndOperator);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(andOperatorCharacterPattern);
 
     std::string orOperator = "pipe pipe";
     auto orOperatorCharacterPattern = parseCharacterPattern(orOperator);
-    orOperatorCharacterPattern -> setTokenType(TokenTypeEnum::OrOperator);
+    orOperatorCharacterPattern -> setTokenType(TokenType::OrOperator);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(orOperatorCharacterPattern);
 
     std::string openBrace = "open_brace";
     auto blockDelimOpenCharacterPattern = parseCharacterPattern(openBrace);
-    blockDelimOpenCharacterPattern -> setTokenType(TokenTypeEnum::BlockDelimO);
+    blockDelimOpenCharacterPattern -> setTokenType(TokenType::BlockDelimO);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(blockDelimOpenCharacterPattern);
 
     std::string closeBrace = "close_brace";
     auto blockDelimCloseCharacterPattern = parseCharacterPattern(closeBrace);
-    blockDelimCloseCharacterPattern -> setTokenType(TokenTypeEnum::BlockDelimC);
+    blockDelimCloseCharacterPattern -> setTokenType(TokenType::BlockDelimC);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(blockDelimCloseCharacterPattern);
 
     std::string openParen = "open_paren";
     auto parenOpenCharacterPattern = parseCharacterPattern(openParen);
-    parenOpenCharacterPattern -> setTokenType(TokenTypeEnum::ParenO);
+    parenOpenCharacterPattern -> setTokenType(TokenType::ParenO);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(parenOpenCharacterPattern);
 
     std::string closeParen = "close_paren";
     auto parenCloseCharacterPattern = parseCharacterPattern(closeParen);
-    parenCloseCharacterPattern -> setTokenType(TokenTypeEnum::ParenC);
+    parenCloseCharacterPattern -> setTokenType(TokenType::ParenC);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(parenCloseCharacterPattern);
 
     std::string equality = "equals equals";
     auto equalityCharacterPattern = parseCharacterPattern(equality);
-  equalityCharacterPattern -> setTokenType(TokenTypeEnum::Equality);
+  equalityCharacterPattern -> setTokenType(TokenType::Equality);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(equalityCharacterPattern);
 
     std::string equals = "equals";
     auto assignCharacterPattern = parseCharacterPattern(equals);
-    assignCharacterPattern -> setTokenType(TokenTypeEnum::Assign);
+    assignCharacterPattern -> setTokenType(TokenType::Assign);
     CharacterPatternLookup::getInstance() -> addCharacterPattern(assignCharacterPattern);
 }

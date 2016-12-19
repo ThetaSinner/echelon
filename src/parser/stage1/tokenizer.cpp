@@ -27,7 +27,7 @@ bool checkUpperBound(int val, int upperBound) {
   return upperBound == -1 || val < upperBound;
 }
 
-std::list<Token*> tokenize(std::string input) {
+std::list<Token*> Tokenizer::tokenize(std::string input) {
   std::list<Token*> tokens;
 
   auto i = input.begin();

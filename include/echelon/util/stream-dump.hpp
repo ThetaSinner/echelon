@@ -5,9 +5,9 @@
 #include <list>
 #include <queue>
 
-#include <echelon/parser/stage2/echelon-lookup.hpp>
+#include <echelon/parser/echelon-lookup.hpp>
 
-#include <echelon/parser/token.hpp>
+#include <echelon/parser/stage1/token.hpp>
 void stream_dump(std::ostream& s, const Token* t);
 
 void stream_dump(std::ostream& s, std::vector<Token> tokens);

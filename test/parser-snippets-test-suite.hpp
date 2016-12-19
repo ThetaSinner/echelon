@@ -18,6 +18,8 @@
 class ParserSnippetTestSuite : public CxxTest::TestSuite
 {
 private:
+  Tokenizer tokenizer;
+
   bool fileExists(std::string& fname) {
     std::ifstream f(fname.c_str());
     return f.good();
@@ -45,7 +47,7 @@ public:
     void test_Fundamentals_Types(void) {
       std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/types.ech";
 
-      auto res = tokenize(getFileContents(file));
+      auto res = tokenizer.tokenize(getFileContents(file));
 
       TS_ASSERT_EQUALS(4, res.size());
       auto iter = res.begin();
@@ -61,7 +63,7 @@ public:
     void test_Fundamentals_Comment(void) {
       std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/comment.ech";
       
-      auto res = tokenize(getFileContents(file));
+      auto res = tokenizer.tokenize(getFileContents(file));
 
       TS_ASSERT_EQUALS(3, res.size());
       auto iter = res.begin();
@@ -75,7 +77,7 @@ public:
 	void test_Fundamentals_Enum(void) {
 		std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/enum.ech";
       
-      auto res = tokenize(getFileContents(file));
+      auto res = tokenizer.tokenize(getFileContents(file));
 
       TS_ASSERT_EQUALS(6, res.size());
       auto iter = res.begin();
@@ -95,7 +97,7 @@ public:
   void test_Fundamentals_variable(void) {
     std::string file = std::string(SNIPPETS_DIR) + "/fundamentals/variable.ech";
     
-    auto res = tokenize(getFileContents(file));
+    auto res = tokenizer.tokenize(getFileContents(file));
 
     TS_ASSERT_EQUALS(10, res.size());
     auto iter = res.begin();

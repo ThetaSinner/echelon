@@ -2,12 +2,12 @@
 #define ENHANCED_TOKEN_HPP_INCLUDED
 
 #include <string>
-#include <echelon/parser/token.hpp>
+#include <echelon/parser/stage1/token.hpp>
 #include <echelon/parser/token-type-enum.hpp>
 
 class EnhancedToken {
 private:
-  TokenTypeEnum tokenType;
+  TokenType tokenType;
   std::string data;
 
   bool keyword = false;
@@ -15,7 +15,7 @@ private:
 public:
   EnhancedToken(Token* t);
 
-  TokenTypeEnum getTokenType();
+  TokenType getTokenType();
   std::string getData();
 
   bool isKeyword();

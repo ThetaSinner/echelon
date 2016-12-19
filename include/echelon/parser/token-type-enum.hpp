@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-enum class TokenTypeEnum {
+enum class TokenType {
   String,
   Identifier,
   Integer,

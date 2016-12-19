@@ -1,22 +1,18 @@
 # This will be compiled into the executable if BUILD_SHARED_LIBS is OFF
 # otherwise it is output to CMAKE_LIBRARY_OUTPUT_DIRECTORY
 add_library(${parser_lib_name}
-  tokenizer.cpp
-  parser.cpp
-  token.cpp
-  encoding-query.cpp
-  token-expr-info.cpp
-  token-expr.cpp
-  match-data.cpp
-  token-expr-matcher.cpp
-  tokenizer-impl/character-query.cpp
-  tokenizer-impl/parse-data.cpp
-  tokenizer-impl/extractor-for-assignment.cpp
-  tokenizer-impl/extractor-for-equality.cpp
-  tokenizer-impl/extractor-for-line-comment.cpp
-  tokenizer-impl/extractor-for-multi-line-comment.cpp
-  tokenizer-impl/extractor-for-strings.cpp
-  stage2/echelon-lookup.cpp
+  parser-data/parser-stage-1-data-load.cpp
+  parser-data/parser-stage-2-data-load.cpp
+
+  stage1/token.cpp
+  stage1/character-matcher-lookup.cpp
+  stage1/character-pattern-element.cpp
+  stage1/character-pattern-group.cpp
+  stage1/character-pattern.cpp
+  stage1/character-pattern-parser.cpp
+  stage1/tokenizer.cpp
+  stage1/character-pattern-lookup.cpp
+
   stage2/enhanced-token.cpp
   stage2/matcher.cpp
   stage2/matcher-lookup.cpp
@@ -32,13 +28,10 @@ add_library(${parser_lib_name}
   stage2/parser-internal-output.cpp
   stage2/parser.cpp
   stage2/token-pattern-lookup.cpp
-        parser-data/parser-stage-2-data-load.cpp
   stage2/nested-pattern-lookup.cpp
-  stage1/character-matcher-lookup.cpp
-  stage1/character-pattern-element.cpp
-        stage1/character-pattern-group.cpp stage1/character-pattern.cpp stage1/character-pattern-parser.cpp stage1/tokenizer.cpp parser-data/parser-stage-1-data-load.cpp stage1/character-pattern-lookup.cpp)
 
-include_directories(tokenizer-impl)
+  echelon-lookup.cpp
+)
 
 # Disable prefixing library name with 'lib'
 set_target_properties(${parser_lib_name} PROPERTIES PREFIX "")

@@ -9,13 +9,13 @@
 class CharacterPattern {
     std::list<CharacterPatternGroup*> groups;
 
-    TokenTypeEnum type;
+    TokenType type;
 public:
     void addGroup(CharacterPatternGroup* cpg);
     std::list<CharacterPatternGroup*>* getGroups();
 
-    void setTokenType(TokenTypeEnum type);
-    TokenTypeEnum getTokenType();
+    void setTokenType(TokenType type);
+    TokenType getTokenType();
 };
 
 #endif

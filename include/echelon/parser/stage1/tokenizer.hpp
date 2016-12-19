@@ -7,8 +7,11 @@
 #include <echelon/parser/stage1/character-pattern-group-type-enum.hpp>
 #include <echelon/parser/stage1/character-pattern-group.hpp>
 #include <echelon/parser/stage1/character-pattern.hpp>
-#include <echelon/parser/token.hpp>
+#include <echelon/parser/stage1/token.hpp>
 
-std::list<Token*> tokenize(std::string input);
+class Tokenizer {
+public:
+  std::list<Token*> tokenize(std::string input);
+};
 
 #endif

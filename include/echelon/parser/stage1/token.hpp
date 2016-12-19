@@ -7,14 +7,14 @@
 class Token {
 private:
   std::string data;
-  TokenTypeEnum type;
+  TokenType type;
 
 public:
   Token() {}
-  Token(std::string data, TokenTypeEnum type);
+  Token(std::string data, TokenType type);
 
   std::string getData() const;
-  TokenTypeEnum getTokenType() const;
+  TokenType getTokenType() const;
 };
 
 #endif

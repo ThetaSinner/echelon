@@ -1,7 +1,7 @@
-#include <echelon/parser/stage2/echelon-lookup.hpp>
+#include <echelon/parser/echelon-lookup.hpp>
 
 #include <echelon/parser/token-type-enum.hpp>
-#include <echelon/ast/ast-node-type.hpp>
+#include <echelon/ast/ast-node-type-enum.hpp>
 #include <echelon/parser/keyword-enum.hpp>
 
 #ifdef ECHELON_DEBUG
@@ -37,39 +37,39 @@ bool EchelonLookup::isKeyword(std::string str) {
   return keywordSet.find(str) != keywordSet.end();
 }
 
-template<> std::string EchelonLookup::toString(TokenTypeEnum t) {
+template<> std::string EchelonLookup::toString(TokenType t) {
   switch(t) {
-    case TokenTypeEnum::String:
+    case TokenType::String:
       return "string";
-    case TokenTypeEnum::Identifier:
+    case TokenType::Identifier:
       return "identifier";
-    case TokenTypeEnum::Integer:
+    case TokenType::Integer:
       return "integer";
-    case TokenTypeEnum::BlockDelimO:
+    case TokenType::BlockDelimO:
       return "block delim open";
-    case TokenTypeEnum::BlockDelimC:
+    case TokenType::BlockDelimC:
       return "block delim close";
-    case TokenTypeEnum::Paren:
+    case TokenType::Paren:
       return "paren";
-    case TokenTypeEnum::ParenO:
+    case TokenType::ParenO:
       return "paren open";
-    case TokenTypeEnum::ParenC:
+    case TokenType::ParenC:
       return "paren close";
-    case TokenTypeEnum::OperatorAdd:
+    case TokenType::OperatorAdd:
       return "add operator";
-    case TokenTypeEnum::SqBracket:
+    case TokenType::SqBracket:
       return "square bracket";
-    case TokenTypeEnum::Assign:
+    case TokenType::Assign:
       return "assign";
-    case TokenTypeEnum::Equality:
+    case TokenType::Equality:
       return "equality";
-    case TokenTypeEnum::SingleLineComment:
+    case TokenType::SingleLineComment:
       return "single line comment";
-    case TokenTypeEnum::MultiLineComment:
+    case TokenType::MultiLineComment:
       return "multi line comment";
-    case TokenTypeEnum::StructureOperator:
+    case TokenType::StructureOperator:
       return "structure operator";
-    case TokenTypeEnum::AndOperator:
+    case TokenType::AndOperator:
       return "and operator";
     default:
       #ifdef ECHELON_DEBUG

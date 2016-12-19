@@ -3,7 +3,7 @@
 
 #include <list>
 
-#include <echelon/parser/token.hpp>
+#include <echelon/parser/stage1/token.hpp>
 #include <echelon/parser/stage2/token-pattern-group.hpp>
 
 class ParserInternalInput {

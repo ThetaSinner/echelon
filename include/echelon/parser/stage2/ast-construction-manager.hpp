@@ -2,7 +2,7 @@
 #define AST_CONSTRUCTION_MANAGER_HPP_INCLUDED
 
 #include <echelon/ast/ast-node.hpp>
-#include <echelon/ast/ast-node-type.hpp>
+#include <echelon/ast/ast-node-type-enum.hpp>
 
 class AstConstructionManager {
   AstNode *root;

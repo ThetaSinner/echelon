@@ -8,10 +8,10 @@ std::list<CharacterPatternGroup*>* CharacterPattern::getGroups() {
   return &groups;
 }
 
-void CharacterPattern::setTokenType(TokenTypeEnum type) {
+void CharacterPattern::setTokenType(TokenType type) {
   this -> type = type;
 }
 
-TokenTypeEnum CharacterPattern::getTokenType() {
+TokenType CharacterPattern::getTokenType() {
   return type;
 }

@@ -1,12 +1,12 @@
 #ifndef AST_NODE_HPP_INCLUDED
 #define AST_NODE_HPP_INCLUDED
 
-#include <echelon/ast/ast-node-type.hpp>
 #include <vector>
 #include <string>
 
+#include <echelon/ast/ast-node-type-enum.hpp>
+
 class AstNode {
-private:
   AstNodeType type;
   std::string data;
   std::vector<AstNode*> children;
@@ -15,7 +15,7 @@ public:
 
   void putChild(AstNode* child);
   void putChildFront(AstNode* child);
-  AstNode* getChild(int index);
+  AstNode* getChild(unsigned index);
 
   void setType(AstNodeType type);
   AstNodeType getType();

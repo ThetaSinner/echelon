@@ -1,8 +1,7 @@
 #include <echelon/parser/parser-data/parser-stage-2-data-load.hpp>
 
 #include <echelon/parser/stage2/nested-pattern-lookup.hpp>
-#include <echelon/parser/stage2/echelon-lookup.hpp>
-#include <echelon/parser/stage2/matcher.hpp>
+#include <echelon/parser/echelon-lookup.hpp>
 #include <echelon/parser/stage2/matcher-lookup.hpp>
 #include <echelon/parser/stage2/ast-transform.hpp>
 #include <echelon/parser/stage2/ast-transform-lookup.hpp>
@@ -27,7 +26,7 @@ void loadKeywords() {
 void loadMatchers() {
   Matcher *type = new Matcher();
   type -> setMatcher([] (Matcher* self) -> bool {
-    if (self -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
       return false;
     }
 
@@ -38,7 +37,7 @@ void loadMatchers() {
 
   Matcher *keyword = new Matcher();
   keyword -> setMatcher([] (Matcher* self) -> bool {
-    if (self -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
       return false;
     }
 
@@ -50,14 +49,14 @@ void loadMatchers() {
   Matcher *identifier = new Matcher();
   identifier -> setMatcher([] (Matcher* self) -> bool {
     // need to check not a keyword? or seperate matcher for that might be better.
-    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::Identifier;
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::Identifier;
   });
 
   MatcherLookup::getInstance() -> addMatcher("identifier", identifier);
 
   Matcher *kwd_package = new Matcher();
   kwd_package -> setMatcher([] (Matcher* self) -> bool {
-    if (self -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
       return false;
     }
 
@@ -68,7 +67,7 @@ void loadMatchers() {
 
   Matcher *kwd_for = new Matcher();
   kwd_for -> setMatcher([] (Matcher* self) -> bool {
-    if (self -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
       return false;
     }
 
@@ -79,7 +78,7 @@ void loadMatchers() {
 
   Matcher *kwd_module = new Matcher();
   kwd_module -> setMatcher([] (Matcher* self) -> bool {
-    if (self -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
       return false;
     }
 
@@ -90,42 +89,42 @@ void loadMatchers() {
 
   Matcher *op_structure = new Matcher();
   op_structure -> setMatcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::StructureOperator;
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::StructureOperator;
   });
 
   MatcherLookup::getInstance() -> addMatcher("op_structure", op_structure);
 
   Matcher *op_assign = new Matcher();
   op_assign -> setMatcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::Assign;
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::Assign;
   });
 
   MatcherLookup::getInstance() -> addMatcher("op_assign", op_assign);
 
   Matcher *block_delim_o = new Matcher();
   block_delim_o -> setMatcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::BlockDelimO;
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::BlockDelimO;
   });
 
   MatcherLookup::getInstance() -> addMatcher("block_delim_o", block_delim_o);
 
   Matcher *block_delim_c = new Matcher();
   block_delim_c -> setMatcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::BlockDelimC;
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::BlockDelimC;
   });
 
   MatcherLookup::getInstance() -> addMatcher("block_delim_c", block_delim_c);
 
   Matcher *paren_open = new Matcher();
   paren_open -> setMatcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::ParenO;
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::ParenO;
   });
 
   MatcherLookup::getInstance() -> addMatcher("paren_open", paren_open);
 
   Matcher *paren_close = new Matcher();
   paren_close -> setMatcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::ParenC;
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::ParenC;
   });
 
   MatcherLookup::getInstance() -> addMatcher("paren_close", paren_close);
@@ -167,35 +166,35 @@ void loadMatchers() {
 
   Matcher *string = new Matcher();
   string -> setMatcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::String;
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::String;
   });
 
   MatcherLookup::getInstance() -> addMatcher("string", string);
 
   Matcher *integer = new Matcher();
   integer -> setMatcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::Integer;
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::Integer;
   });
 
   MatcherLookup::getInstance() -> addMatcher("integer", integer);
 
   Matcher *op_equality = new Matcher();
   op_equality -> setMatcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::Equality;
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::Equality;
   });
 
   MatcherLookup::getInstance() -> addMatcher("op_equality", op_equality);
 
   Matcher *op_and = new Matcher();
   op_and -> setMatcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenTypeEnum::AndOperator;
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::AndOperator;
   });
 
   MatcherLookup::getInstance() -> addMatcher("op_and", op_and);
 
   Matcher *kwd_if = new Matcher();
   kwd_if -> setMatcher([] (Matcher* self) -> bool {
-    if (self -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
       return false;
     }
 
@@ -206,7 +205,7 @@ void loadMatchers() {
 
   Matcher *kwd_else = new Matcher();
   kwd_else -> setMatcher([] (Matcher* self) -> bool {
-    if (self -> getEnhancedToken() -> getTokenType() != TokenTypeEnum::Identifier) {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
       return false;
     }
 

@@ -3,7 +3,7 @@
 #ifdef ECHELON_DEBUG
 #include <iostream>
 #include <stdexcept>
-#include <echelon/parser/stage2/echelon-lookup.hpp>
+#include <echelon/parser/echelon-lookup.hpp>
 #endif
 
 GeneratorLookup *GeneratorLookup::instance = nullptr;

@@ -2,6 +2,7 @@
 #define CODE_GENERATOR_HPP_INCLUDED
 
 #include <string>
+
 #include <echelon/ast/ast-node.hpp>
 
 class CodeGenerator {

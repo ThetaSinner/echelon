@@ -1,8 +1,6 @@
 # This will be compiled into the executable if BUILD_SHARED_LIBS is OFF
 # otherwise it is output to CMAKE_LIBRARY_OUTPUT_DIRECTORY
 add_library(${util_lib_name}
-  string-util.cpp
-  tizer.cpp
   iterator-util.cpp
   stream-dump.cpp
   ast-to-graphviz.cpp
