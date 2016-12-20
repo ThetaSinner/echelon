@@ -3,7 +3,7 @@
 
 #include <echelon/code-generation/code-generator.hpp>
 
-class EchelonCodeGenerator {
+class EchelonCodeGenerator : public CodeGenerator {
 public:
   std::string generate(AstNode* root);
 };

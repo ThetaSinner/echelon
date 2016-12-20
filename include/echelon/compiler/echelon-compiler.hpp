@@ -16,6 +16,8 @@ class EchelonCompiler {
 public:
     EchelonCompiler();
 
+    void setCodeGenerator(CodeGenerator* codeGenerator);
+
     std::string compile(std::string input);
 };
 

@@ -8,7 +8,7 @@
 
 CodeGenerator* CodeGeneratorFactory::newCodeGenerator() {
   #ifdef CODE_GENERATOR_SPIDER_MONKEY_JS
-  return new SpiderMonkeyJSCodeGenerator;
+  return new SpiderMonkeyJSCodeGenerator();
   #elif CODE_GENERATOR_ECHELON
   return new EchelonCodeGenerator();
   #endif

@@ -62,29 +62,15 @@ find_package(CxxTest)
 if (CXXTEST_FOUND)
   include_directories(${CXXTEST_INCLUDE_DIR})
   enable_testing()
+
   CXXTEST_ADD_TEST(${project_test_binary_name} test_runner.cpp ${project_test_source_files})
   target_compile_features(${project_test_binary_name} PRIVATE cxx_range_for)
   target_link_libraries(${project_test_binary_name} ${parser_lib_name})
   target_link_libraries(${project_test_binary_name} ${ast_lib_name})
   target_link_libraries(${project_test_binary_name} ${transform_lib_name})
+  target_link_libraries(${project_test_binary_name} ${code_generator_lib_name})
+  target_link_libraries(${project_test_binary_name} ${compiler_lib_name})
   target_link_libraries(${project_test_binary_name} ${util_lib_name})
-
-  include_directories(src/code-generation/echelon)
-  include_directories(src/code-generation/spider-monkey-js)
-  add_library(${code_generator_lib_name}_test
-    src/code-generation/generator-lookup.cpp
-    src/code-generation/generator.cpp
-    src/code-generation/code-generator-factory.cpp
-
-    src/code-generation/echelon/echelon-code-generator.cpp
-
-    src/code-generation/spider-monkey-js/spider-monkey-js-code-generator.cpp
-    src/code-generation/spider-monkey-js/spider-monkey-js-generators.cpp
-  )
-  set_target_properties(${code_generator_lib_name}_test PROPERTIES PREFIX "")
-  target_compile_features(${code_generator_lib_name}_test PRIVATE cxx_range_for)
-  target_link_libraries(${project_test_binary_name} ${code_generator_lib_name}_test)
-
 else()
   message("CxxTest not found.")
 endif()
