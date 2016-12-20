@@ -24,35 +24,28 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # (sub directories can be referenced in code, they don't need to be aded here)
 include_directories(include)
 
+add_subdirectory(src/parser)
+add_subdirectory(src/ast)
+add_subdirectory(src/transform)
+add_subdirectory(src/code-generation)
+add_subdirectory(src/compiler)
+add_subdirectory(src/util)
+
 # Create an executable from the main file.
 add_executable(${project_binary_name} ${project_source_files})
+
+target_link_libraries(${project_binary_name}
+  ${parser_lib_name}
+  ${ast_lib_name}
+  ${transform_lib_name}
+  ${code_generator_lib_name}
+  ${compiler_lib_name}
+  ${util_lib_name}
+)
 
 # Specify required features for compilation.
 target_compile_features(${project_binary_name} PRIVATE cxx_range_for)
 target_compile_features(${project_binary_name} PRIVATE cxx_nullptr)
-
-# Link the parser to the executable.
-add_subdirectory(src/parser)
-target_link_libraries(${project_binary_name} ${parser_lib_name})
-
-# Link the ast to the executable.
-add_subdirectory(src/ast)
-target_link_libraries(${project_binary_name} ${ast_lib_name})
-
-# Link the transform lib to the executable.
-add_subdirectory(src/transform)
-target_link_libraries(${project_binary_name} ${transform_lib_name})
-
-# Link the code-generator lib to the executable.
-add_subdirectory(src/code-generation)
-target_link_libraries(${project_binary_name} ${code_generator_lib_name})
-
-# Link the compiler lib to the executable.
-add_subdirectory(src/compiler)
-target_link_libraries(${project_binary_name} ${compiler_lib_name})
-
-add_subdirectory(src/util)
-target_link_libraries(${project_binary_name} ${util_lib_name})
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
   target_compile_definitions(${project_binary_name} PUBLIC ECHELON_DEBUG)

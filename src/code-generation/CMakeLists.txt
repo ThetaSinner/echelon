@@ -9,7 +9,7 @@ add_library(${code_generator_lib_name}
 
 if (ECHELON_CODE_GENERATOR MATCHES spider-monkey-js)
   include_directories(spider-monkey-js)
-  target_sources(${code_generator_lib_name} PUBLIC
+  target_sources(${code_generator_lib_name} PRIVATE
     spider-monkey-js/spider-monkey-js-code-generator.cpp
     spider-monkey-js/spider-monkey-js-generators.cpp
   )
@@ -22,7 +22,7 @@ elseif(ECHELON_CODE_GENERATOR MATCHES echelon)
   target_compile_definitions(${code_generator_lib_name} PUBLIC CODE_GENERATOR_ECHELON)
 else()
   include_directories(spider-monkey-js)
-  target_sources(${code_generator_lib_name} PUBLIC
+  target_sources(${code_generator_lib_name} PRIVATE
     spider-monkey-js/spider-monkey-js-code-generator.cpp
     spider-monkey-js/spider-monkey-js-generators.cpp
   )
