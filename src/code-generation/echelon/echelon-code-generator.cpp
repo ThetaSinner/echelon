@@ -1,5 +1,5 @@
-#include <echelon/code-generation/code-generator.hpp>
+#include "echelon-code-generator.hpp"
 
-std::string CodeGenerator::generate(AstNode* root) {
+std::string EchelonCodeGenerator::generate(AstNode* root) {
   return "echelon";
 }

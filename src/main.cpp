@@ -9,7 +9,7 @@
 #include <echelon/util/ast-to-graphviz.hpp>
 #include <echelon/transform/type-deduction-engine.hpp>
 #include <echelon/util/stream-dump.hpp>
-#include <echelon/code-generation/code-generator.hpp>
+#include <echelon/code-generation/code-generator-factory.hpp>
 
 #include <echelon/parser/parser-data/parser-stage-1-data-load.hpp>
 #include <echelon/parser/stage1/tokenizer.hpp>
@@ -90,8 +90,8 @@ int main(int argc, char** args) {
 
   stream_dump(std::cout, str_no_type_ast);
 
-  CodeGenerator codeGenerator;
-  std::cout << codeGenerator.generate(str_no_type_ast) << std::endl;
+  CodeGenerator *codeGenerator = CodeGeneratorFactory::newCodeGenerator();
+  std::cout << codeGenerator -> generate(str_no_type_ast) << std::endl;
 
   EchelonCompiler compiler;
   std::cout << "Compiler output: " << compiler.compile("test_var = \"test data\"") << std::endl;

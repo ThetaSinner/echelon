@@ -7,7 +7,7 @@
 
 class CodeGenerator {
 public:
-  std::string generate(AstNode* root);
+  virtual std::string generate(AstNode* root) = 0;
 };
 
 #endif

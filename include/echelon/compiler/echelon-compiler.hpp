@@ -12,8 +12,10 @@ class EchelonCompiler {
   Tokenizer tokenizer;
   Parser2 parser;
   TypeDeductionEngine typeDeductionEngine;
-  CodeGenerator codeGenerator;
+  CodeGenerator* codeGenerator;
 public:
+    EchelonCompiler();
+
     std::string compile(std::string input);
 };
 
