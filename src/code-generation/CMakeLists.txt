@@ -21,6 +21,13 @@ elseif(ECHELON_CODE_GENERATOR MATCHES echelon)
   )
   target_compile_definitions(${code_generator_lib_name} PUBLIC CODE_GENERATOR_ECHELON)
 else()
+  include_directories(spider-monkey-js)
+  target_sources(${code_generator_lib_name} PUBLIC
+    spider-monkey-js/spider-monkey-js-code-generator.cpp
+    spider-monkey-js/spider-monkey-js-generators.cpp
+  )
+  target_compile_definitions(${code_generator_lib_name} PUBLIC CODE_GENERATOR_SPIDER_MONKEY_JS)
+
   include_directories(echelon)
   target_sources(${code_generator_lib_name} PRIVATE
     echelon/echelon-code-generator.cpp

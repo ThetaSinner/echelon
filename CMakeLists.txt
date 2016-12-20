@@ -65,12 +65,13 @@ if (CXXTEST_FOUND)
 
   CXXTEST_ADD_TEST(${project_test_binary_name} test_runner.cpp ${project_test_source_files})
   target_compile_features(${project_test_binary_name} PRIVATE cxx_range_for)
-  target_link_libraries(${project_test_binary_name} ${parser_lib_name})
-  target_link_libraries(${project_test_binary_name} ${ast_lib_name})
-  target_link_libraries(${project_test_binary_name} ${transform_lib_name})
-  target_link_libraries(${project_test_binary_name} ${code_generator_lib_name})
-  target_link_libraries(${project_test_binary_name} ${compiler_lib_name})
-  target_link_libraries(${project_test_binary_name} ${util_lib_name})
+  target_link_libraries(${project_test_binary_name}
+    ${ast_lib_name}
+    ${parser_lib_name}
+    ${transform_lib_name}
+    ${code_generator_lib_name}
+    ${compiler_lib_name}
+    ${util_lib_name})
 else()
   message("CxxTest not found.")
 endif()

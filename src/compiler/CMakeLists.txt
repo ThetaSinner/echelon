@@ -5,6 +5,8 @@ add_library(${compiler_lib_name}
   echelon-compiler.cpp
 )
 
+target_link_libraries(${compiler_lib_name} ${transform_lib_name} ${code_generator_lib_name})
+
 # Disable prefixing library name with 'lib'
 set_target_properties(${compiler_lib_name} PROPERTIES PREFIX "")
 
