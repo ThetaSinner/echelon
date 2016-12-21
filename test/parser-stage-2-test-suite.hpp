@@ -362,16 +362,24 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::Integer, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChild(1) -> getType());
     TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChild(1) -> getChildCount());
 
-    TS_ASSERT_EQUALS("cond_var", ast -> getChild(0) -> getChild(0) -> getChild(1) -> getData());
-    TS_ASSERT_EQUALS(AstNodeType::Variable, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getType());
-    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChildCount());
+    auto block = ast -> getChild(0) -> getChild(0) -> getChild(1);
+    TS_ASSERT_EQUALS("", block -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Block, block -> getType());
+    TS_ASSERT_EQUALS(1, block -> getChildCount());
 
-    TS_ASSERT_EQUALS("string", ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChild(0) -> getData());
-    TS_ASSERT_EQUALS(AstNodeType::Type, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChild(0) -> getType());
-    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChild(0) -> getChildCount());
+    auto cond_var = block -> getChild(0);
+    TS_ASSERT_EQUALS("cond_var", cond_var -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Variable, cond_var -> getType());
+    TS_ASSERT_EQUALS(2, cond_var -> getChildCount());
 
-    TS_ASSERT_EQUALS("this string will only be assigned if 1 and 2 are equal", ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChild(1) -> getData());
-    TS_ASSERT_EQUALS(AstNodeType::String, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChild(1) -> getType());
-    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChild(1) -> getChildCount());
+    auto cond_var_type = cond_var -> getChild(0);
+    TS_ASSERT_EQUALS("string", cond_var_type -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Type, cond_var_type -> getType());
+    TS_ASSERT_EQUALS(0, cond_var_type -> getChildCount());
+
+    auto cond_var_data = cond_var -> getChild(1);
+    TS_ASSERT_EQUALS("this string will only be assigned if 1 and 2 are equal", cond_var_data -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::String, cond_var_data -> getType());
+    TS_ASSERT_EQUALS(0, cond_var_data -> getChildCount());
   }
 };

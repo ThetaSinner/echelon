@@ -418,20 +418,6 @@ void loadTransformers() {
     base -> setType(AstNodeType::EqualityOperator);
     base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
 
-    /*
-    auto nested = astTransformData -> getNestedAstNodes();
-    if (nested != nullptr && nested -> size() == 2) {
-      auto oper = nested -> front();
-      nested -> pop();
-      auto nextExpr = nested -> front();
-      nested -> pop();
-
-      oper -> getChild(0) -> putChild(base);
-      oper -> getChild(0) -> putChild(nextExpr -> getChild(0));
-      base = oper;
-    }
-    */
-
     return base;
   });
 
@@ -456,7 +442,7 @@ void loadTransformers() {
 
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::EqualityOperator);
-    base -> setData(op -> getData()); // this is redundant
+    base -> setData(op -> getChild(0) -> getData()); // this is redundant
 
     base -> putChild(left -> getChild(0));
     base -> putChild(right -> getChild(0));
@@ -476,7 +462,7 @@ void loadTransformers() {
 
       AstNode *base = new AstNode();
       base -> setType(AstNodeType::BooleanBinaryOperator);
-      base -> setData(op -> getData()); // this is redundant
+      base -> setData(op -> getChild(0) -> getData()); // this is redundant
 
       base -> putChild(left -> getChild(0));
       base -> putChild(right -> getChild(0));
@@ -490,12 +476,19 @@ void loadTransformers() {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::If);
 
+    // Map the condition.
     base -> putChild(astTransformData -> getNestedAstNodes() -> front() -> getChild(0));
     astTransformData -> getNestedAstNodes() -> pop();
+
+    // Map the block.
     // The block will always exist but may be empty.
     if (!astTransformData -> getSubProcessAstNodes() -> empty() && astTransformData -> getSubProcessAstNodes() -> front() -> getChildCount() > 0) {
-      base -> putChild(astTransformData -> getSubProcessAstNodes() -> front() -> getChild(0));
+      auto block = new AstNode();
+      block -> setType(AstNodeType::Block);
+      block -> putChild(astTransformData -> getSubProcessAstNodes() -> front() -> getChild(0));
       astTransformData -> getSubProcessAstNodes() -> pop();
+
+      base -> putChild(block);
     }
 
     return base;
@@ -509,8 +502,12 @@ void loadTransformers() {
 
     // The block will always exist but may be empty.
     if (!astTransformData -> getSubProcessAstNodes() -> empty() && astTransformData -> getSubProcessAstNodes() -> front() -> getChildCount() > 0) {
-      base -> putChild(astTransformData -> getSubProcessAstNodes() -> front() -> getChild(0));
+      auto block = new AstNode();
+      block -> setType(AstNodeType::Block);
+      block -> putChild(astTransformData -> getSubProcessAstNodes() -> front() -> getChild(0));
       astTransformData -> getSubProcessAstNodes() -> pop();
+
+      base -> putChild(block);
     }
 
     return base;

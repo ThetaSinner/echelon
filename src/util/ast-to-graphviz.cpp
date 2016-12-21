@@ -4,6 +4,8 @@
 
 #include <echelon/parser/echelon-lookup.hpp>
 
+// dot compiler-ast-out.gv -Tjpg -ocompiler-ast-out.jpg && compiler-ast-out.jpg
+
 void _init(std::stringstream& stream) {
   stream << "digraph Program {" << std::endl;
 }
