@@ -45,6 +45,8 @@ template<> std::string EchelonLookup::toString(TokenType t) {
       return "identifier";
     case TokenType::Integer:
       return "integer";
+    case TokenType::Float:
+      return "float";
     case TokenType::BlockDelimO:
       return "block delim open";
     case TokenType::BlockDelimC:
@@ -71,6 +73,8 @@ template<> std::string EchelonLookup::toString(TokenType t) {
       return "structure operator";
     case TokenType::AndOperator:
       return "and operator";
+    case TokenType::OrOperator:
+      return "or operator";
     default:
       #ifdef ECHELON_DEBUG
       throw std::runtime_error("Missing to string case for token type enum.");
@@ -99,6 +103,8 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
       return "module";
     case AstNodeType::BinaryOperator:
       return "binary_operator";
+    case AstNodeType::BooleanBinaryOperator:
+      return "boolean binary operator";
     case AstNodeType::FunctionCall:
       return "function_call";
     case AstNodeType::Type:
@@ -107,6 +113,8 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
       return "string";
     case AstNodeType::Integer:
       return "integer";
+    case AstNodeType::Boolean:
+      return "boolean";
     case AstNodeType::EqualityOperator:
       return "equality_operator";
     case AstNodeType::If:
@@ -139,6 +147,10 @@ template<> std::string EchelonLookup::toString(Keyword t) {
       return "integer";
     case Keyword::String:
       return "string";
+    case Keyword::True:
+      return "true";
+    case Keyword::False:
+      return "false";
     default:
       #ifdef ECHELON_DEBUG
       throw std::runtime_error("Mising to string case for keyword.");

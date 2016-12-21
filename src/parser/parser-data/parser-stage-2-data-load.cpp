@@ -178,6 +178,15 @@ void loadMatchers() {
 
   MatcherLookup::getInstance() -> addMatcher("integer", integer);
 
+  Matcher *boolean = new Matcher();
+  boolean -> setMatcher([] (Matcher* self) -> bool {
+      return
+        self -> getEnhancedToken() -> getData() == EchelonLookup::toString(Keyword::True) ||
+        self -> getEnhancedToken() -> getData() == EchelonLookup::toString(Keyword::False);
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("boolean", boolean);
+
   Matcher *op_equality = new Matcher();
   op_equality -> setMatcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getTokenType() == TokenType::Equality;
@@ -187,10 +196,17 @@ void loadMatchers() {
 
   Matcher *op_and = new Matcher();
   op_and -> setMatcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::AndOperator;
+      return self -> getEnhancedToken() -> getTokenType() == TokenType::AndOperator;
   });
 
   MatcherLookup::getInstance() -> addMatcher("op_and", op_and);
+
+  Matcher *op_or = new Matcher();
+  op_or -> setMatcher([] (Matcher* self) -> bool {
+      return self -> getEnhancedToken() -> getTokenType() == TokenType::OrOperator;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("op_or", op_or);
 
   Matcher *kwd_if = new Matcher();
   kwd_if -> setMatcher([] (Matcher* self) -> bool {
@@ -285,6 +301,19 @@ void loadTransformers() {
 
   AstTransformLookup::getInstance() -> addAstTransform("add", addTransform);
 
+  AstTransform *orTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::BooleanBinaryOperator);
+    // TODO Map sub type.
+    base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
+
+    std::cout << "PROBLEM PROBLEM PROBLEM " << astTransformData -> getNestedAstNodes() -> size();
+
+    return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("op_or", orTransform);
+
   AstTransform *functionCallTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     // TODO deal with params to function call.
 
@@ -360,6 +389,28 @@ void loadTransformers() {
 
   AstTransformLookup::getInstance() -> addAstTransform("integer", exprIntegerTransform);
 
+  AstTransform *exprBooleanTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+      AstNode *base = new AstNode();
+      base -> setType(AstNodeType::Boolean);
+      base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
+
+      auto nested = astTransformData -> getNestedAstNodes();
+      if (nested != nullptr && nested -> size() == 2) {
+        auto oper = nested -> front();
+        nested -> pop();
+        auto nextExpr = nested -> front();
+        nested -> pop();
+
+        oper -> getChild(0) -> putChild(base);
+        oper -> getChild(0) -> putChild(nextExpr -> getChild(0));
+        base = oper;
+      }
+
+      return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("boolean", exprBooleanTransform);
+
   AstTransform *assignOperatorTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::EqualityOperator);
@@ -412,6 +463,26 @@ void loadTransformers() {
   });
 
   AstTransformLookup::getInstance() -> addAstTransform("bool_expr_compare", boolExpressionCompareTransform);
+
+  AstTransform *boolExpressionLogicTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+      auto left = astTransformData -> getNestedAstNodes() -> front();
+      astTransformData -> getNestedAstNodes() -> pop();
+      auto op = astTransformData -> getNestedAstNodes() -> front();
+      astTransformData -> getNestedAstNodes() -> pop();
+      auto right = astTransformData -> getNestedAstNodes() -> front();
+      astTransformData -> getNestedAstNodes() -> pop();
+
+      AstNode *base = new AstNode();
+      base -> setType(AstNodeType::BooleanBinaryOperator);
+      base -> setData(op -> getData()); // this is redundant
+
+      base -> putChild(left -> getChild(0));
+      base -> putChild(right -> getChild(0));
+
+      return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("bool_expr_logic", boolExpressionLogicTransform);
 
   AstTransform *ifTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
@@ -490,6 +561,30 @@ void loadTransformers() {
   });
 
   AstTransformLookup::getInstance() -> addAstTransform("assignment_expr", assignmentExprTransform);
+
+  AstTransform *varDeclExprTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+      auto tokenIterator = astTransformData -> getTokens() -> begin();
+
+      AstNode *base = new AstNode();
+      base -> setType(AstNodeType::Variable);
+
+      if (!(*tokenIterator) -> isDataTypeKeyword()) {
+        base -> setData((*tokenIterator) -> getData());
+      }
+      else {
+        AstNode *type = new AstNode();
+        type -> setType(AstNodeType::Type);
+        type -> setData((*tokenIterator) -> getData());
+        base -> putChild(type);
+
+        tokenIterator++;
+        base -> setData((*tokenIterator) -> getData());
+      }
+
+      return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("var_decl", varDeclExprTransform);
 }
 
 void loadNested() {
@@ -512,6 +607,8 @@ void loadNested() {
   NestedPatternLookup::getInstance() -> registerNested(expr, "string", expr_string);
   std::string expr_integer = "integer [binary_operator expr]";
   NestedPatternLookup::getInstance() -> registerNested(expr, "integer", expr_integer);
+  std::string expr_boolean = "boolean [binary_operator expr]";
+  NestedPatternLookup::getInstance() -> registerNested(expr, "boolean", expr_boolean);
 
   std::string any_compare_op = "any_compare_op";
 
@@ -522,6 +619,8 @@ void loadNested() {
 
   std::string op_and = "op_and";
   NestedPatternLookup::getInstance() -> registerNested(any_logic_op, "op_and", op_and);
+  std::string op_or = "op_or";
+  NestedPatternLookup::getInstance() -> registerNested(any_logic_op, "op_or", op_or);
 
   std::string bool_expr = "bool_expr";
 
@@ -539,7 +638,8 @@ void loadNested() {
 }
 
 void loadPatterns() {
-  std::string var_decl = "[type] identifier assign"; // should check non-kwd identifier.
+  std::string var_decl = "type identifier"; // TODO should check non-kwd identifier.
+  TokenPatternLookup::getInstance() -> addTokenPattern("var_decl", var_decl);
   std::string assignment_expr = "[type] identifier op_assign expr";
   TokenPatternLookup::getInstance() -> addTokenPattern("assignment_expr", assignment_expr);
   std::string for_loop = "kwd_for [type] identifier op_assign expr; bool_expr; expr block_delim_o [block] block_delim_c";

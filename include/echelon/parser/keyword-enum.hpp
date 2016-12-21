@@ -10,10 +10,12 @@ enum class Keyword {
 
   Integer,
   String,
+  True,
+  False,
 
   #ifdef ECHELON_DEBUG
   First = Package,
-  Last = String,
+  Last = False,
   #endif
 };
 
