@@ -307,7 +307,9 @@ void loadTransformers() {
     // TODO Map sub type.
     base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
 
+    #ifdef ECHELON_DEBUG
     std::cout << "PROBLEM PROBLEM PROBLEM " << astTransformData -> getNestedAstNodes() -> size();
+    #endif
 
     return base;
   });
