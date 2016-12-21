@@ -640,10 +640,10 @@ void loadNested() {
 }
 
 void loadPatterns() {
-  std::string var_decl = "type identifier"; // TODO should check non-kwd identifier.
-  TokenPatternLookup::getInstance() -> addTokenPattern("var_decl", var_decl);
   std::string assignment_expr = "[type] identifier op_assign expr";
   TokenPatternLookup::getInstance() -> addTokenPattern("assignment_expr", assignment_expr);
+  std::string var_decl = "type identifier"; // TODO should check non-kwd identifier.
+  TokenPatternLookup::getInstance() -> addTokenPattern("var_decl", var_decl);
   std::string for_loop = "kwd_for [type] identifier op_assign expr; bool_expr; expr block_delim_o [block] block_delim_c";
 
   std::string package = "kwd_package [identifier op_structure]* identifier";
