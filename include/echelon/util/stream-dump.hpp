@@ -39,4 +39,7 @@ void stream_dump(std::ostream& s, CharacterPattern* characterPattern);
 #include <echelon/parser/stage1/character-pattern-group.hpp>
 void stream_dump(std::ostream& s, CharacterPatternGroup* characterPatternGroup);
 
+#include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
+void stream_dump(std::ostream& s, EnhancedAstNode* enhancedAstNode, int level = 1);
+
 #endif

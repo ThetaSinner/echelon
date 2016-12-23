@@ -23,28 +23,10 @@ class NodeEnhancerLookup {
   NodeEnhancerLookup(const NodeEnhancerLookup&) {}
   NodeEnhancerLookup& operator=(const NodeEnhancerLookup&) {}
 public:
-  static NodeEnhancerLookup* getInstance() {
-    if (instance == nullptr) {
-      instance = new NodeEnhancerLookup();
-    }
+  static NodeEnhancerLookup* getInstance();
 
-    return instance;
-  }
-
-  void addNodeEnhancer(AstNodeType type, NodeEnhancer nodeEnhancer) {
-    nodeEnhancers.insert({type, nodeEnhancer});
-  }
-
-  NodeEnhancer& getNodeEnhancer(AstNodeType type) {
-    #ifdef ECHELON_DEBUG
-    if (nodeEnhancers.find(type) == nodeEnhancers.end()) {
-      std::cout << "Missing node enhancer for [" << EchelonLookup::getInstance() -> toString(type) << "]" << std::endl;
-      throw std::runtime_error("Missing node enhancer");
-    }
-    #endif
-
-    return nodeEnhancers.at(type);
-  }
+  void addNodeEnhancer(AstNodeType type, NodeEnhancer nodeEnhancer);
+  NodeEnhancer& getNodeEnhancer(AstNodeType type);
 };
 
 #endif

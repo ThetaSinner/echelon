@@ -6,6 +6,12 @@ enum class EnhancedAstNodeSubType {
 
   Declaration,
   Assign,
+
+  // Primitive Value
+  Integer,
+
+  // Type
+  IntegerType,
 };
 
 #endif

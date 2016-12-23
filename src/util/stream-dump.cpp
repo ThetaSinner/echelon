@@ -91,3 +91,17 @@ void stream_dump(std::ostream& s, CharacterPatternGroup* characterPatternGroup) 
     s << e -> getData() << " ";
   }
 }
+
+void stream_dump(std::ostream& s, EnhancedAstNode* enhancedAstNode, int level) {
+  s << "Level " << level << "\n";
+
+  s << EchelonLookup::toString(enhancedAstNode -> getNodeType()) << ", ";
+  s << EchelonLookup::toString(enhancedAstNode -> getNodeSubType()) << ", ";
+  s << enhancedAstNode -> getData();
+  s << "\n";
+
+  for (auto child : *enhancedAstNode -> getChildList()) {
+    stream_dump(s, child, level + 1);
+    s << "\n";
+  }
+}

@@ -31,10 +31,28 @@ int main(int argc, char** args) {
   // for example. Maybe it will be a complementary structure to the existing tree.
 
   NodeEnhancerLookup::getInstance() -> addNodeEnhancer(AstNodeType::Type, [] (AstNode* node, Scope scope) -> EnhancedAstNode* {
-    return new EnhancedAstNode();
+    auto base = new EnhancedAstNode();
+
+    base -> setNodeType(EnhancedAstNodeType::Type);
+
+    // TODO type mapping
+    //base -> setNodeSubType(EnhancedAstNodeSubType::IntegerType);
+    base -> setData(node -> getData());
+
+    return base;
   });
 
-  std::string test = "integer x = 2";
+  NodeEnhancerLookup::getInstance() -> addNodeEnhancer(AstNodeType::Integer, [] (AstNode* node, Scope scope) -> EnhancedAstNode* {
+    auto base = new EnhancedAstNode();
+
+    base -> setNodeType(EnhancedAstNodeType::PrimitiveValue);
+    base -> setNodeSubType(EnhancedAstNodeSubType::Integer);
+    base -> setData(node -> getData());
+
+    return base;
+  });
+
+  std::string test = "integer x = 2\nx = 3";
 
   Tokenizer tokenizer;
   auto tokens = tokenizer.tokenize(test);
@@ -42,8 +60,9 @@ int main(int argc, char** args) {
   auto ast = parser.parse(tokens);
 
   AstEnhancer astEnhancer;
-  //auto enhanced = astEnhancer.enhance(ast);
+  auto enhanced = astEnhancer.enhance(ast);
 
+  stream_dump(std::cout, enhanced);
 
   std::cout << std::endl << "Program will exit normally.";
   std::cout << std::endl;

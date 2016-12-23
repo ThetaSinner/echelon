@@ -3,6 +3,8 @@
 #include <echelon/parser/token-type-enum.hpp>
 #include <echelon/ast/ast-node-type-enum.hpp>
 #include <echelon/parser/keyword-enum.hpp>
+#include <echelon/ast/transform-stage/enhanced-ast-node-type-enum.hpp>
+#include <echelon/ast/transform-stage/enhanced-ast-node-sub-type-enum.hpp>
 
 #ifdef ECHELON_DEBUG
 #include <stdexcept>
@@ -155,7 +157,47 @@ template<> std::string EchelonLookup::toString(Keyword t) {
       return "false";
     default:
       #ifdef ECHELON_DEBUG
-      throw std::runtime_error("Mising to string case for keyword.");
+      throw std::runtime_error("Missing to string case for keyword.");
+      #endif
+      return "none";
+  }
+}
+
+template<> std::string EchelonLookup::toString(EnhancedAstNodeType t) {
+  switch (t) {
+    case EnhancedAstNodeType::None:
+      return "none";
+    case EnhancedAstNodeType::Program:
+      return "program";
+    case EnhancedAstNodeType::Type:
+      return "type";
+    case EnhancedAstNodeType::Variable:
+      return "variable";
+    case EnhancedAstNodeType::PrimitiveValue:
+      return "primitive value";
+    default:
+      #ifdef ECHELON_DEBUG
+      throw std::runtime_error("Missing to string case for enhanced ast node type.");
+      #endif
+      return "none";
+  }
+}
+
+template<> std::string EchelonLookup::toString(EnhancedAstNodeSubType t) {
+  switch (t) {
+    case EnhancedAstNodeSubType::Assign:
+      return "assign";
+    case EnhancedAstNodeSubType::Declaration:
+      return "declaration";
+    case EnhancedAstNodeSubType::Integer:
+      return "integer";
+    case EnhancedAstNodeSubType::IntegerType:
+      return "integer type";
+    case EnhancedAstNodeSubType::Unspecified:
+      return "unspecified";
+    default:
+      #ifdef ECHELON_DEBUG
+      throw std::runtime_error("Missing to string case for enhanced ast node sub type.");
       #endif
       return "none";
   }
