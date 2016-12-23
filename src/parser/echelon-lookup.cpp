@@ -107,6 +107,8 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
       return "boolean_binary_operator";
     case AstNodeType::FunctionCall:
       return "function_call";
+    case AstNodeType::Function:
+      return "function";
     case AstNodeType::Type:
       return "type";
     case AstNodeType::String:

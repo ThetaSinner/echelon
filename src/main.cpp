@@ -8,6 +8,10 @@
 #include <echelon/compiler/echelon-compiler.hpp>
 #include <echelon/compiler/integrity-check.hpp>
 
+#include <echelon/ast/transform-stage/node-enhancer-lookup.hpp>
+#include <echelon/transform/ast-enhancer.hpp>
+#include <echelon/ast/transform-stage/scope.hpp>
+
 int main(int argc, char** args) {
   #ifdef ECHELON_DEBUG
   std::cout << "This is a debug build.\n";
@@ -26,8 +30,20 @@ int main(int argc, char** args) {
   // It needs to be such that it is simple to find out whether something is defined in the current context or parent context
   // for example. Maybe it will be a complementary structure to the existing tree.
 
-  EchelonCompiler compiler;
-  std::cout << "Compiler output: " << compiler.compile("string x\nif (true || false) {\n  x = \"bildo\"\n}\nelse {\n  x = \"winki\"\n}\n") << std::endl;
+  NodeEnhancerLookup::getInstance() -> addNodeEnhancer(AstNodeType::Type, [] (AstNode* node, Scope scope) -> EnhancedAstNode* {
+    return new EnhancedAstNode();
+  });
+
+  std::string test = "integer x = 2";
+
+  Tokenizer tokenizer;
+  auto tokens = tokenizer.tokenize(test);
+  Parser2 parser;
+  auto ast = parser.parse(tokens);
+
+  AstEnhancer astEnhancer;
+  //auto enhanced = astEnhancer.enhance(ast);
+
 
   std::cout << std::endl << "Program will exit normally.";
   std::cout << std::endl;

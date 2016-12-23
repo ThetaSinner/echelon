@@ -10,6 +10,7 @@ enum class AstNodeType {
   Module,
   BinaryOperator,
   BooleanBinaryOperator,
+  Function,
   FunctionCall,
   Type,
   String,
