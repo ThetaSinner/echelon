@@ -9,6 +9,8 @@ class Matcher {
 
   EnhancedToken* enhancedToken;
 public:
+  Matcher(std::function<bool(Matcher*)> matcher);
+
   void setMatcher(std::function<bool(Matcher*)> matcher);
 
   bool matches(EnhancedToken* enhancedToken);

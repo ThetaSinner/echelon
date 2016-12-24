@@ -24,243 +24,160 @@ void loadKeywords() {
 }
 
 void loadMatchers() {
-  Matcher *type = new Matcher();
-  type -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("type", new Matcher([] (Matcher* self) -> bool {
     if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
       return false;
     }
 
     return EchelonLookup::getInstance() -> isDataTypeKeyword(self -> getEnhancedToken() -> getData());
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("type", type);
-
-  Matcher *keyword = new Matcher();
-  keyword -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("keyword", new Matcher([] (Matcher* self) -> bool {
     if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
       return false;
     }
 
     return EchelonLookup::getInstance() -> isKeyword(self -> getEnhancedToken() -> getData());
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("keyword", keyword);
-
-  Matcher *comment = new Matcher();
-  comment -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("comment", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getTokenType() == TokenType::SingleLineComment;
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("comment", comment);
-
-  Matcher *multi_line_comment = new Matcher();
-  multi_line_comment -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("multi_line_comment", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getTokenType() == TokenType::MultiLineComment;
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("multi_line_comment", multi_line_comment);
+  MatcherLookup::getInstance() -> addMatcher("identifier", new Matcher([] (Matcher* self) -> bool {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
+      return false;
+    }
 
-  Matcher *identifier = new Matcher();
-  identifier -> setMatcher([] (Matcher* self) -> bool {
-    // need to check not a keyword? or seperate matcher for that might be better.
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::Identifier;
-  });
+    return !EchelonLookup::getInstance() -> isKeyword(self -> getEnhancedToken() -> getData());
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("identifier", identifier);
 
-  Matcher *kwd_package = new Matcher();
-  kwd_package -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("kwd_package", new Matcher([] (Matcher* self) -> bool {
     if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
       return false;
     }
 
     return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Package);
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("kwd_package", kwd_package);
-
-  Matcher *kwd_for = new Matcher();
-  kwd_for -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("kwd_for", new Matcher([] (Matcher* self) -> bool {
     if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
       return false;
     }
 
     return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::For);
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("kwd_for", kwd_for);
-
-  Matcher *kwd_module = new Matcher();
-  kwd_module -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("kwd_module", new Matcher([] (Matcher* self) -> bool {
     if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
       return false;
     }
 
     return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Module);
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("kwd_module", kwd_module);
-
-  Matcher *op_structure = new Matcher();
-  op_structure -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("op_structure", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getTokenType() == TokenType::StructureOperator;
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("op_structure", op_structure);
-
-  Matcher *op_assign = new Matcher();
-  op_assign -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("op_assign", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getTokenType() == TokenType::Assign;
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("op_assign", op_assign);
-
-  Matcher *block_delim_o = new Matcher();
-  block_delim_o -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("block_delim_o", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getTokenType() == TokenType::BlockDelimO;
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("block_delim_o", block_delim_o);
-
-  Matcher *block_delim_c = new Matcher();
-  block_delim_c -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("block_delim_c", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getTokenType() == TokenType::BlockDelimC;
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("block_delim_c", block_delim_c);
-
-  Matcher *paren_open = new Matcher();
-  paren_open -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("paren_open", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getTokenType() == TokenType::ParenO;
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("paren_open", paren_open);
-
-  Matcher *paren_close = new Matcher();
-  paren_close -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("paren_close", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getTokenType() == TokenType::ParenC;
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("paren_close", paren_close);
-
-  Matcher *list_seperator = new Matcher();
-  list_seperator -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("list_seperator", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getData() == ",";
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("list_seperator", list_seperator);
-
-  Matcher *add_operator = new Matcher();
-  add_operator -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("add_operator", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getData() == "+";
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("add_operator", add_operator);
-
-  Matcher *subtract_operator = new Matcher();
-  subtract_operator -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("subtract_operator", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getData() == "-";
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("subtract_operator", subtract_operator);
-
-  Matcher *op_comma = new Matcher();
-  op_comma -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("op_comma", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getTokenType() == TokenType::CommaOperator;
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("op_comma", op_comma);
-
-  Matcher *multiply_operator = new Matcher();
-  multiply_operator -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("multiply_operator", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getData() == "*";
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("multiply_operator", multiply_operator);
-
-  Matcher *divide_operator = new Matcher();
-  divide_operator -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("divide_operator", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getData() == "/";
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("divide_operator", divide_operator);
-
-  Matcher *string = new Matcher();
-  string -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("string", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getTokenType() == TokenType::String;
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("string", string);
-
-  Matcher *integer = new Matcher();
-  integer -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("integer", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getTokenType() == TokenType::Integer;
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("integer", integer);
+  MatcherLookup::getInstance() -> addMatcher("boolean", new Matcher([] (Matcher* self) -> bool {
+    return
+            self -> getEnhancedToken() -> getData() == EchelonLookup::toString(Keyword::True) ||
+            self -> getEnhancedToken() -> getData() == EchelonLookup::toString(Keyword::False);
+  }));
 
-  Matcher *boolean = new Matcher();
-  boolean -> setMatcher([] (Matcher* self) -> bool {
-      return
-        self -> getEnhancedToken() -> getData() == EchelonLookup::toString(Keyword::True) ||
-        self -> getEnhancedToken() -> getData() == EchelonLookup::toString(Keyword::False);
-  });
-
-  MatcherLookup::getInstance() -> addMatcher("boolean", boolean);
-
-  Matcher *op_equality = new Matcher();
-  op_equality -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("op_equality", new Matcher([] (Matcher* self) -> bool {
     return self -> getEnhancedToken() -> getTokenType() == TokenType::Equality;
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("op_equality", op_equality);
+  MatcherLookup::getInstance() -> addMatcher("op_and", new Matcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::AndOperator;
+  }));
 
-  Matcher *op_and = new Matcher();
-  op_and -> setMatcher([] (Matcher* self) -> bool {
-      return self -> getEnhancedToken() -> getTokenType() == TokenType::AndOperator;
-  });
+  MatcherLookup::getInstance() -> addMatcher("op_or", new Matcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::OrOperator;
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("op_and", op_and);
-
-  Matcher *op_or = new Matcher();
-  op_or -> setMatcher([] (Matcher* self) -> bool {
-      return self -> getEnhancedToken() -> getTokenType() == TokenType::OrOperator;
-  });
-
-  MatcherLookup::getInstance() -> addMatcher("op_or", op_or);
-
-  Matcher *kwd_if = new Matcher();
-  kwd_if -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("kwd_if", new Matcher([] (Matcher* self) -> bool {
     if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
       return false;
     }
 
     return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::If);
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("kwd_if", kwd_if);
-
-  Matcher *kwd_else = new Matcher();
-  kwd_else -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("kwd_else", new Matcher([] (Matcher* self) -> bool {
     if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
       return false;
     }
 
     return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Else);
-  });
+  }));
 
-  MatcherLookup::getInstance() -> addMatcher("kwd_else", kwd_else);
-
-  Matcher *block = new Matcher();
-  block -> setMatcher([] (Matcher* self) -> bool {
+  MatcherLookup::getInstance() -> addMatcher("block", new Matcher([] (Matcher* self) -> bool {
     throw std::runtime_error("Cannot match block directly.");
-  });
-
-  MatcherLookup::getInstance() -> addMatcher("block", block);
+  }));
 }
 
 void loadTransformers() {
-  AstTransform *packageTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("package", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     AstNode *currentNode = base;
 
@@ -285,9 +202,7 @@ void loadTransformers() {
     currentNode -> setData((*it) -> getData());
 
     return base;
-  });
-
-  AstTransformLookup::getInstance() -> addAstTransform("package", packageTransform);
+  }));
 
   AstTransform *moduleTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
@@ -297,7 +212,7 @@ void loadTransformers() {
     // think I'm creating an extra level that I don't need.
     if (!astTransformData -> getSubProcessAstNodes() -> empty()) {
       // Map all children of the sub process node as children of "base".
-      for (int i = 0; i < astTransformData -> getSubProcessAstNodes() -> front() -> getChildCount(); i++) {
+      for (unsigned i = 0; i < astTransformData -> getSubProcessAstNodes() -> front() -> getChildCount(); i++) {
         base -> putChild(astTransformData -> getSubProcessAstNodes() -> front() -> getChild(i));
       }
       astTransformData -> getSubProcessAstNodes() -> pop();
@@ -735,13 +650,25 @@ void loadNested() {
   std::string bool_expr_val = "expr";
   NestedPatternLookup::getInstance() -> registerNested(bool_expr, "bool_expr_val", bool_expr_val);
 
-  NestedPatternLookup::getInstance() -> registerNested("if_stmt", "if_stmt", "kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c");
-  NestedPatternLookup::getInstance() -> registerNested("else_if_stmt", "else_if_stmt", "kwd_else kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c");
-  NestedPatternLookup::getInstance() -> registerNested("else_stmt", "else_stmt", "kwd_else block_delim_o [block] block_delim_c");
+  NestedPatternLookup::getInstance() -> registerNested(
+          "if_stmt",
+          "if_stmt",
+          "kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c");
 
-  // signature_item
-  std::string signature_item = "signature_item";
-  NestedPatternLookup::getInstance() -> registerNested(signature_item, "signature_item_term", "[type] identifier [op_comma signature_item]");
+  NestedPatternLookup::getInstance() -> registerNested(
+          "else_if_stmt",
+          "else_if_stmt",
+          "kwd_else kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c");
+
+  NestedPatternLookup::getInstance() -> registerNested(
+          "else_stmt",
+          "else_stmt",
+          "kwd_else block_delim_o [block] block_delim_c");
+
+  NestedPatternLookup::getInstance() -> registerNested(
+          "signature_item",
+          "signature_item_term",
+          "[type] identifier [op_comma signature_item]");
 }
 
 void loadPatterns() {
@@ -749,24 +676,35 @@ void loadPatterns() {
           "function",
           "[type] identifier paren_open signature_item paren_close block_delim_o [block] block_delim_c");
 
-  std::string assignment_expr = "[type] identifier op_assign expr";
-  TokenPatternLookup::getInstance() -> addTokenPattern("assignment_expr", assignment_expr);
-  std::string var_decl = "type identifier"; // TODO should check non-kwd identifier.
-  TokenPatternLookup::getInstance() -> addTokenPattern("var_decl", var_decl);
+  TokenPatternLookup::getInstance() -> addTokenPattern(
+          "assignment_expr",
+          "[type] identifier op_assign expr");
+
+  TokenPatternLookup::getInstance() -> addTokenPattern(
+          "var_decl",
+          "type identifier");
+
   std::string for_loop = "kwd_for [type] identifier op_assign expr; bool_expr; expr block_delim_o [block] block_delim_c";
 
-  std::string package = "kwd_package [identifier op_structure]* identifier";
-  TokenPatternLookup::getInstance() -> addTokenPattern("package", package);
+  TokenPatternLookup::getInstance() -> addTokenPattern(
+          "package",
+          "kwd_package [identifier op_structure]* identifier");
 
-  std::string module = "kwd_module identifier block_delim_o [block] block_delim_c";
-  TokenPatternLookup::getInstance() -> addTokenPattern("module", module);
+  TokenPatternLookup::getInstance() -> addTokenPattern(
+          "module",
+          "kwd_module identifier block_delim_o [block] block_delim_c");
 
-  //std::string _if = "kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c";
-  std::string _if = "if_stmt [else_if_stmt]* [else_stmt]";
-  TokenPatternLookup::getInstance() -> addTokenPattern("if", _if);
+  TokenPatternLookup::getInstance() -> addTokenPattern(
+          "if",
+          "if_stmt [else_if_stmt]* [else_stmt]");
 
-  TokenPatternLookup::getInstance() -> addTokenPattern("comment", "comment");
-  TokenPatternLookup::getInstance() -> addTokenPattern("multi_line_comment", "multi_line_comment");
+  TokenPatternLookup::getInstance() -> addTokenPattern(
+          "comment",
+          "comment");
+
+  TokenPatternLookup::getInstance() -> addTokenPattern(
+          "multi_line_comment",
+          "multi_line_comment");
 }
 
 void loadParserStage2Data() {

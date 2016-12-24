@@ -1,5 +1,9 @@
 #include <echelon/parser/stage2/matcher.hpp>
 
+Matcher::Matcher(std::function<bool(Matcher*)> matcher) {
+  setMatcher(matcher);
+}
+
 void Matcher::setMatcher(std::function<bool(Matcher*)> matcher) {
   this -> matcher = matcher;
 }
