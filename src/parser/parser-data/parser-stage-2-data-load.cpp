@@ -46,6 +46,20 @@ void loadMatchers() {
 
   MatcherLookup::getInstance() -> addMatcher("keyword", keyword);
 
+  Matcher *comment = new Matcher();
+  comment -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::SingleLineComment;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("comment", comment);
+
+  Matcher *multi_line_comment = new Matcher();
+  multi_line_comment -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::MultiLineComment;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("multi_line_comment", multi_line_comment);
+
   Matcher *identifier = new Matcher();
   identifier -> setMatcher([] (Matcher* self) -> bool {
     // need to check not a keyword? or seperate matcher for that might be better.
@@ -149,6 +163,13 @@ void loadMatchers() {
   });
 
   MatcherLookup::getInstance() -> addMatcher("subtract_operator", subtract_operator);
+
+  Matcher *op_comma = new Matcher();
+  op_comma -> setMatcher([] (Matcher* self) -> bool {
+    return self -> getEnhancedToken() -> getTokenType() == TokenType::CommaOperator;
+  });
+
+  MatcherLookup::getInstance() -> addMatcher("op_comma", op_comma);
 
   Matcher *multiply_operator = new Matcher();
   multiply_operator -> setMatcher([] (Matcher* self) -> bool {
@@ -584,6 +605,89 @@ void loadTransformers() {
   });
 
   AstTransformLookup::getInstance() -> addAstTransform("var_decl", varDeclExprTransform);
+
+  AstTransform *signatureItemTermExprTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::FunctionParamDefinitions);
+
+    auto paramDef = new AstNode();
+    paramDef -> setType(AstNodeType::FunctionParamDefinition);
+    if (astTransformData -> getTokens() -> size() > 0) {
+      if (astTransformData -> getPatternMatchInfo() -> getGroupMatchCount(0) == 0) {
+        paramDef -> setData(astTransformData -> getTokens() -> front() -> getData());
+      }
+      else {
+        auto iter = astTransformData -> getTokens() -> begin();
+
+        auto typeNode = new AstNode();
+        typeNode -> setType(AstNodeType::Type);
+        typeNode -> setData((*iter) -> getData());
+        paramDef -> putChild(typeNode);
+
+        iter++;
+        paramDef -> setData((*iter) -> getData());
+      }
+    }
+    base -> putChild(paramDef);
+
+    while (!astTransformData -> getNestedAstNodes() -> empty()) {
+      auto paramDefs = astTransformData -> getNestedAstNodes() -> back() -> getChild(0);
+      for (unsigned i = 0; i < paramDefs -> getChildCount(); i++) {
+        base -> putChild(paramDefs -> getChild(i));
+      }
+      astTransformData -> getNestedAstNodes() -> pop();
+    }
+
+    return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("signature_item_term", signatureItemTermExprTransform);
+
+  AstTransform *commentTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::SingleLineComment);
+    base -> setData(astTransformData -> getTokens() -> front() -> getData());
+
+    return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("comment", commentTransform);
+
+  AstTransform *functionTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::Function);
+
+    if (astTransformData -> getPatternMatchInfo() -> getGroupMatchCount(0) == 0) {
+      // return type not specified, first token is function name.
+      base -> setData(astTransformData -> getTokens() -> front() -> getData());
+    }
+    else {
+      auto iter = astTransformData -> getTokens() -> begin();
+
+      auto typeNode = new AstNode();
+      typeNode -> setType(AstNodeType::Type);
+      typeNode -> setData((*iter) -> getData());
+      base -> putChild(typeNode);
+
+      iter++;
+      base -> setData((*iter) -> getData());
+    }
+
+    if (!astTransformData -> getNestedAstNodes() -> empty()) {
+      base -> putChild(astTransformData -> getNestedAstNodes() -> back() -> getChild(0));
+      astTransformData -> getNestedAstNodes() -> pop();
+    }
+
+    // map the code block.
+    auto block = new AstNode();
+    block -> setType(AstNodeType::Block);
+    block -> putChild(astTransformData -> getSubProcessAstNodes() -> front() -> getChild(0));
+    base -> putChild(block);
+
+    return base;
+  });
+
+  AstTransformLookup::getInstance() -> addAstTransform("function", functionTransform);
 }
 
 void loadNested() {
@@ -634,9 +738,17 @@ void loadNested() {
   NestedPatternLookup::getInstance() -> registerNested("if_stmt", "if_stmt", "kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c");
   NestedPatternLookup::getInstance() -> registerNested("else_if_stmt", "else_if_stmt", "kwd_else kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c");
   NestedPatternLookup::getInstance() -> registerNested("else_stmt", "else_stmt", "kwd_else block_delim_o [block] block_delim_c");
+
+  // signature_item
+  std::string signature_item = "signature_item";
+  NestedPatternLookup::getInstance() -> registerNested(signature_item, "signature_item_term", "[type] identifier [op_comma signature_item]");
 }
 
 void loadPatterns() {
+  TokenPatternLookup::getInstance() -> addTokenPattern(
+          "function",
+          "[type] identifier paren_open signature_item paren_close block_delim_o [block] block_delim_c");
+
   std::string assignment_expr = "[type] identifier op_assign expr";
   TokenPatternLookup::getInstance() -> addTokenPattern("assignment_expr", assignment_expr);
   std::string var_decl = "type identifier"; // TODO should check non-kwd identifier.
@@ -652,6 +764,9 @@ void loadPatterns() {
   //std::string _if = "kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c";
   std::string _if = "if_stmt [else_if_stmt]* [else_stmt]";
   TokenPatternLookup::getInstance() -> addTokenPattern("if", _if);
+
+  TokenPatternLookup::getInstance() -> addTokenPattern("comment", "comment");
+  TokenPatternLookup::getInstance() -> addTokenPattern("multi_line_comment", "multi_line_comment");
 }
 
 void loadParserStage2Data() {

@@ -30,6 +30,7 @@ int main(int argc, char** args) {
   // It needs to be such that it is simple to find out whether something is defined in the current context or parent context
   // for example. Maybe it will be a complementary structure to the existing tree.
 
+
   NodeEnhancerLookup::getInstance() -> addNodeEnhancer(AstNodeType::Type, [] (AstNode* node, Scope scope) -> EnhancedAstNode* {
     auto base = new EnhancedAstNode();
 
@@ -63,6 +64,8 @@ int main(int argc, char** args) {
   auto enhanced = astEnhancer.enhance(ast);
 
   stream_dump(std::cout, enhanced);
+
+  parser.parse(tokenizer.tokenize("integer my_func(string t, x) {// test commment\n}"));
 
   std::cout << std::endl << "Program will exit normally.";
   std::cout << std::endl;

@@ -73,6 +73,8 @@ template<> std::string EchelonLookup::toString(TokenType t) {
       return "multi line comment";
     case TokenType::StructureOperator:
       return "structure operator";
+    case TokenType::CommaOperator:
+      return "comma operator";
     case TokenType::AndOperator:
       return "and operator";
     case TokenType::OrOperator:
@@ -111,6 +113,10 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
       return "function_call";
     case AstNodeType::Function:
       return "function";
+    case AstNodeType::FunctionParamDefinitions:
+      return "function param defs";
+    case AstNodeType::FunctionParamDefinition:
+      return "function param def";
     case AstNodeType::Type:
       return "type";
     case AstNodeType::String:
@@ -127,6 +133,10 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
       return "else";
     case AstNodeType::Branches:
       return "branches";
+    case AstNodeType::SingleLineComment:
+      return "single line comment";
+    case AstNodeType::MultiLineComment:
+      return "multi line comment";
     default:
       #ifdef ECHELON_DEBUG
       throw std::runtime_error("Mising to string case for ast node type.");

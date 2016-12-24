@@ -21,7 +21,7 @@ void AstTransformLookup::addAstTransform(std::string key, AstTransform* astTrans
 AstTransform* AstTransformLookup::getAstTransform(std::string key) {
   #ifdef ECHELON_DEBUG
   if (astTransformHash.find(key) == astTransformHash.end()) {
-    std::cout << key << "Missing ast transformer [" << key << "]" << std::endl;
+    std::cout << "Missing ast transformer [" << key << "]" << std::endl;
     throw std::runtime_error("Request for missing ast transformer");
   }
   #endif

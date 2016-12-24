@@ -21,6 +21,7 @@ enum class TokenType {
   SingleLineComment,
   MultiLineComment,
   StructureOperator,
+  CommaOperator,
   AndOperator,
   OrOperator,
 

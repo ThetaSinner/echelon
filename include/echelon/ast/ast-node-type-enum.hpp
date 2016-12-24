@@ -11,6 +11,8 @@ enum class AstNodeType {
   BinaryOperator,
   BooleanBinaryOperator,
   Function,
+  FunctionParamDefinitions,
+  FunctionParamDefinition,
   FunctionCall,
   Type,
   String,
@@ -20,10 +22,12 @@ enum class AstNodeType {
   If,
   Else,
   Branches,
+  SingleLineComment,
+  MultiLineComment,
 
   #ifdef ECHELON_DEBUG
   First = Program,
-  Last = Branches,
+  Last = MultiLineComment,
   #endif
 };
 

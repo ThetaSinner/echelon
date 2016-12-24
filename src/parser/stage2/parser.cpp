@@ -248,8 +248,9 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
         }
       }
       else if (parserInternalInput.isUseNestedPatterns()) {
+        // TODO Infinite loops are possible here, but I don't know how to fix it right now..
         #ifdef ECHELON_DEBUG
-        std::cout << "Failed but we were using nested patterns so never mind?\n";
+        std::cout << "Failed but we were using nested patterns so never mind?" << std::endl;
         #endif
         break;
       }
