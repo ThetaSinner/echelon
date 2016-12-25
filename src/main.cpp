@@ -67,7 +67,7 @@ int main(int argc, char** args) {
 
   stream_dump(std::cout, enhanced);
 
-  parser.parse(tokenizer.tokenize("integer my_func(string t, x) {// test commment\n}"));
+  
 
   std::cout << std::endl << "Program will exit normally.";
   std::cout << std::endl;

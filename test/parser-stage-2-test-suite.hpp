@@ -2,19 +2,23 @@
 
 #include <list>
 
+#include <echelon/parser/parser-data/parser-stage-1-data-load.hpp>
 #include <echelon/parser/parser-data/parser-stage-2-data-load.hpp>
 #include <echelon/parser/stage1/token.hpp>
 #include <echelon/parser/stage2/parser.hpp>
 #include <echelon/parser/token-type-enum.hpp>
 #include <echelon/ast/ast-node-type-enum.hpp>
+#include <echelon/parser/stage1/tokenizer.hpp>
 
 class ParserStage2TestSuite : public CxxTest::TestSuite
 {
 private:
   Parser2 parser;
+  Tokenizer tokenizer;
 
 public:
   ParserStage2TestSuite() {
+    loadParserStage1Data();
     loadParserStage2Data();
   }
 
@@ -381,5 +385,49 @@ public:
     TS_ASSERT_EQUALS("this string will only be assigned if 1 and 2 are equal", cond_var_data -> getData());
     TS_ASSERT_EQUALS(AstNodeType::String, cond_var_data -> getType());
     TS_ASSERT_EQUALS(0, cond_var_data -> getChildCount());
+  }
+
+  void testFunctionDeclaration(void) {
+    auto ast = parser.parse(tokenizer.tokenize("integer my_func(string t, x) {// test comment\n}"));
+
+    TS_ASSERT_EQUALS("root", ast -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Program, ast -> getType());
+    TS_ASSERT_EQUALS(1, ast -> getChildCount());
+
+    auto function = ast -> getChild(0);
+    TS_ASSERT_EQUALS("my_func", function -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Function, function -> getType());
+    TS_ASSERT_EQUALS(3, function -> getChildCount());
+
+    auto return_type = function -> getChild(0);
+    TS_ASSERT_EQUALS("integer", return_type -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Type, return_type -> getType());
+    TS_ASSERT_EQUALS(0, return_type -> getChildCount());
+
+    auto param_definitions = function -> getChild(1);
+    TS_ASSERT_EQUALS("", param_definitions -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionParamDefinitions, param_definitions -> getType());
+    TS_ASSERT_EQUALS(2, param_definitions -> getChildCount());
+
+    auto typed_param_definition = param_definitions -> getChild(0);
+    TS_ASSERT_EQUALS("t", typed_param_definition -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionParamDefinition, typed_param_definition -> getType());
+    TS_ASSERT_EQUALS(1, typed_param_definition -> getChildCount());
+
+    TS_ASSERT_EQUALS("string", typed_param_definition -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Type, typed_param_definition -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(0, typed_param_definition -> getChild(0) -> getChildCount());
+
+    auto untyped_param_definition = param_definitions -> getChild(1);
+    TS_ASSERT_EQUALS("x", untyped_param_definition -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionParamDefinition, untyped_param_definition -> getType());
+    TS_ASSERT_EQUALS(0, untyped_param_definition -> getChildCount());
+
+    auto block = function -> getChild(2);
+    TS_ASSERT_EQUALS("", block -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Block, block -> getType());
+    TS_ASSERT_EQUALS(1, block -> getChildCount());
+
+    // don't care about the block contents.
   }
 };
