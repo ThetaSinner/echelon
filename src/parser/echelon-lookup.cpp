@@ -61,6 +61,12 @@ template<> std::string EchelonLookup::toString(TokenType t) {
       return "paren close";
     case TokenType::OperatorAdd:
       return "add operator";
+    case TokenType::OperatorSubtract:
+      return "subtract operator";
+    case TokenType::OperatorMultiply:
+      return "multiply operator";
+    case TokenType::OperatorDivide:
+      return "divide operator";
     case TokenType::SqBracket:
       return "square bracket";
     case TokenType::Assign:

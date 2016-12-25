@@ -40,13 +40,8 @@ void loadMatchers() {
     return EchelonLookup::getInstance() -> isKeyword(self -> getEnhancedToken() -> getData());
   }));
 
-  MatcherLookup::getInstance() -> addMatcher("comment", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::SingleLineComment;
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("multi_line_comment", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::MultiLineComment;
-  }));
+  MatcherLookup::getInstance() -> addMatcher("comment", Matcher::forTokenType(TokenType::SingleLineComment));
+  MatcherLookup::getInstance() -> addMatcher("multi_line_comment", Matcher::forTokenType(TokenType::MultiLineComment));
 
   MatcherLookup::getInstance() -> addMatcher("identifier", new Matcher([] (Matcher* self) -> bool {
     if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
@@ -55,7 +50,6 @@ void loadMatchers() {
 
     return !EchelonLookup::getInstance() -> isKeyword(self -> getEnhancedToken() -> getData());
   }));
-
 
   MatcherLookup::getInstance() -> addMatcher("kwd_package", new Matcher([] (Matcher* self) -> bool {
     if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
@@ -81,61 +75,21 @@ void loadMatchers() {
     return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Module);
   }));
 
-  MatcherLookup::getInstance() -> addMatcher("op_structure", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::StructureOperator;
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("op_assign", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::Assign;
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("block_delim_o", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::BlockDelimO;
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("block_delim_c", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::BlockDelimC;
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("paren_open", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::ParenO;
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("paren_close", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::ParenC;
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("list_seperator", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getData() == ",";
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("add_operator", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getData() == "+";
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("subtract_operator", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getData() == "-";
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("op_comma", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::CommaOperator;
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("multiply_operator", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getData() == "*";
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("divide_operator", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getData() == "/";
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("string", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::String;
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("integer", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::Integer;
-  }));
+  MatcherLookup::getInstance() -> addMatcher("op_structure", Matcher::forTokenType(TokenType::StructureOperator));
+  MatcherLookup::getInstance() -> addMatcher("op_assign", Matcher::forTokenType(TokenType::Assign));
+  MatcherLookup::getInstance() -> addMatcher("block_delim_o", Matcher::forTokenType(TokenType::BlockDelimO));
+  MatcherLookup::getInstance() -> addMatcher("block_delim_c", Matcher::forTokenType(TokenType::BlockDelimC));
+  MatcherLookup::getInstance() -> addMatcher("paren_open", Matcher::forTokenType(TokenType::ParenO));
+  MatcherLookup::getInstance() -> addMatcher("paren_close", Matcher::forTokenType(TokenType::ParenC));
+  // TODO remove, see op_comma.
+  MatcherLookup::getInstance() -> addMatcher("list_seperator", Matcher::forTokenType(TokenType::CommaOperator));
+  MatcherLookup::getInstance() -> addMatcher("add_operator", Matcher::forTokenType(TokenType::OperatorAdd));
+  MatcherLookup::getInstance() -> addMatcher("subtract_operator", Matcher::forTokenType(TokenType::OperatorSubtract));
+  MatcherLookup::getInstance() -> addMatcher("op_comma", Matcher::forTokenType(TokenType::CommaOperator));
+  MatcherLookup::getInstance() -> addMatcher("multiply_operator", Matcher::forTokenType(TokenType::OperatorMultiply));
+  MatcherLookup::getInstance() -> addMatcher("divide_operator", Matcher::forTokenType(TokenType::OperatorDivide));
+  MatcherLookup::getInstance() -> addMatcher("string", Matcher::forTokenType(TokenType::String));
+  MatcherLookup::getInstance() -> addMatcher("integer", Matcher::forTokenType(TokenType::Integer));
 
   MatcherLookup::getInstance() -> addMatcher("boolean", new Matcher([] (Matcher* self) -> bool {
     return
@@ -143,17 +97,9 @@ void loadMatchers() {
             self -> getEnhancedToken() -> getData() == EchelonLookup::toString(Keyword::False);
   }));
 
-  MatcherLookup::getInstance() -> addMatcher("op_equality", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::Equality;
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("op_and", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::AndOperator;
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("op_or", new Matcher([] (Matcher* self) -> bool {
-    return self -> getEnhancedToken() -> getTokenType() == TokenType::OrOperator;
-  }));
+  MatcherLookup::getInstance() -> addMatcher("op_equality", Matcher::forTokenType(TokenType::Equality));
+  MatcherLookup::getInstance() -> addMatcher("op_and", Matcher::forTokenType(TokenType::AndOperator));
+  MatcherLookup::getInstance() -> addMatcher("op_or", Matcher::forTokenType(TokenType::OrOperator));
 
   MatcherLookup::getInstance() -> addMatcher("kwd_if", new Matcher([] (Matcher* self) -> bool {
     if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
@@ -171,6 +117,7 @@ void loadMatchers() {
     return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Else);
   }));
 
+  // TODO this is untidy, do I really need this?
   MatcherLookup::getInstance() -> addMatcher("block", new Matcher([] (Matcher* self) -> bool {
     throw std::runtime_error("Cannot match block directly.");
   }));
@@ -204,7 +151,7 @@ void loadTransformers() {
     return base;
   }));
 
-  AstTransform *moduleTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("module", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::Module);
     base -> setData((*std::next(astTransformData -> getTokens() -> begin(), 1)) -> getData());
@@ -219,40 +166,30 @@ void loadTransformers() {
     }
 
     return base;
-  });
+  }));
 
-  AstTransformLookup::getInstance() -> addAstTransform("module", moduleTransform);
-
-  AstTransform *addTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("add", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::BinaryOperator);
-    base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
-
-    #ifdef ECHELON_DEBUG
-    //std::cout << "Build add "; stream_dump(std::cout, base); std::cout << std::endl;
-    #endif
+    base -> setData(astTransformData -> getTokens() -> front() -> getData());
 
     return base;
-  });
+  }));
 
-  AstTransformLookup::getInstance() -> addAstTransform("add", addTransform);
-
-  AstTransform *orTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("op_or", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::BooleanBinaryOperator);
     // TODO Map sub type.
-    base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
+    base -> setData(astTransformData -> getTokens() -> front() -> getData());
 
     #ifdef ECHELON_DEBUG
     std::cout << "PROBLEM PROBLEM PROBLEM " << astTransformData -> getNestedAstNodes() -> size();
     #endif
 
     return base;
-  });
+  }));
 
-  AstTransformLookup::getInstance() -> addAstTransform("op_or", orTransform);
-
-  AstTransform *functionCallTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("function_call", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     // TODO deal with params to function call.
 
     AstNode *base = new AstNode();
@@ -279,11 +216,9 @@ void loadTransformers() {
     #endif
 
     return base;
-  });
+  }));
 
-  AstTransformLookup::getInstance() -> addAstTransform("function_call", functionCallTransform);
-
-  AstTransform *exprStringTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("string", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::String);
     base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
@@ -301,13 +236,31 @@ void loadTransformers() {
     }
 
     return base;
-  });
+  }));
 
-  AstTransformLookup::getInstance() -> addAstTransform("string", exprStringTransform);
-
-  AstTransform *exprIntegerTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("integer", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::Integer);
+    base -> setData(astTransformData -> getTokens() -> front() -> getData());
+
+    auto nested = astTransformData -> getNestedAstNodes();
+    if (nested != nullptr && nested -> size() == 2) {
+      auto oper = nested -> front();
+      nested -> pop();
+      auto nextExpr = nested -> front();
+      nested -> pop();
+
+      oper -> getChild(0) -> putChild(base);
+      oper -> getChild(0) -> putChild(nextExpr -> getChild(0));
+      base = oper;
+    }
+
+    return base;
+  }));
+
+  AstTransformLookup::getInstance() -> addAstTransform("boolean", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::Boolean);
     base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
 
     auto nested = astTransformData -> getNestedAstNodes();
@@ -323,52 +276,24 @@ void loadTransformers() {
     }
 
     return base;
-  });
+  }));
 
-  AstTransformLookup::getInstance() -> addAstTransform("integer", exprIntegerTransform);
-
-  AstTransform *exprBooleanTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
-      AstNode *base = new AstNode();
-      base -> setType(AstNodeType::Boolean);
-      base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
-
-      auto nested = astTransformData -> getNestedAstNodes();
-      if (nested != nullptr && nested -> size() == 2) {
-        auto oper = nested -> front();
-        nested -> pop();
-        auto nextExpr = nested -> front();
-        nested -> pop();
-
-        oper -> getChild(0) -> putChild(base);
-        oper -> getChild(0) -> putChild(nextExpr -> getChild(0));
-        base = oper;
-      }
-
-      return base;
-  });
-
-  AstTransformLookup::getInstance() -> addAstTransform("boolean", exprBooleanTransform);
-
-  AstTransform *assignOperatorTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("op_equality", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::EqualityOperator);
     base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
 
     return base;
-  });
+  }));
 
-  AstTransformLookup::getInstance() -> addAstTransform("op_equality", assignOperatorTransform);
-
-  AstTransform *boolExpressionValueTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("bool_expr_val", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     // This transform is just a wrapper around a "expr" type, so just map the result from the "expr" transform.
     auto node = astTransformData -> getNestedAstNodes() -> front();
     astTransformData -> getNestedAstNodes() -> pop();
     return node;
-  });
+  }));
 
-  AstTransformLookup::getInstance() -> addAstTransform("bool_expr_val", boolExpressionValueTransform);
-
-  AstTransform *boolExpressionCompareTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("bool_expr_compare", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     auto left = astTransformData -> getNestedAstNodes() -> front();
     astTransformData -> getNestedAstNodes() -> pop();
     auto op = astTransformData -> getNestedAstNodes() -> front();
@@ -384,31 +309,27 @@ void loadTransformers() {
     base -> putChild(right -> getChild(0));
 
     return base;
-  });
+  }));
 
-  AstTransformLookup::getInstance() -> addAstTransform("bool_expr_compare", boolExpressionCompareTransform);
+  AstTransformLookup::getInstance() -> addAstTransform("bool_expr_logic", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    auto left = astTransformData -> getNestedAstNodes() -> front();
+    astTransformData -> getNestedAstNodes() -> pop();
+    auto op = astTransformData -> getNestedAstNodes() -> front();
+    astTransformData -> getNestedAstNodes() -> pop();
+    auto right = astTransformData -> getNestedAstNodes() -> front();
+    astTransformData -> getNestedAstNodes() -> pop();
 
-  AstTransform *boolExpressionLogicTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
-      auto left = astTransformData -> getNestedAstNodes() -> front();
-      astTransformData -> getNestedAstNodes() -> pop();
-      auto op = astTransformData -> getNestedAstNodes() -> front();
-      astTransformData -> getNestedAstNodes() -> pop();
-      auto right = astTransformData -> getNestedAstNodes() -> front();
-      astTransformData -> getNestedAstNodes() -> pop();
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::BooleanBinaryOperator);
+    base -> setData(op -> getChild(0) -> getData()); // this is redundant
 
-      AstNode *base = new AstNode();
-      base -> setType(AstNodeType::BooleanBinaryOperator);
-      base -> setData(op -> getChild(0) -> getData()); // this is redundant
+    base -> putChild(left -> getChild(0));
+    base -> putChild(right -> getChild(0));
 
-      base -> putChild(left -> getChild(0));
-      base -> putChild(right -> getChild(0));
+    return base;
+  }));
 
-      return base;
-  });
-
-  AstTransformLookup::getInstance() -> addAstTransform("bool_expr_logic", boolExpressionLogicTransform);
-
-  AstTransform *ifTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("if_stmt", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::If);
 
@@ -428,11 +349,9 @@ void loadTransformers() {
     }
 
     return base;
-  });
+  }));
 
-  AstTransformLookup::getInstance() -> addAstTransform("if_stmt", ifTransform);
-
-  AstTransform *elseTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("else_stmt", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::Else);
 
@@ -447,11 +366,9 @@ void loadTransformers() {
     }
 
     return base;
-  });
+  }));
 
-  AstTransformLookup::getInstance() -> addAstTransform("else_stmt", elseTransform);
-
-  AstTransform *branchTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("if", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::Branches);
 
@@ -464,11 +381,9 @@ void loadTransformers() {
     }
 
     return base;
-  });
+  }));
 
-  AstTransformLookup::getInstance() -> addAstTransform("if", branchTransform);
-
-  AstTransform *assignmentExprTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("assignment_expr", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     auto tokenIterator = astTransformData -> getTokens() -> begin();
 
     AstNode *base = new AstNode();
@@ -493,35 +408,31 @@ void loadTransformers() {
     }
 
     return base;
-  });
+  }));
 
-  AstTransformLookup::getInstance() -> addAstTransform("assignment_expr", assignmentExprTransform);
+  AstTransformLookup::getInstance() -> addAstTransform("var_decl", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    auto tokenIterator = astTransformData -> getTokens() -> begin();
 
-  AstTransform *varDeclExprTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
-      auto tokenIterator = astTransformData -> getTokens() -> begin();
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::Variable);
 
-      AstNode *base = new AstNode();
-      base -> setType(AstNodeType::Variable);
+    if (!(*tokenIterator) -> isDataTypeKeyword()) {
+      base -> setData((*tokenIterator) -> getData());
+    }
+    else {
+      AstNode *type = new AstNode();
+      type -> setType(AstNodeType::Type);
+      type -> setData((*tokenIterator) -> getData());
+      base -> putChild(type);
 
-      if (!(*tokenIterator) -> isDataTypeKeyword()) {
-        base -> setData((*tokenIterator) -> getData());
-      }
-      else {
-        AstNode *type = new AstNode();
-        type -> setType(AstNodeType::Type);
-        type -> setData((*tokenIterator) -> getData());
-        base -> putChild(type);
+      tokenIterator++;
+      base -> setData((*tokenIterator) -> getData());
+    }
 
-        tokenIterator++;
-        base -> setData((*tokenIterator) -> getData());
-      }
+    return base;
+  }));
 
-      return base;
-  });
-
-  AstTransformLookup::getInstance() -> addAstTransform("var_decl", varDeclExprTransform);
-
-  AstTransform *signatureItemTermExprTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("signature_item_term", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::FunctionParamDefinitions);
 
@@ -554,21 +465,25 @@ void loadTransformers() {
     }
 
     return base;
-  });
+  }));
 
-  AstTransformLookup::getInstance() -> addAstTransform("signature_item_term", signatureItemTermExprTransform);
-
-  AstTransform *commentTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance() -> addAstTransform("comment", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::SingleLineComment);
     base -> setData(astTransformData -> getTokens() -> front() -> getData());
 
     return base;
-  });
+  }));
 
-  AstTransformLookup::getInstance() -> addAstTransform("comment", commentTransform);
+  AstTransformLookup::getInstance() -> addAstTransform("multi_line_comment", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::MultiLineComment);
+    base -> setData(astTransformData -> getTokens() -> front() -> getData());
 
-  AstTransform *functionTransform = new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    return base;
+  }));
+
+  AstTransformLookup::getInstance() -> addAstTransform("function", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::Function);
 
@@ -600,55 +515,76 @@ void loadTransformers() {
     base -> putChild(block);
 
     return base;
-  });
-
-  AstTransformLookup::getInstance() -> addAstTransform("function", functionTransform);
+  }));
 }
 
 void loadNested() {
   std::string binaryOperator = "binary_operator";
-
-  std::string add = "add_operator";
-  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, "add", add);
-  std::string subtract = "subtract_operator";
-  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, "subtract", subtract);
-  std::string multiply = "multiply_operator";
-  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, "multiply", multiply);
-  std::string divide = "divide_operator";
-  NestedPatternLookup::getInstance() -> registerNested(binaryOperator, "divide", divide);
+  NestedPatternLookup::getInstance() -> registerNested(
+          binaryOperator,
+          "add",
+          "add_operator");
+  NestedPatternLookup::getInstance() -> registerNested(
+          binaryOperator,
+          "subtract",
+          "subtract_operator");
+  NestedPatternLookup::getInstance() -> registerNested(
+          binaryOperator,
+          "multiply",
+          "multiply_operator");
+  NestedPatternLookup::getInstance() -> registerNested(
+          binaryOperator,
+          "divide",
+          "divide_operator");
 
   std::string expr = "expr";
-
-  std::string function_call = "identifier paren_open [expr list_seperator]* [expr] paren_close [binary_operator expr]";
-  NestedPatternLookup::getInstance() -> registerNested(expr, "function_call", function_call);
-  std::string expr_string = "string [binary_operator expr]";
-  NestedPatternLookup::getInstance() -> registerNested(expr, "string", expr_string);
-  std::string expr_integer = "integer [binary_operator expr]";
-  NestedPatternLookup::getInstance() -> registerNested(expr, "integer", expr_integer);
-  std::string expr_boolean = "boolean [binary_operator expr]";
-  NestedPatternLookup::getInstance() -> registerNested(expr, "boolean", expr_boolean);
+  NestedPatternLookup::getInstance() -> registerNested(
+          expr,
+          "function_call",
+          "identifier paren_open [expr list_seperator]* [expr] paren_close [binary_operator expr]");
+  NestedPatternLookup::getInstance() -> registerNested(
+          expr,
+          "string",
+          "string [binary_operator expr]");
+  NestedPatternLookup::getInstance() -> registerNested(
+          expr,
+          "integer",
+          "integer [binary_operator expr]");
+  NestedPatternLookup::getInstance() -> registerNested(
+          expr,
+          "boolean",
+          "boolean [binary_operator expr]");
 
   std::string any_compare_op = "any_compare_op";
-
-  std::string op_equality = "op_equality";
-  NestedPatternLookup::getInstance() -> registerNested(any_compare_op, "op_equality", op_equality);
+  NestedPatternLookup::getInstance() -> registerNested(
+          any_compare_op,
+          "op_equality",
+          "op_equality");
 
   std::string any_logic_op = "any_logic_op";
-
-  std::string op_and = "op_and";
-  NestedPatternLookup::getInstance() -> registerNested(any_logic_op, "op_and", op_and);
-  std::string op_or = "op_or";
-  NestedPatternLookup::getInstance() -> registerNested(any_logic_op, "op_or", op_or);
+  NestedPatternLookup::getInstance() -> registerNested(
+          any_logic_op,
+          "op_and",
+          "op_and");
+  NestedPatternLookup::getInstance() -> registerNested(
+          any_logic_op,
+          "op_or",
+          "op_or");
 
   std::string bool_expr = "bool_expr";
-
-  std::string bool_expr_compare = "expr any_compare_op bool_expr";
-  NestedPatternLookup::getInstance() -> registerNested(bool_expr, "bool_expr_compare", bool_expr_compare);
-  std::string bool_expr_logic = "expr any_logic_op bool_expr";
-  NestedPatternLookup::getInstance() -> registerNested(bool_expr, "bool_expr_logic", bool_expr_logic);
+  NestedPatternLookup::getInstance() -> registerNested(
+          bool_expr,
+          "bool_expr_compare",
+          "expr any_compare_op bool_expr");
+  NestedPatternLookup::getInstance() -> registerNested(
+          bool_expr,
+          "bool_expr_logic",
+          "expr any_logic_op bool_expr");
   // Important this is loaded last
-  std::string bool_expr_val = "expr";
-  NestedPatternLookup::getInstance() -> registerNested(bool_expr, "bool_expr_val", bool_expr_val);
+  NestedPatternLookup::getInstance() -> registerNested(
+          bool_expr,
+          "bool_expr_val",
+          "expr");
 
   NestedPatternLookup::getInstance() -> registerNested(
           "if_stmt",
@@ -709,8 +645,6 @@ void loadPatterns() {
 
 void loadParserStage2Data() {
   static bool loaded = false;
-
-  // TODO force the program to exit if the data loaded here isn't complete (when detectable).
 
   if (!loaded) {
     loadDataTypeKeywords();

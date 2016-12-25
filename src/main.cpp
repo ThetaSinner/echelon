@@ -19,10 +19,12 @@ int main(int argc, char** args) {
   std::cout << "This is a release build.\n";
   #endif
 
+  IntegrityCheck::StartupCheck();
+
   loadParserStage1Data();
   loadParserStage2Data();
 
-  IntegrityCheck::StartupCheck();
+  IntegrityCheck::PostLoadCheck();
 
   std::cout << "Parser data loaded." << std::endl;
 

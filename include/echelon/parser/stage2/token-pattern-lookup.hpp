@@ -19,6 +19,8 @@ public:
 
   void addTokenPattern(std::string id, std::string tokenPattern);
   std::list<TokenPattern*>* getTokenPatterns();
+
+
 };
 
 #endif
