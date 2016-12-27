@@ -90,6 +90,7 @@ void loadMatchers() {
   MatcherLookup::getInstance() -> addMatcher("divide_operator", Matcher::forTokenType(TokenType::OperatorDivide));
   MatcherLookup::getInstance() -> addMatcher("string", Matcher::forTokenType(TokenType::String));
   MatcherLookup::getInstance() -> addMatcher("integer", Matcher::forTokenType(TokenType::Integer));
+  MatcherLookup::getInstance() -> addMatcher("float", Matcher::forTokenType(TokenType::Float));
 
   MatcherLookup::getInstance() -> addMatcher("boolean", new Matcher([] (Matcher* self) -> bool {
     return
@@ -190,30 +191,15 @@ void loadTransformers() {
   }));
 
   AstTransformLookup::getInstance() -> addAstTransform("function_call", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
-    // TODO deal with params to function call.
-
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::FunctionCall);
     base -> setData((*(astTransformData -> getTokens() -> begin())) -> getData());
 
     auto nested = astTransformData -> getNestedAstNodes();
-    #ifdef ECHELON_DEBUG
-    stream_dump(std::cout, nested);
-    #endif
-    if (nested != nullptr && nested -> size() == 2) {
-      auto oper = nested -> front();
-      nested -> pop();
-      auto nextExpr = nested -> front();
-      nested -> pop();
-
-      oper -> getChild(0) -> putChild(base);
-      oper -> getChild(0) -> putChild(nextExpr -> getChild(0));
-      base = oper;
+    if (nested != nullptr && nested -> size()) {
+      auto callParams = nested -> front() -> getChild(0);
+      base -> putChild(callParams);
     }
-
-    #ifdef ECHELON_DEBUG
-    //std::cout << "Build function call: "; stream_dump(std::cout, base); std::cout << std::endl;
-    #endif
 
     return base;
   }));
@@ -241,6 +227,26 @@ void loadTransformers() {
   AstTransformLookup::getInstance() -> addAstTransform("integer", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::Integer);
+    base -> setData(astTransformData -> getTokens() -> front() -> getData());
+
+    auto nested = astTransformData -> getNestedAstNodes();
+    if (nested != nullptr && nested -> size() == 2) {
+      auto oper = nested -> front();
+      nested -> pop();
+      auto nextExpr = nested -> front();
+      nested -> pop();
+
+      oper -> getChild(0) -> putChild(base);
+      oper -> getChild(0) -> putChild(nextExpr -> getChild(0));
+      base = oper;
+    }
+
+    return base;
+  }));
+
+  AstTransformLookup::getInstance() -> addAstTransform("float", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::Float);
     base -> setData(astTransformData -> getTokens() -> front() -> getData());
 
     auto nested = astTransformData -> getNestedAstNodes();
@@ -332,6 +338,28 @@ void loadTransformers() {
   AstTransformLookup::getInstance() -> addAstTransform("if_stmt", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::If);
+
+    // Map the condition.
+    base -> putChild(astTransformData -> getNestedAstNodes() -> front() -> getChild(0));
+    astTransformData -> getNestedAstNodes() -> pop();
+
+    // Map the block.
+    // The block will always exist but may be empty.
+    if (!astTransformData -> getSubProcessAstNodes() -> empty() && astTransformData -> getSubProcessAstNodes() -> front() -> getChildCount() > 0) {
+      auto block = new AstNode();
+      block -> setType(AstNodeType::Block);
+      block -> putChild(astTransformData -> getSubProcessAstNodes() -> front() -> getChild(0));
+      astTransformData -> getSubProcessAstNodes() -> pop();
+
+      base -> putChild(block);
+    }
+
+    return base;
+  }));
+
+  AstTransformLookup::getInstance() -> addAstTransform("else_if_stmt", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::ElseIf);
 
     // Map the condition.
     base -> putChild(astTransformData -> getNestedAstNodes() -> front() -> getChild(0));
@@ -467,6 +495,32 @@ void loadTransformers() {
     return base;
   }));
 
+  AstTransformLookup::getInstance() -> addAstTransform("function_call_params", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::FunctionCallParams);
+
+    // Map the new function call param.
+    if (astTransformData -> getTokens() -> size() > 0) {
+      auto callParam = new AstNode();
+      callParam -> setType(AstNodeType::FunctionCallParam);
+      callParam -> setData(astTransformData -> getTokens() -> front() -> getData());
+      base -> putChild(callParam);
+    }
+
+    // Map other params.
+    auto nested = astTransformData -> getNestedAstNodes();
+    // TODO this should be replaceable by a while loop, but the parser seems to store more nested items than it needs to.
+    if (!nested -> empty()) {
+      auto callParams = nested -> back() -> getChild(0);
+      for (unsigned i = 0; i < callParams -> getChildCount(); i++) {
+        base -> putChild(callParams -> getChild(i));
+      }
+      nested -> pop();
+    }
+
+    return base;
+  }));
+
   AstTransformLookup::getInstance() -> addAstTransform("comment", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::SingleLineComment);
@@ -481,6 +535,10 @@ void loadTransformers() {
     base -> setData(astTransformData -> getTokens() -> front() -> getData());
 
     return base;
+  }));
+
+  AstTransformLookup::getInstance() -> addAstTransform("function_call_stmt", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    return astTransformData -> getNestedAstNodes() -> front() -> getChild(0);
   }));
 
   AstTransformLookup::getInstance() -> addAstTransform("function", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
@@ -538,10 +596,11 @@ void loadNested() {
           "divide_operator");
 
   std::string expr = "expr";
+/* TODO, this has been replaced.
   NestedPatternLookup::getInstance() -> registerNested(
           expr,
           "function_call",
-          "identifier paren_open [expr list_seperator]* [expr] paren_close [binary_operator expr]");
+          "identifier paren_open [expr list_seperator]* [expr] paren_close [binary_operator expr]");*/
   NestedPatternLookup::getInstance() -> registerNested(
           expr,
           "string",
@@ -550,6 +609,10 @@ void loadNested() {
           expr,
           "integer",
           "integer [binary_operator expr]");
+  NestedPatternLookup::getInstance() -> registerNested(
+          expr,
+          "float",
+          "float [binary_operator expr]");
   NestedPatternLookup::getInstance() -> registerNested(
           expr,
           "boolean",
@@ -605,12 +668,28 @@ void loadNested() {
           "signature_item",
           "signature_item_term",
           "[type] identifier [op_comma signature_item]");
+
+  NestedPatternLookup::getInstance() -> registerNested(
+          "function_call_params",
+          "function_call_params",
+          "expr [op_comma function_call_params]"
+  );
+  NestedPatternLookup::getInstance() -> registerNested(
+          "function_call",
+          "function_call",
+          "identifier paren_open function_call_params paren_close"
+  );
 }
 
 void loadPatterns() {
   TokenPatternLookup::getInstance() -> addTokenPattern(
           "function",
           "[type] identifier paren_open signature_item paren_close block_delim_o [block] block_delim_c");
+
+  TokenPatternLookup::getInstance() -> addTokenPattern(
+          "function_call_stmt",
+          "function_call"
+  );
 
   TokenPatternLookup::getInstance() -> addTokenPattern(
           "assignment_expr",

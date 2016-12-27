@@ -7,6 +7,9 @@
 #include <echelon/util/stream-dump.hpp>
 #endif
 
+// TODO report which pattern was the closest match and which token failed to match.
+// TODO e.g. a function call which is passed a float but expr doesn't allow floats.
+
 ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
   ParserInternalOutput output;
 
@@ -80,6 +83,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
           EnhancedToken *enhancedToken = new EnhancedToken(*itt);
 
           #ifdef ECHELON_DEBUG
+          std::cout << "Element: "; stream_dump(std::cout, *element); std::cout << std::endl;
           std::cout << "Matches: "; stream_dump(std::cout, enhancedToken); std::cout << " ? ";
           #endif
 
@@ -91,7 +95,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
             subProcessAstNodes.push(subOutput.getAstNode());
             // Advance the working iterator to skip the tokens which were matched in the sub process.
             std::advance(itt, subOutput.getTokensConsumedCount());
-            // Since the recursive call hasn't thrown an exception the sub process suceeded, so this element is a match.
+            // Since the recursive call hasn't thrown an exception the sub process succeeded, so this element is a match.
             matchCount++;
           }
           else if ((*element) -> isUseNestedPatterns()) {

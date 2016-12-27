@@ -29,14 +29,21 @@ void IntegrityCheck::StartupCheck() {
 }
 
 void IntegrityCheck::PostLoadCheck() {
+  #ifdef ECHELON_DEBUG
   // Check that an AST transform is defined for all pattern identifiers.
   for (auto i : *TokenPatternLookup::getInstance() -> getTokenPatterns()) {
     AstTransformLookup::getInstance() -> getAstTransform(i -> getId());
 
-    if (NestedPatternLookup::getInstance() -> isNest(i -> getId())) {
-      for (auto k : *NestedPatternLookup::getInstance() -> getNested(i -> getId())) {
-        AstTransformLookup::getInstance() -> getAstTransform(k -> getId());
+    // Unwind each pattern and check that any elements which will be matched with nested patterns has an AST transformer.
+    for (auto k : *i -> getGroups()) {
+      for (auto t : *k -> getElements()) {
+        if (NestedPatternLookup::getInstance() -> isNest(t -> getData())) {
+          for (auto m : *NestedPatternLookup::getInstance() -> getNested(t -> getData())) {
+            AstTransformLookup::getInstance() -> getAstTransform(m -> getId());
+          }
+        }
       }
     }
   }
+  #endif
 }

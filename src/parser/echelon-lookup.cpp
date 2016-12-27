@@ -117,6 +117,10 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
       return "boolean_binary_operator";
     case AstNodeType::FunctionCall:
       return "function_call";
+    case AstNodeType::FunctionCallParams:
+      return "function call params";
+    case AstNodeType::FunctionCallParam:
+      return "function call param";
     case AstNodeType::Function:
       return "function";
     case AstNodeType::FunctionParamDefinitions:
@@ -129,12 +133,16 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
       return "string";
     case AstNodeType::Integer:
       return "integer";
+    case AstNodeType::Float:
+      return "float";
     case AstNodeType::Boolean:
       return "boolean";
     case AstNodeType::EqualityOperator:
       return "equality_operator";
     case AstNodeType::If:
       return "if";
+    case AstNodeType::ElseIf:
+      return "else if";
     case AstNodeType::Else:
       return "else";
     case AstNodeType::Branches:

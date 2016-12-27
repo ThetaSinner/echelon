@@ -15,6 +15,7 @@ TokenPatternElement::TokenPatternElement(std::string element) {
     matcher = MatcherLookup::getInstance() -> getMatcher(data);
   }
 
+  // TODO
   if (data == "block") {
     subProcess = true;
   }

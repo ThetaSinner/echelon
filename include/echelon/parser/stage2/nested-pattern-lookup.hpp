@@ -13,41 +13,17 @@ class NestedPatternLookup {
 
   std::map<std::string, std::list<TokenPattern*>*> nestedPatternLookup;
 
-  void registerNest(std::string str) {
-    nestedPatternLookup.insert({str, new std::list<TokenPattern*> ()});
-  }
+  void registerNest(std::string str);
 
   NestedPatternLookup() {}
   NestedPatternLookup(const NestedPatternLookup& npl) {}
   NestedPatternLookup& operator=(const NestedPatternLookup& npl) {}
 public:
-  static NestedPatternLookup* getInstance() {
-    if (self == nullptr) {
-      self = new NestedPatternLookup();
-    }
+  static NestedPatternLookup* getInstance();
 
-    return self;
-  }
-
-  void registerNested(std::string nest, std::string id, std::string pattern) {
-    static PatternTranslator patternTranslator;
-
-    if (nestedPatternLookup.find(nest) == nestedPatternLookup.end()) {
-      registerNest(nest);
-    }
-
-    auto p = patternTranslator.translate(pattern);
-    p -> setId(id);
-    nestedPatternLookup.at(nest) -> push_back(p);
-  }
-
-  bool isNest(std::string nest) {
-    return nestedPatternLookup.find(nest) != nestedPatternLookup.end();
-  }
-
-  std::list<TokenPattern*>* getNested(std::string nest) {
-    return nestedPatternLookup.at(nest);
-  }
+  void registerNested(std::string nest, std::string id, std::string pattern);
+  bool isNest(std::string nest);
+  std::list<TokenPattern*>* getNested(std::string nest);
 };
 
 #endif
