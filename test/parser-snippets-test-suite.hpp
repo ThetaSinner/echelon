@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <regex>
 
 #include <echelon/parser/parser-data/parser-stage-1-data-load.hpp>
 
@@ -36,7 +37,8 @@ private:
     std::ifstream in(fname.c_str());
     std::stringstream buffer;
     buffer << in.rdbuf();
-    return buffer.str();
+    static std::regex newline_fix_re("([\r\n]+)");
+    return std::regex_replace(buffer.str(), newline_fix_re, "\n");
   }
 
 public:

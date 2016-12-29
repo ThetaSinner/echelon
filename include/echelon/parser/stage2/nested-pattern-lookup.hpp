@@ -22,6 +22,7 @@ public:
   static NestedPatternLookup* getInstance();
 
   void registerNested(std::string nest, std::string id, std::string pattern);
+  void forwardDeclareNested(std::string nest);
   bool isNest(std::string nest);
   std::list<TokenPattern*>* getNested(std::string nest);
 };

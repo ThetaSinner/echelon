@@ -284,6 +284,30 @@ void loadTransformers() {
     return base;
   }));
 
+  AstTransformLookup::getInstance() -> addAstTransform("expr_function_call", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    // Start with the function call node.
+    AstNode *base = new AstNode();
+
+    auto nested = astTransformData -> getNestedAstNodes();
+    if (nested != nullptr && nested -> size() == 3) {
+      auto left = nested -> front() -> getChild(0);
+      nested -> pop();
+      base = nested -> front() -> getChild(0);
+      nested -> pop();
+      auto right = nested -> front() -> getChild(0);
+      nested -> pop();
+
+      base -> putChild(left);
+      base -> putChild(right);
+    }
+    else {
+      base -> setType(AstNodeType::FunctionCall);
+      base -> setData(astTransformData -> getNestedAstNodes() -> front() -> getChild(0) -> getData());
+    }
+
+    return base;
+  }));
+
   AstTransformLookup::getInstance() -> addAstTransform("op_equality", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::EqualityOperator);
@@ -595,12 +619,12 @@ void loadNested() {
           "divide",
           "divide_operator");
 
+  NestedPatternLookup::getInstance() -> forwardDeclareNested("function_call");
   std::string expr = "expr";
-/* TODO, this has been replaced.
   NestedPatternLookup::getInstance() -> registerNested(
           expr,
-          "function_call",
-          "identifier paren_open [expr list_seperator]* [expr] paren_close [binary_operator expr]");*/
+          "expr_function_call",
+          "function_call [binary_operator expr]");
   NestedPatternLookup::getInstance() -> registerNested(
           expr,
           "string",
@@ -677,7 +701,7 @@ void loadNested() {
   NestedPatternLookup::getInstance() -> registerNested(
           "function_call",
           "function_call",
-          "identifier paren_open function_call_params paren_close"
+          "identifier paren_open [function_call_params] paren_close"
   );
 }
 

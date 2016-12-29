@@ -149,21 +149,22 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::Program, ast -> getType());
     TS_ASSERT_EQUALS(1, ast -> getChildCount());
 
-    TS_ASSERT_EQUALS("my_val", ast -> getChild(0) -> getData());
-    TS_ASSERT_EQUALS(AstNodeType::Variable, ast -> getChild(0) -> getType());
-    TS_ASSERT_EQUALS(1, ast -> getChild(0) -> getChildCount());
+    AstNode *var_node = ast -> getChild(0);
+    TS_ASSERT_EQUALS("my_val", var_node-> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Variable, var_node-> getType());
+    TS_ASSERT_EQUALS(1, var_node-> getChildCount());
 
-    TS_ASSERT_EQUALS("+", ast -> getChild(0) -> getChild(0) -> getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, ast -> getChild(0) -> getChild(0) -> getType());
-    TS_ASSERT_EQUALS(2, ast -> getChild(0) -> getChild(0) -> getChildCount());
+    TS_ASSERT_EQUALS("+", var_node-> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, var_node-> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(2, var_node-> getChild(0) -> getChildCount());
 
-    TS_ASSERT_EQUALS("helloWorld", ast -> getChild(0) -> getChild(0) -> getChild(0) -> getData());
-    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getType());
-    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(0) -> getChildCount());
+    TS_ASSERT_EQUALS("helloWorld", var_node-> getChild(0) -> getChild(0) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, var_node-> getChild(0) -> getChild(0) -> getType());
+    TS_ASSERT_EQUALS(0, var_node-> getChild(0) -> getChild(0) -> getChildCount());
 
-    TS_ASSERT_EQUALS("byeWorld", ast -> getChild(0) -> getChild(0) -> getChild(1) -> getData());
-    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getType());
-    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChild(1) -> getChildCount());
+    TS_ASSERT_EQUALS("byeWorld", var_node-> getChild(0) -> getChild(1) -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, var_node-> getChild(0) -> getChild(1) -> getType());
+    TS_ASSERT_EQUALS(0, var_node-> getChild(0) -> getChild(1) -> getChildCount());
   }
 
   void testVariableDeclarationWithType(void) {

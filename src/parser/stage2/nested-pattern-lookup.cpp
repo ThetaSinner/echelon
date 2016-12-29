@@ -26,6 +26,12 @@ void NestedPatternLookup::registerNested(std::string nest, std::string id, std::
   nestedPatternLookup.at(nest) -> push_back(p);
 }
 
+void NestedPatternLookup::forwardDeclareNested(std::string nest) {
+  if (nestedPatternLookup.find(nest) == nestedPatternLookup.end()) {
+    registerNest(nest);
+  }
+}
+
 bool NestedPatternLookup::isNest(std::string nest) {
   // TODO why is this returning true when it shouldn't?
   return nestedPatternLookup.find(nest) != nestedPatternLookup.end();
