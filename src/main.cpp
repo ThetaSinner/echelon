@@ -12,6 +12,8 @@
 #include <echelon/transform/ast-enhancer.hpp>
 #include <echelon/ast/transform-stage/scope.hpp>
 
+#include <echelon/util/stream-logger.hpp>
+
 int main(int argc, char** args) {
   #ifdef ECHELON_DEBUG
   std::cout << "This is a debug build.\n";
@@ -28,9 +30,11 @@ int main(int argc, char** args) {
 
   std::cout << "Parser data loaded." << std::endl;
 
-  // Need a good data structure which has all the declared data, types and functions.
-  // It needs to be such that it is simple to find out whether something is defined in the current context or parent context
-  // for example. Maybe it will be a complementary structure to the existing tree.
+  Logger log = LoggerFactory::getFileLogger("test-logger.txt");
+  log.setLevel(Level::Critical);
+
+  log.at(Level::Trace) << "Trace\n";
+  log.at(Level::Critical) << "Critical\n";
 
   NodeEnhancerLookup::getInstance() -> addNodeEnhancer(AstNodeType::Type, [] (AstNode* node, Scope scope) -> EnhancedAstNode* {
     auto base = new EnhancedAstNode();
@@ -65,8 +69,6 @@ int main(int argc, char** args) {
   auto enhanced = astEnhancer.enhance(ast);
 
   stream_dump(std::cout, enhanced);
-
-  // TODO don't throw a runtime error when parsing fails. It's clearly a part of normal operation for the compiler.
 
   std::cout << std::endl << "Program will exit normally.";
   std::cout << std::endl;
