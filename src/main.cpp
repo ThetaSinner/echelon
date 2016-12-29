@@ -12,7 +12,8 @@
 #include <echelon/transform/ast-enhancer.hpp>
 #include <echelon/ast/transform-stage/scope.hpp>
 
-#include <echelon/util/stream-logger.hpp>
+#include <echelon/util/logging/logger-shared-instance.hpp>
+#include <echelon/util/logging/logger.hpp>
 
 int main(int argc, char** args) {
   #ifdef ECHELON_DEBUG
@@ -30,11 +31,9 @@ int main(int argc, char** args) {
 
   std::cout << "Parser data loaded." << std::endl;
 
-  Logger log = LoggerFactory::getFileLogger("test-logger.txt");
-  log.setLevel(Level::Critical);
-
-  log.at(Level::Trace) << "Trace\n";
-  log.at(Level::Critical) << "Critical\n";
+  Logger* log = LoggerSharedInstance::get();
+  log->at(Level::Trace) << "Trace\n";
+  log->at(Level::Fatal) << "Fatal\n";
 
   NodeEnhancerLookup::getInstance() -> addNodeEnhancer(AstNodeType::Type, [] (AstNode* node, Scope scope) -> EnhancedAstNode* {
     auto base = new EnhancedAstNode();
