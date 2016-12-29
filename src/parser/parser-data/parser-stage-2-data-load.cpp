@@ -524,22 +524,21 @@ void loadTransformers() {
     base -> setType(AstNodeType::FunctionCallParams);
 
     // Map the new function call param.
-    if (astTransformData -> getTokens() -> size() > 0) {
+    auto nestedAstNodes = astTransformData -> getNestedAstNodes();
+    if (!nestedAstNodes -> empty()) {
       auto callParam = new AstNode();
       callParam -> setType(AstNodeType::FunctionCallParam);
-      callParam -> setData(astTransformData -> getTokens() -> front() -> getData());
+      callParam -> putChild(nestedAstNodes -> front() -> getChild(0));
       base -> putChild(callParam);
+      nestedAstNodes -> pop();
     }
 
-    // Map other params.
-    auto nested = astTransformData -> getNestedAstNodes();
-    // TODO this should be replaceable by a while loop, but the parser seems to store more nested items than it needs to.
-    if (!nested -> empty()) {
-      auto callParams = nested -> back() -> getChild(0);
-      for (unsigned i = 0; i < callParams -> getChildCount(); i++) {
+    while (!nestedAstNodes -> empty()) {
+      auto callParams = nestedAstNodes -> front() -> getChild(0);
+      for (int i = 0; i < callParams -> getChildCount(); i++) {
         base -> putChild(callParams -> getChild(i));
       }
-      nested -> pop();
+      nestedAstNodes -> pop();
     }
 
     return base;

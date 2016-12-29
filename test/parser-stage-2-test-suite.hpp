@@ -431,4 +431,55 @@ public:
 
     // don't care about the block contents.
   }
+
+  void testFunctionCall() {
+    auto ast = parser.parse(tokenizer.tokenize("my_func()"));
+
+    TS_ASSERT_EQUALS("root", ast -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Program, ast -> getType());
+    TS_ASSERT_EQUALS(1, ast -> getChildCount());
+
+    auto function_call = ast -> getChild(0);
+    TS_ASSERT_EQUALS("my_func", function_call -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, function_call -> getType());
+    TS_ASSERT_EQUALS(0, function_call -> getChildCount());
+  }
+
+  void testFunctionCallWithArgs() {
+    auto ast = parser.parse(tokenizer.tokenize("my_func(\"a string\", 0.5)"));
+
+    TS_ASSERT_EQUALS("root", ast -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Program, ast -> getType());
+    TS_ASSERT_EQUALS(1, ast -> getChildCount());
+
+    auto function_call = ast -> getChild(0);
+    TS_ASSERT_EQUALS("my_func", function_call -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, function_call -> getType());
+    TS_ASSERT_EQUALS(1, function_call -> getChildCount());
+
+    auto call_params = function_call -> getChild(0);
+    TS_ASSERT_EQUALS("", call_params -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionCallParams, call_params -> getType());
+    TS_ASSERT_EQUALS(2, call_params -> getChildCount());
+
+    auto call_param_one = call_params -> getChild(0);
+    TS_ASSERT_EQUALS("", call_param_one -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionCallParam, call_param_one -> getType());
+    TS_ASSERT_EQUALS(1, ast -> getChildCount());
+
+    auto call_param_one_val = call_param_one -> getChild(0);
+    TS_ASSERT_EQUALS("a string", call_param_one_val -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::String, call_param_one_val -> getType());
+    TS_ASSERT_EQUALS(0, call_param_one_val -> getChildCount());
+
+    auto call_param_two = call_params -> getChild(1);
+    TS_ASSERT_EQUALS("", call_param_two -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionCallParam, call_param_two -> getType());
+    TS_ASSERT_EQUALS(1, call_param_two -> getChildCount());
+
+    auto call_param_two_val = call_param_two -> getChild(0);
+    TS_ASSERT_EQUALS("0.5", call_param_two_val -> getData());
+    TS_ASSERT_EQUALS(AstNodeType::Float, call_param_two_val -> getType());
+    TS_ASSERT_EQUALS(0, call_param_two_val -> getChildCount());
+  }
 };

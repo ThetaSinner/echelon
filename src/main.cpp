@@ -66,8 +66,6 @@ int main(int argc, char** args) {
 
   stream_dump(std::cout, enhanced);
 
-  parser.parse(tokenizer.tokenize("my_func(\"a string\", 0.5)"));
-
   // TODO don't throw a runtime error when parsing fails. It's clearly a part of normal operation for the compiler.
 
   std::cout << std::endl << "Program will exit normally.";
