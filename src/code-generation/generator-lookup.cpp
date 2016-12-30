@@ -1,8 +1,7 @@
 #include <echelon/code-generation/generator-lookup.hpp>
 
 #ifdef ECHELON_DEBUG
-#include <iostream>
-#include <stdexcept>
+#include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/parser/echelon-lookup.hpp>
 #endif
 
@@ -23,7 +22,7 @@ void GeneratorLookup::addGenerator(AstNodeType astNodeType, Generator* generator
 Generator* GeneratorLookup::getGenerator(AstNodeType astNodeType) {
   #ifdef ECHELON_DEBUG
   if (generatorHash.find(astNodeType) == generatorHash.end()) {
-    std::cout << "Missing generator [" << EchelonLookup::toString(astNodeType) << "]" << std::endl;
+    LoggerSharedInstance::get()->at(Level::Fatal) << "Missing generator [" << EchelonLookup::toString(astNodeType) << "]\n";
     throw std::runtime_error("Missing generator");
   }
   #endif

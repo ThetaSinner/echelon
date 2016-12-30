@@ -3,8 +3,8 @@
 #include <echelon/code-generation/code-generator-factory.hpp>
 
 #ifdef ECHELON_DEBUG
-#include <iostream>
 #include <fstream>
+#include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/util/ast-to-graphviz.hpp>
 #endif
 
@@ -32,7 +32,7 @@ std::string EchelonCompiler::compile(std::string input) {
   }
   catch (const std::runtime_error& e) {
     #ifdef ECHELON_DEBUG
-    std::cout << "Compilation failed: [" << e.what() << "]";
+    LoggerSharedInstance::get()->at(Level::Fatal) << "Compilation failed: [" << e.what() << "]\n";
     #endif
     throw std::runtime_error("Compilation failed.");
   }

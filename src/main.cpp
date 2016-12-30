@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <echelon/parser/parser-data/parser-stage-1-data-load.hpp>
 #include <echelon/parser/parser-data/parser-stage-2-data-load.hpp>
 
@@ -16,10 +14,12 @@
 #include <echelon/util/logging/logger.hpp>
 
 int main(int argc, char** args) {
+  Logger* log = LoggerSharedInstance::get();
+
   #ifdef ECHELON_DEBUG
-  std::cout << "This is a debug build.\n";
+  log->at(Level::Info) << "This is a debug build.\n";
   #else
-  std::cout << "This is a release build.\n";
+  log->at(Level::Info) << "This is a release build.\n";
   #endif
 
   IntegrityCheck::StartupCheck();
@@ -29,11 +29,7 @@ int main(int argc, char** args) {
 
   IntegrityCheck::PostLoadCheck();
 
-  std::cout << "Parser data loaded." << std::endl;
-
-  Logger* log = LoggerSharedInstance::get();
-  log->at(Level::Trace) << "Trace\n";
-  log->at(Level::Fatal) << "Fatal\n";
+  log->at(Level::Info) << "Parser data loaded.\n";
 
   NodeEnhancerLookup::getInstance() -> addNodeEnhancer(AstNodeType::Type, [] (AstNode* node, Scope scope) -> EnhancedAstNode* {
     auto base = new EnhancedAstNode();
@@ -67,9 +63,8 @@ int main(int argc, char** args) {
   AstEnhancer astEnhancer;
   auto enhanced = astEnhancer.enhance(ast);
 
-  stream_dump(std::cout, enhanced);
+  stream_dump(Level::Debug, enhanced);
 
-  std::cout << std::endl << "Program will exit normally.";
-  std::cout << std::endl;
+  log->at(Level::Info) << "\nProgram will exit normally.\n";
   return 0;
 }

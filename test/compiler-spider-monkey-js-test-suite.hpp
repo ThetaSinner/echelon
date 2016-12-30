@@ -1,5 +1,6 @@
 #include <cxxtest/TestSuite.h>
 
+#include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/code-generation/code-generator.hpp>
 #include <echelon/compiler/echelon-compiler.hpp>
 #include "../src/code-generation/spider-monkey-js/spider-monkey-js-code-generator.hpp"
@@ -8,6 +9,8 @@ class CompilerSpiderMonkeyJSTestSuite : public CxxTest::TestSuite {
     EchelonCompiler compiler;
 public:
     CompilerSpiderMonkeyJSTestSuite() {
+      LoggerSharedInstance::get()->setLevel(levelToInt(Level::Off));
+
       compiler.setCodeGenerator(new SpiderMonkeyJSCodeGenerator());
     }
 

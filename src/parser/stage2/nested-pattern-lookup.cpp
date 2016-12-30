@@ -33,7 +33,6 @@ void NestedPatternLookup::forwardDeclareNested(std::string nest) {
 }
 
 bool NestedPatternLookup::isNest(std::string nest) {
-  // TODO why is this returning true when it shouldn't?
   return nestedPatternLookup.find(nest) != nestedPatternLookup.end();
 }
 

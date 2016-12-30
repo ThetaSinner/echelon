@@ -8,7 +8,6 @@
 
 #ifdef ECHELON_DEBUG
 #include <stdexcept>
-#include <iostream>
 #endif
 
 EchelonLookup* EchelonLookup::self = nullptr;
@@ -88,8 +87,9 @@ template<> std::string EchelonLookup::toString(TokenType t) {
     default:
       #ifdef ECHELON_DEBUG
       throw std::runtime_error("Missing to string case for token type enum.");
-      #endif
+      #else
       return "none";
+      #endif
   }
 }
 
@@ -154,8 +154,9 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
     default:
       #ifdef ECHELON_DEBUG
       throw std::runtime_error("Mising to string case for ast node type.");
-      #endif
+      #else
       return "none";
+      #endif
   }
 }
 
@@ -202,8 +203,9 @@ template<> std::string EchelonLookup::toString(EnhancedAstNodeType t) {
     default:
       #ifdef ECHELON_DEBUG
       throw std::runtime_error("Missing to string case for enhanced ast node type.");
-      #endif
+      #else
       return "none";
+      #endif
   }
 }
 
@@ -222,7 +224,8 @@ template<> std::string EchelonLookup::toString(EnhancedAstNodeSubType t) {
     default:
       #ifdef ECHELON_DEBUG
       throw std::runtime_error("Missing to string case for enhanced ast node sub type.");
-      #endif
+      #else
       return "none";
+      #endif
   }
 }

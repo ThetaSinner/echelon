@@ -2,6 +2,7 @@
 
 #include <list>
 
+#include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/parser/parser-data/parser-stage-1-data-load.hpp>
 #include <echelon/parser/parser-data/parser-stage-2-data-load.hpp>
 #include <echelon/parser/stage1/token.hpp>
@@ -18,6 +19,8 @@ private:
 
 public:
   ParserStage2TestSuite() {
+    LoggerSharedInstance::get()->setLevel(levelToInt(Level::Off));
+
     loadParserStage1Data();
     loadParserStage2Data();
   }

@@ -2,8 +2,8 @@
 
 #include <echelon/parser/stage2/token-pattern-lookup.hpp>
 
+#include <echelon/util/logging/logger-shared-instance.hpp>
 #ifdef ECHELON_DEBUG
-#include <iostream>
 #include <echelon/util/stream-dump.hpp>
 #endif
 
@@ -11,6 +11,8 @@
 // TODO e.g. a function call which is passed a float but expr doesn't allow floats.
 
 ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
+  auto log = LoggerSharedInstance::get();
+
   ParserInternalOutput output;
 
   std::list<Token*> tokens = *parserInternalInput.getTokens();
@@ -21,7 +23,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
   while (i != tokens.end()) {
 
     #ifdef ECHELON_DEBUG
-    std::cout << "Start processing at token "; stream_dump(std::cout, *i); std::cout << "\n";
+    log -> at(Level::Debug) << "Start processing at token "; stream_dump(Level::Debug, *i); log -> at(Level::Debug) << "\n";
     #endif
 
     bool somePatternMatches = false;
@@ -38,8 +40,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
       bool patternMatches = true;
 
       #ifdef ECHELON_DEBUG
-      std::cout << "Trying pattern "; stream_dump(std::cout, *p); std::cout << "\n";
-      //std::cin.get();
+      log -> at(Level::Debug) << "Trying pattern "; stream_dump(Level::Debug, *p); log -> at(Level::Debug) << "\n";
       #endif
 
       auto it = i;
@@ -50,24 +51,19 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
       // match each group in this pattern against the token.
       for (auto g = (*p) -> getGroups() -> begin(); g != (*p) -> getGroups() -> end(); g++) {
         #ifdef ECHELON_DEBUG
-        std::cout << "Process group "; stream_dump(std::cout, *g); std::cout << std::endl;
+        log -> at(Level::Debug) << "Process group "; stream_dump(Level::Debug, *g); log -> at(Level::Debug) << "\n";
         #endif
 
         if (it == tokens.end()) {
-          #ifdef ECHELON_DEBUG
-          std::cout << "End of program, but there are more groups." << std::endl;
-          #endif
+          log -> at(Level::Debug) << "End of program, but there are more groups.\n";
+
           int groupMatchCount = patternMatchInfo -> getGroupMatchCount(std::distance((*p) -> getGroups() -> begin(), g));
           if (groupMatchCount >= (*g) -> getRepeatLowerBound()) {
-            #ifdef ECHELON_DEBUG
-            std::cout << "Allowing match at EOP." << std::endl;
-            #endif
+            log -> at(Level::Debug) << "Allowing match at EOP.\n";
             continue;
           }
           else {
-            #ifdef ECHELON_DEBUG
-            std::cout << "Not allowing match at EOP." << std::endl;
-            #endif
+            log -> at(Level::Debug) << "Not allowing match at EOP.\n";
             patternMatches = false;
             break;
           }
@@ -75,7 +71,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
         auto itt = it;
         #ifdef ECHELON_DEBUG
-        std::cout << "Current starting token "; stream_dump(std::cout, *itt); std::cout << "\n";
+        log -> at(Level::Debug) << "Current starting token "; stream_dump(Level::Debug, *itt); log -> at(Level::Debug) << "\n";
         #endif
 
         int matchCount = 0;
@@ -83,8 +79,8 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
           EnhancedToken *enhancedToken = new EnhancedToken(*itt);
 
           #ifdef ECHELON_DEBUG
-          std::cout << "Element: "; stream_dump(std::cout, *element); std::cout << std::endl;
-          std::cout << "Matches: "; stream_dump(std::cout, enhancedToken); std::cout << " ? ";
+          log -> at(Level::Debug) << "Element: "; stream_dump(Level::Debug, *element); log -> at(Level::Debug) << "\n";
+          log -> at(Level::Debug) << "Matches: "; stream_dump(Level::Debug, enhancedToken); log -> at(Level::Debug) << " ? ";
           #endif
 
           if ((*element) -> isSubProcess()) {
@@ -99,9 +95,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
             matchCount++;
           }
           else if ((*element) -> isUseNestedPatterns()) {
-            #ifdef ECHELON_DEBUG
-            std::cout << "Nested pattern.\n";
-            #endif
+            log -> at(Level::Debug) << "Nested pattern.\n";
 
             ParserInternalInput subInput;
             std::list<Token*> subList(itt, tokens.end());
@@ -112,7 +106,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
             auto subOutput = _parse(subInput);
 
             #ifdef ECHELON_DEBUG
-            //std::cout << "Nested result." << std::endl; stream_dump(std::cout, subOutput.getAstNode()); std::cout << std::endl;
+            log -> at(Level::Debug) << "Nested result.\n"; stream_dump(Level::Debug, subOutput.getAstNode()); log -> at(Level::Debug) << "\n";
             #endif
 
             if (!isEmptyProgram(subOutput.getAstNode())) {
@@ -128,47 +122,35 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
           else if ((*element) -> getMatcher() -> matches(enhancedToken)) {
             // The pattern matches directly using a matcher.
 
-            #ifdef ECHELON_DEBUG
-            std::cout << "Yes\n" << std::endl;
-            #endif
+            log -> at(Level::Debug) << "Yes\n";
             matchCount++;
             itt++;
 
             if (itt == tokens.end()) {
-              #ifdef ECHELON_DEBUG
-              std::cout << "Ran out of tokens.\n";
-              #endif
+              log -> at(Level::Debug) << "Ran out of tokens.\n";
               break;
             }
           }
           else {
             // This patten element can't be processed or matched.
-            #ifdef ECHELON_DEBUG
-            std::cout << "No\n";
-            #endif
+            log -> at(Level::Debug) << "No\n";
             break;
           }
         }
 
         bool completeGroupMatch = matchCount == (*g) -> getElements() -> size();
-        #ifdef ECHELON_DEBUG
-        std::cout << "Complete group match? " << EchelonLookup::toString(completeGroupMatch) << "\n";
-        #endif
+        log -> at(Level::Debug) << "Complete group match? " << EchelonLookup::toString(completeGroupMatch) << "\n";
 
         if (completeGroupMatch) {
           int groupMatchCount = patternMatchInfo -> increment(std::distance((*p) -> getGroups() -> begin(), g));
 
           // Go again if we're under the uppper bound or are allowed unlimited matches.
           if (groupMatchCount < (*g) -> getRepeatUpperBound() || (*g) -> getRepeatUpperBound() == -1) {
-            #ifdef ECHELON_DEBUG
-            std::cout << "Match this group again.\n";
-            #endif
+            log -> at(Level::Debug) << "Match this group again.\n";
             g--; // repeat this group.
           }
           else {
-            #ifdef ECHELON_DEBUG
-            std::cout << "Finished with this group. Move on.\n";
-            #endif
+            log -> at(Level::Debug) << "Finished with this group. Move on.\n";
             // matched but no need to repeat, therefore we just let the loop continue;
           }
         }
@@ -179,9 +161,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
           if (groupMatchCount >= (*g) -> getRepeatLowerBound()) {
             // We've actually matched enough to allow the match even though this one failed.
-            #ifdef ECHELON_DEBUG
-            std::cout << "No group match, allowing anyway.\n";
-            #endif
+            log -> at(Level::Debug) << "No group match, allowing anyway.\n";
 
             // However, we need to reset itt to give back the tokens we've used so far.
             itt = it;
@@ -193,24 +173,20 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
         }
 
         // This group matches so we want to consume the tokens matched by this group.
-        #ifdef ECHELON_DEBUG
-        std::cout << "Consume " << std::distance(it, itt) << " tokens." << std::endl;
-        #endif
+        log -> at(Level::Debug) << "Consume " << std::distance(it, itt) << " tokens.\n";
         // need to be more careful than this?
         std::advance(it, std::distance(it, itt));
       }
 
       if (patternMatches) {
-        #ifdef ECHELON_DEBUG
-        std::cout << "Pattern matches." << std::endl;
-        #endif
+        log -> at(Level::Debug) << "Pattern matches.\n";
         somePatternMatches = true;
 
         // We've matched this whole pattern, so we want to consume tokens.
-        //std::cout << "Confirm consume " << std::distance(i, it) << " tokens\n";
+        //log -> at(Level::Debug) << "Confirm consume " << std::distance(i, it) << " tokens\n";
         std::list<EnhancedToken*> matchedTokens;
         for (int k = 0; k < std::distance(i, it); k++) {
-          //std::cout << k << "\n"; stream_dump(std::cout, *std::next(i, k)); std::cout << "\n";
+          //log -> at(Level::Debug) << k << "\n"; stream_dump(log -> at(Level::Debug), *std::next(i, k)); log -> at(Level::Debug) << "\n";
           matchedTokens.push_back(new EnhancedToken(*std::next(i, k)));
         }
 
@@ -224,7 +200,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
         auto frag = transformer -> transform(td);
         #ifdef ECHELON_DEBUG
-        std::cout << "frag:\n"; stream_dump(std::cout, frag); std::cout << std::endl;
+        log -> at(Level::Debug) << "frag:\n"; stream_dump(Level::Debug, frag); log -> at(Level::Debug) << "\n";
         #endif
 
         astConstructionManager.pushFragment(frag);
@@ -240,62 +216,55 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
     if (!somePatternMatches) {
       #ifdef ECHELON_DEBUG
-      std::cout << "No matching patterns for "; stream_dump(std::cout, *i); std::cout << std::endl;
+      log -> at(Level::Debug) << "No matching patterns for "; stream_dump(Level::Debug, *i); log -> at(Level::Debug) << "\n";
       #endif
 
       // This is the case where a sub-process has been requested, check if we can safely return control to the caller.
       if (parserInternalInput.getSubProcessFinishGroup() != nullptr) {
         std::list<Token*> subList(i, tokens.end());
         if (simpleGroupMatch(subList, parserInternalInput.getSubProcessFinishGroup())) {
-          //std::cout << "Level above should handle this token and further tokens.\n";
+          //log -> at(Level::Debug) << "Level above should handle this token and further tokens.\n";
           break;
         }
       }
       else if (parserInternalInput.isUseNestedPatterns()) {
         // TODO Infinite loops are possible here, but I don't know how to fix it right now..
-        #ifdef ECHELON_DEBUG
-        std::cout << "Failed but we were using nested patterns so never mind?" << std::endl;
-        #endif
+        log -> at(Level::Debug) << "Failed but we were using nested patterns so never mind?\n";
         break;
       }
       else {
+        log -> at(Level::Fatal) << "Unhandled token.\n";
         #ifdef ECHELON_DEBUG
-        std::cerr << "ERROR, unhandled token. "; stream_dump(std::cout, *i); std::cout << "\n" ;
-        throw std::runtime_error("Unhandled token.");
+        stream_dump(Level::Debug, *i); log -> at(Level::Debug) << "\n";
         #endif
+        throw std::runtime_error("Unhandled token.");
       }
     }
   }
 
   #ifdef ECHELON_DEBUG
-  std::cout << "built result:\n"; stream_dump(std::cout, astConstructionManager.getRoot()); std::cout << std::endl;
+  log -> at(Level::Debug) << "built result:\n"; stream_dump(Level::Debug, astConstructionManager.getRoot()); log -> at(Level::Debug) << "\n";
   #endif
   output.setAstNode(astConstructionManager.getRoot());
   return output;
 }
 
 bool Parser2::simpleGroupMatch(std::list<Token*>& tokens, TokenPatternGroup* group) {
-  //std::cout << "Simple group match.\n";
   auto it = tokens.begin();
 
   int matchCount = 0;
   for (auto element = group -> getElements() -> begin(); element != group -> getElements() -> end(); element++) {
     EnhancedToken *enhancedToken = new EnhancedToken(*it);
 
-    //std::cout << "Matches: {"; stream_dump(std::cout, enhancedToken); std::cout << "} ? ";
-
     if ((*element) -> getMatcher() -> matches(enhancedToken)) {
-      //std::cout << "Yes\n" << std::endl;
       matchCount++;
       it++;
 
       if (it == tokens.end()) {
-        //std::cout << "Ran out of tokens.\n";
         break;
       }
     }
     else {
-      //std::cout << "No\n";
       break;
     }
   }

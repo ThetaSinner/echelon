@@ -1,15 +1,9 @@
 #include <echelon/parser/stage1/tokenizer.hpp>
 
-#include <algorithm>
-#include <stdexcept>
+#include <algorithm> // std::min
 
 #include <echelon/parser/stage1/character-pattern-lookup.hpp>
-
-#ifdef ECHELON_DEBUG
-#include <iostream>
-#include <sstream>
-#include <echelon/util/stream-dump.hpp>
-#endif
+#include <echelon/util/logging/logger-shared-instance.hpp>
 
 bool matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
                      std::list<CharacterPatternGroup *>::iterator &group,
@@ -28,6 +22,8 @@ bool checkUpperBound(int val, int upperBound) {
 }
 
 std::list<Token*> Tokenizer::tokenize(std::string input) {
+  auto log = LoggerSharedInstance::get();
+
   std::list<Token*> tokens;
 
   auto i = input.begin();
@@ -42,13 +38,6 @@ std::list<Token*> Tokenizer::tokenize(std::string input) {
 
     auto patternList = CharacterPatternLookup::getInstance() -> getCharacterPatternList();
     for (auto pattern : *patternList) {
-
-      #ifdef ECHELON_DEBUG
-      std::stringstream ss;
-      stream_dump(ss, pattern);
-      std::string t = ss.str();
-      #endif
-
       auto ip = i;
       bool patternMatches = true;
       auto groups = pattern -> getGroups();
@@ -85,7 +74,7 @@ std::list<Token*> Tokenizer::tokenize(std::string input) {
 
         std::string token_data = input.substr((i - input.begin()) + beginOffset, (ip - i) - beginOffset - endOffset);
         #ifdef ECHELON_DEBUG
-        std::cout << token_data << std::endl;
+        log->at(Level::Debug) << "Token data [" << token_data << "]\n";
         #endif
         tokens.push_back(new Token(token_data, pattern -> getTokenType()));
         std::advance(i, ip - i);
@@ -112,12 +101,6 @@ bool matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
                      std::list<CharacterPatternGroup *>::iterator &group,
                      std::string::iterator &ig) {
   bool groupMatches = false;
-
-  #ifdef ECHELON_DEBUG
-  std::stringstream ss;
-  stream_dump(ss, *group);
-  std::string t = ss.str();
-  #endif
 
   auto elements = (*group) -> getElements();
   int elementMatchCount = 0;

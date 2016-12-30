@@ -1,13 +1,10 @@
 #include <echelon/parser/stage2/ast-construction-manager.hpp>
 
-#ifdef ECHELON_DEBUG
-#include <stdexcept>
-#include <iostream>
-#endif
+#include <echelon/util/logging/logger-shared-instance.hpp>
 
 AstConstructionManager::AstConstructionManager() {
   root = new AstNode();
-  root -> setData("root"); // use project name?
+  root -> setData("root"); // TODO use project name?
   root -> setType(AstNodeType::Program);
   workingNode = root;
 }
@@ -15,8 +12,8 @@ AstConstructionManager::AstConstructionManager() {
 void AstConstructionManager::pushFragment(AstNode* fragment) {
   #ifdef ECHELON_DEBUG
   if (fragment == nullptr) {
-    std::cout << "Attempt to push bad fragment." << std::endl;
-    //throw std::runtime_error("Attempt to push bad fragment.");
+    LoggerSharedInstance::get() -> at(Level::Warn) << "Attempt to push bad fragment.\n";
+    throw std::runtime_error("Attempt to push bad fragment.");
   }
   #endif
 

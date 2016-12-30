@@ -16,7 +16,7 @@ Logger* LoggerSharedInstance::get() {
     #if LOG_LEVEL > 0
     logger -> setLevel(LOG_LEVEL);
     #else
-    logger -> setLevel(Level::Error);
+    logger -> setLevel(levelToInt(Level::Trace));
     #endif
   }
 

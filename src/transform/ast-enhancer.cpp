@@ -2,25 +2,14 @@
 
 #include <map>
 #include <sstream>
-#include <list>
 #include <functional>
 
-#include <echelon/ast/ast-node-type-enum.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-node-type-enum.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-node-sub-type-enum.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
+#include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/ast/transform-stage/scope.hpp>
 #include <echelon/ast/transform-stage/node-enhancer-lookup.hpp>
 
 void mapSubNodes(AstNode* source, EnhancedAstNode* target, Scope& scope) {
   for (unsigned i = 0; i < source -> getChildCount(); i++) {
-    #ifdef ECHELON_DEBUG
-    if (nodeEnhancers.find(source -> getChild(i) -> getType()) == nodeEnhancers.end()) {
-      std::cout << "Missing node enhancer [" << EchelonLookup::getInstance() -> toString(source -> getChild(i) -> getType()) << "]" << std::endl;
-      throw std::runtime_error("Mising node enhancer");
-    }
-    #endif
-
     target -> putChild(NodeEnhancerLookup::getInstance() -> getNodeEnhancer(source -> getChild(i) -> getType())(source -> getChild(i), scope));
   }
 }

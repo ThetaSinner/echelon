@@ -1,5 +1,6 @@
 #include <echelon/parser/stage2/matcher-lookup.hpp>
 
+#include <echelon/util/logging/logger-shared-instance.hpp>
 #ifdef ECHELON_DEBUG
 #include <iostream>
 #endif
@@ -21,7 +22,7 @@ void MatcherLookup::addMatcher(std::string key, Matcher* matcher) {
 Matcher* MatcherLookup::getMatcher(std::string key) {
   #ifdef ECHELON_DEBUG
   if (matcherHash.find(key) == matcherHash.end()) {
-    std::cout << "Missing matcher for " << key << std::endl;
+    LoggerSharedInstance::get() -> at(Level::Fatal) << "Missing matcher for [" << key << "]\n";
     throw std::runtime_error("Missing matcher");
   }
   #endif

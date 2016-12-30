@@ -13,6 +13,7 @@ public:
   StreamLogger(std::ostream* os);
 
   virtual StreamLogger& operator<<(std::string str);
+  virtual StreamLogger& operator<<(int i);
 };
 
 

@@ -8,10 +8,7 @@
 #include <echelon/parser/stage2/token-pattern-lookup.hpp>
 #include <echelon/parser/keyword-enum.hpp>
 
-#ifdef ECHELON_DEBUG
-#include <iostream>
-#include <echelon/util/stream-dump.hpp>
-#endif
+#include <echelon/util/logging/logger-shared-instance.hpp>
 
 void loadDataTypeKeywords() {
   EchelonLookup::getInstance() -> addDataTypeKeyword("integer");
@@ -183,9 +180,7 @@ void loadTransformers() {
     // TODO Map sub type.
     base -> setData(astTransformData -> getTokens() -> front() -> getData());
 
-    #ifdef ECHELON_DEBUG
-    std::cout << "PROBLEM PROBLEM PROBLEM " << astTransformData -> getNestedAstNodes() -> size();
-    #endif
+    // TODO astTransformData -> getNestedAstNodes();
 
     return base;
   }));

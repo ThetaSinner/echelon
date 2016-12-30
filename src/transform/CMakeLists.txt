@@ -8,3 +8,7 @@ add_library(${transform_lib_name}
 set_target_properties(${transform_lib_name} PROPERTIES PREFIX "")
 
 target_compile_features(${transform_lib_name} PRIVATE cxx_range_for)
+
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+  target_compile_definitions(${transform_lib_name} PUBLIC ECHELON_DEBUG)
+endif()

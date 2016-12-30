@@ -12,7 +12,6 @@ EnhancedToken::EnhancedToken(Token* t) {
       dataTypeKeyword = EchelonLookup::getInstance() -> isDataTypeKeyword(data);
       break;
     default:
-      //std::cout << "Unhandled case in EnhancedToken constructor.\n";
       // do nothing.
       break;
   }

@@ -1,7 +1,6 @@
 #include <echelon/parser/stage2/pattern-translator.hpp>
 
-#include <iostream>
-
+#include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/util/iterator-util.hpp>
 
 bool is_letter(int c) {
@@ -28,6 +27,8 @@ TokenPatternElement* PatternTranslator::readIdentifier(std::string::iterator& i,
 }
 
 TokenPattern* PatternTranslator::translate(std::string pattern) {
+  auto log = LoggerSharedInstance::get();
+
   TokenPattern *tokenPattern = new TokenPattern();
 
   for (auto i = pattern.begin(); i != pattern.end(); i++) {
@@ -60,7 +61,7 @@ TokenPattern* PatternTranslator::translate(std::string pattern) {
         i++;
       }
       if (*i != ']') {
-        std::cout << "(0042) syntax error.\n";
+        log->at(Level::Error) << "(0042) syntax error.\n";
       }
       // consume the ']'
       safe_advance(i, 1, pattern);
@@ -75,7 +76,7 @@ TokenPattern* PatternTranslator::translate(std::string pattern) {
       tokenPatternGroup -> addElement(ident);
     }
     else {
-      std::cout << "(0041) syntax error." << *i << "\n";
+      log->at(Level::Error) << "(0041) syntax error." << *i << "\n";
       break;
     }
 

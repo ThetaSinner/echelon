@@ -6,6 +6,7 @@
 class NullStreamLogger : public StreamLogger {
 public:
   StreamLogger& operator<<(std::string str);
+  StreamLogger& operator<<(int i);
 };
 
 #endif

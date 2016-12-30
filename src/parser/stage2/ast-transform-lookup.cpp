@@ -1,5 +1,6 @@
 #include <echelon/parser/stage2/ast-transform-lookup.hpp>
 
+#include <echelon/util/logging/logger-shared-instance.hpp>
 #ifdef ECHELON_DEBUG
 #include <iostream>
 #endif
@@ -21,7 +22,7 @@ void AstTransformLookup::addAstTransform(std::string key, AstTransform* astTrans
 AstTransform* AstTransformLookup::getAstTransform(std::string key) {
   #ifdef ECHELON_DEBUG
   if (astTransformHash.find(key) == astTransformHash.end()) {
-    std::cout << "Missing ast transformer [" << key << "]" << std::endl;
+    LoggerSharedInstance::get() -> at(Level::Fatal) << "Missing ast transformer [" << key << "]\n";
     throw std::runtime_error("Request for missing ast transformer");
   }
   #endif

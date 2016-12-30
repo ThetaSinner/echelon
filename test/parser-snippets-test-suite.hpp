@@ -1,6 +1,7 @@
 #include <cxxtest/TestSuite.h>
 #include <echelon/parser/stage1/tokenizer.hpp>
 
+#include <echelon/util/logging/logger-shared-instance.hpp>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -43,6 +44,8 @@ private:
 
 public:
     ParserSnippetTestSuite() {
+      LoggerSharedInstance::get()->setLevel(levelToInt(Level::Off));
+
       loadParserStage1Data();
     }
 

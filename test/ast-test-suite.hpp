@@ -1,6 +1,7 @@
 #include <cxxtest/TestSuite.h>
 #include <echelon/ast/ast-node.hpp>
 #include <echelon/ast/ast-node-type-enum.hpp>
+#include <echelon/util/logging/logger-shared-instance.hpp>
 
 #include <fstream>
 #include <sstream>
@@ -9,6 +10,10 @@
 class AstTestSuite : public CxxTest::TestSuite
 {
 public:
+  AstTestSuite() {
+    LoggerSharedInstance::get()->setLevel(levelToInt(Level::Off));
+  }
+
   void testTypeProperty(void) {
     AstNode node;
     

@@ -3,3 +3,7 @@
 StreamLogger& NullStreamLogger::operator<<(std::string str) {
   return *this;
 }
+
+StreamLogger& NullStreamLogger::operator<<(int i) {
+  return *this;
+}

@@ -1,9 +1,6 @@
 #include <echelon/parser/stage1/character-matcher-lookup.hpp>
 
-#ifdef ECHELON_DEBUG
-#include <iostream>
-#include <stdexcept>
-#endif
+#include <echelon/util/logging/logger-shared-instance.hpp>
 
 CharacterMatcherLookup *CharacterMatcherLookup::instance = nullptr;
 
@@ -22,7 +19,7 @@ void CharacterMatcherLookup::addCharacterMatcher(std::string key, CharacterMatch
 CharacterMatcher CharacterMatcherLookup::getMatcher(std::string key) {
   #ifdef ECHELON_DEBUG
   if (matcherHash.find(key) == matcherHash.end()) {
-    std::cout << "Missing character matcher [" << key << "]" << std::endl;
+    LoggerSharedInstance::get() -> at(Level::Fatal) << "Missing character matcher [" << key << "]\n";
     throw std::runtime_error("Missing character matcher");
   }
   #endif
