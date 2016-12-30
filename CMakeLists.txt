@@ -66,22 +66,25 @@ if (CXXTEST_FOUND)
     ${compiler_lib_name}
     ${util_lib_name})
 
-  set_target_properties(
-      ${project_test_binary_name}
-      ${ast_lib_name}
-      ${parser_lib_name}
-      ${transform_lib_name}
-      ${code_generator_lib_name}
-      ${compiler_lib_name}
-      ${util_lib_name}
-      PROPERTIES
-        COMPILE_FLAGS "-O0 -fprofile-arcs -ftest-coverage"
-        LINK_FLAGS "-fprofile-arcs -ftest-coverage -lgcov"
-  )
+  if (USE_GCC_GCOV)
+    set_target_properties(
+        ${project_test_binary_name}
+        ${ast_lib_name}
+        ${parser_lib_name}
+        ${transform_lib_name}
+        ${code_generator_lib_name}
+        ${compiler_lib_name}
+        ${util_lib_name}
+        PROPERTIES
+          COMPILE_FLAGS "-O0 -fprofile-arcs -ftest-coverage"
+          LINK_FLAGS "-fprofile-arcs -ftest-coverage -lgcov"
+    )
 
-  # To create LCOV report
-  # lcov --directory cmake-debug-build/src --capture --output-file out.info
-  # genhtml out.info
+    # To create LCOV report
+    # lcov --directory cmake-debug-build/src --capture --output-file out.info
+    # genhtml out.info
+  endif()
+
   else()
   message("CxxTest not found.")
 endif()

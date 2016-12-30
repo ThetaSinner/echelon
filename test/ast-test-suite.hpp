@@ -2,6 +2,7 @@
 #include <echelon/ast/ast-node.hpp>
 #include <echelon/ast/ast-node-type-enum.hpp>
 #include <echelon/util/logging/logger-shared-instance.hpp>
+#include <echelon/compiler/integrity-check.hpp>
 
 #include <fstream>
 #include <sstream>
@@ -12,6 +13,7 @@ class AstTestSuite : public CxxTest::TestSuite
 public:
   AstTestSuite() {
     LoggerSharedInstance::get()->setLevel(levelToInt(Level::Off));
+    IntegrityCheck::StartupCheck();
   }
 
   void testTypeProperty(void) {

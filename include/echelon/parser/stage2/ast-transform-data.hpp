@@ -15,33 +15,17 @@ class AstTransformData {
   std::queue<AstNode*>* subProcessAstNodes;
   std::queue<AstNode*>* nestedAstNodes;
 public:
-  void setTokens(std::list<EnhancedToken*> tokens) {
-    this -> tokens = tokens;
-  }
-  std::list<EnhancedToken*>* getTokens() {
-    return &tokens;
-  }
+  void setTokens(std::list<EnhancedToken*> tokens);
+  std::list<EnhancedToken*>* getTokens();
 
-  void setPatternMatchInfo(PatternMatchInfo* patternMatchInfo) {
-    this -> patternMatchInfo = patternMatchInfo;
-  }
-  PatternMatchInfo* getPatternMatchInfo() {
-    return patternMatchInfo;
-  }
+  void setPatternMatchInfo(PatternMatchInfo* patternMatchInfo);
+  PatternMatchInfo* getPatternMatchInfo();
 
-  void setSubProcessAstNodes(std::queue<AstNode*>* subProcessAstNodes) {
-    this -> subProcessAstNodes = subProcessAstNodes;
-  }
-  std::queue<AstNode*>* getSubProcessAstNodes() {
-    return subProcessAstNodes;
-  }
+  void setSubProcessAstNodes(std::queue<AstNode*>* subProcessAstNodes);
+  std::queue<AstNode*>* getSubProcessAstNodes();
 
-  void setNestedAstNodes(std::queue<AstNode*>* nestedAstNodes) {
-    this -> nestedAstNodes = nestedAstNodes;
-  }
-  std::queue<AstNode*>* getNestedAstNodes() {
-    return nestedAstNodes;
-  }
+  void setNestedAstNodes(std::queue<AstNode*>* nestedAstNodes);
+  std::queue<AstNode*>* getNestedAstNodes();
 };
 
 #endif

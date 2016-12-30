@@ -1,5 +1,6 @@
 #include <echelon/parser/stage2/ast-construction-manager.hpp>
 
+#include <stdexcept>
 #include <echelon/util/logging/logger-shared-instance.hpp>
 
 AstConstructionManager::AstConstructionManager() {

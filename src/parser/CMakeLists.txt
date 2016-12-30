@@ -29,6 +29,7 @@ add_library(${parser_lib_name}
   stage2/parser.cpp
   stage2/token-pattern-lookup.cpp
   stage2/nested-pattern-lookup.cpp
+  stage2/ast-transform-data.cpp
 
   echelon-lookup.cpp
 )

@@ -20,3 +20,10 @@ void AstTransformData::setSubProcessAstNodes(std::queue<AstNode*>* subProcessAst
 std::queue<AstNode*>* AstTransformData::getSubProcessAstNodes() {
   return subProcessAstNodes;
 }
+
+void AstTransformData::setNestedAstNodes(std::queue<AstNode*>* nestedAstNodes) {
+  this -> nestedAstNodes = nestedAstNodes;
+}
+std::queue<AstNode*>* AstTransformData::getNestedAstNodes() {
+  return nestedAstNodes;
+}
