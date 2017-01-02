@@ -3,18 +3,6 @@
 #include <echelon/ast/transform-stage/node-enhancer-lookup.hpp>
 
 void loadAstEnhancerData() {
-  NodeEnhancerLookup::getInstance() -> addNodeEnhancer(AstNodeType::Type, [] (AstNode* node, Scope scope) -> EnhancedAstNode* {
-    auto base = new EnhancedAstNode();
-
-    base -> setNodeType(EnhancedAstNodeType::Type);
-
-    // TODO type mapping
-    //base -> setNodeSubType(EnhancedAstNodeSubType::IntegerType);
-    base -> setData(node -> getData());
-
-    return base;
-  });
-
   NodeEnhancerLookup::getInstance() -> addNodeEnhancer(AstNodeType::Integer, [] (AstNode* node, Scope scope) -> EnhancedAstNode* {
     auto base = new EnhancedAstNode();
 
