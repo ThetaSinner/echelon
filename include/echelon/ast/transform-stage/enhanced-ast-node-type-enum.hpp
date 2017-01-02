@@ -8,6 +8,10 @@ enum class EnhancedAstNodeType {
   Variable,
   PrimitiveValue,
   Type,
+
+  Function,
+  FunctionParamDefinition,
+  FunctionParamDefinitions,
 };
 
 #endif

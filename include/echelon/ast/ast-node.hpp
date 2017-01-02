@@ -17,6 +17,9 @@ public:
   void putChildFront(AstNode* child);
   AstNode* getChild(unsigned index);
 
+  bool hasChild(AstNodeType type);
+  AstNode* getChild(AstNodeType type);
+
   void setType(AstNodeType type);
   AstNodeType getType();
 

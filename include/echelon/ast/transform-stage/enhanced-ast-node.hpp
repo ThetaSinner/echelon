@@ -7,12 +7,17 @@
 #include <echelon/ast/transform-stage/enhanced-ast-node-type-enum.hpp>
 #include <echelon/ast/transform-stage/enhanced-ast-node-sub-type-enum.hpp>
 
+#ifdef ECHELON_DEBUG
+#include <iostream>
+#include <echelon/parser/echelon-lookup.hpp>
+#endif
+
 class EnhancedAstNode {
   EnhancedAstNodeType nodeType = EnhancedAstNodeType::None;
   EnhancedAstNodeSubType nodeSubType = EnhancedAstNodeSubType::Unspecified;
   std::string data;
 
-  std::list<EnhancedAstNode*> childList;
+  std::vector<EnhancedAstNode*> childList;
 public:
   EnhancedAstNodeType getNodeType() const {
     return nodeType;
@@ -34,7 +39,7 @@ public:
     this -> data = data;
   }
 
-  std::string getData() {
+  std::string& getData() {
     return data;
   }
 
@@ -42,8 +47,41 @@ public:
     childList.push_back(child);
   }
 
-  std::list<EnhancedAstNode*>* getChildList() {
+  int getChildCount() {
+    return childList.size();
+  }
+
+  std::vector<EnhancedAstNode*>* getChildList() {
     return &childList;
+  }
+
+  EnhancedAstNode* getChild(int childIndex) {
+    return childList.at(childIndex);
+  }
+
+  bool hasChild(EnhancedAstNodeType childType) {
+    for (auto i : childList) {
+      if (i -> getNodeType() == childType) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  EnhancedAstNode* getChild(EnhancedAstNodeType childType) {
+    for (auto i : childList) {
+      if (i -> getNodeType() == childType) {
+        return i;
+      }
+    }
+
+    #ifdef ECHELON_DEBUG
+    std::cout << "Request for child by childType [" << EchelonLookup::getInstance() -> toString(childType) << "] failed.";
+    throw std::runtime_error("Request for child by type failed.");
+    #else
+    return nullptr;
+    #endif
   }
 };
 

@@ -188,6 +188,7 @@ template<> std::string EchelonLookup::toString(Keyword t) {
   }
 }
 
+// TODO add to integrity check.
 template<> std::string EchelonLookup::toString(EnhancedAstNodeType t) {
   switch (t) {
     case EnhancedAstNodeType::None:
@@ -200,6 +201,12 @@ template<> std::string EchelonLookup::toString(EnhancedAstNodeType t) {
       return "variable";
     case EnhancedAstNodeType::PrimitiveValue:
       return "primitive value";
+    case EnhancedAstNodeType::Function:
+      return "function";
+    case EnhancedAstNodeType::FunctionParamDefinition:
+      return "function param definition";
+    case EnhancedAstNodeType::FunctionParamDefinitions:
+      return "function param definitions";
     default:
       #ifdef ECHELON_DEBUG
       throw std::runtime_error("Missing to string case for enhanced ast node type.");

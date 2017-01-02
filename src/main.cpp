@@ -65,6 +65,15 @@ int main(int argc, char** args) {
 
   stream_dump(Level::Debug, enhanced);
 
+  // example of overloaded functions.
+  std::string func_test = "string get_string() {//gay\n} string get_string(integer t) {//af\n}";
+
+  tokens = tokenizer.tokenize(func_test);
+  ast = parser.parse(tokens);
+  enhanced = astEnhancer.enhance(ast);
+
+  stream_dump(Level::Debug, enhanced);
+
   log->at(Level::Info) << "\nProgram will exit normally.\n";
   return 0;
 }

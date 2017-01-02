@@ -702,7 +702,7 @@ void loadNested() {
 void loadPatterns() {
   TokenPatternLookup::getInstance() -> addTokenPattern(
           "function",
-          "[type] identifier paren_open signature_item paren_close block_delim_o [block] block_delim_c");
+          "[type] identifier paren_open [signature_item] paren_close block_delim_o [block] block_delim_c");
 
   TokenPatternLookup::getInstance() -> addTokenPattern(
           "function_call_stmt",
