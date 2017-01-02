@@ -74,8 +74,9 @@ void enhanceInternal(AstNode* node, EnhancedAstNode* target, Scope scope) {
     auto enhancedNode = new EnhancedAstNode();
 
     if (node -> getChild(i) -> getType() == AstNodeType::Variable) {
-      enhancedNode -> setNodeType(EnhancedAstNodeType::Variable);
       auto data = node -> getChild(i) -> getData();
+      enhancedNode -> setNodeType(EnhancedAstNodeType::Variable);
+      enhancedNode->setData(data);
 
       // This is the first time we've seen this variable in this scope, add it.
       if (!scope.hasVariable(data)) {
