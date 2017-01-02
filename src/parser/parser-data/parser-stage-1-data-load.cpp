@@ -53,6 +53,10 @@ void loadCharacterMatchers() {
     return c == '*';
   });
 
+  CharacterMatcherLookup::getInstance()->addCharacterMatcher("plus", [](char c) -> bool {
+    return c == '+';
+  });
+
   CharacterMatcherLookup::getInstance()->addCharacterMatcher("ampersand", [](char c) -> bool {
     return c == '&';
   });
@@ -166,4 +170,9 @@ void loadCharacterPatterns() {
   auto commaCharacterPattern = parseCharacterPattern(comma);
   commaCharacterPattern->setTokenType(TokenType::CommaOperator);
   CharacterPatternLookup::getInstance()->addCharacterPattern(commaCharacterPattern);
+
+  std::string addOperator = "plus";
+  auto addOperatorCharacterPattern = parseCharacterPattern(addOperator);
+  addOperatorCharacterPattern->setTokenType(TokenType::OperatorAdd);
+  CharacterPatternLookup::getInstance()->addCharacterPattern(addOperatorCharacterPattern);
 }

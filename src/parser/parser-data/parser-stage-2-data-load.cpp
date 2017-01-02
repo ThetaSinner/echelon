@@ -592,6 +592,11 @@ void loadTransformers() {
 
     return base;
   }));
+
+  AstTransformLookup::getInstance() -> addAstTransform("expr_statement", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    return astTransformData->getNestedAstNodes()->front()->getChild(0);
+  }));
+
 }
 
 void loadNested() {
@@ -738,6 +743,11 @@ void loadPatterns() {
   TokenPatternLookup::getInstance() -> addTokenPattern(
           "multi_line_comment",
           "multi_line_comment");
+
+  TokenPatternLookup::getInstance() -> addTokenPattern(
+      "expr_statement",
+      "expr"
+  );
 }
 
 void loadParserStage2Data() {

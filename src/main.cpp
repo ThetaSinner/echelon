@@ -1,18 +1,6 @@
-#include <echelon/parser/parser-data/parser-stage-1-data-load.hpp>
-#include <echelon/parser/parser-data/parser-stage-2-data-load.hpp>
-
-#include <echelon/util/stream-dump.hpp>
-
-#include <echelon/compiler/echelon-compiler.hpp>
-#include <echelon/compiler/integrity-check.hpp>
-
-#include <echelon/ast/transform-stage/node-enhancer-lookup.hpp>
-#include <echelon/transform/ast-enhancer.hpp>
-#include <echelon/ast/transform-stage/scope.hpp>
-
 #include <echelon/util/logging/logger-shared-instance.hpp>
-#include <echelon/util/logging/logger.hpp>
-#include <echelon/transform/transform-data/ast-enhancer-data.hpp>
+#include <echelon/util/stream-dump.hpp>
+#include <echelon/compiler/echelon-compiler.hpp>
 
 int main(int argc, char** args) {
   Logger* log = LoggerSharedInstance::get();
@@ -23,8 +11,18 @@ int main(int argc, char** args) {
   log->at(Level::Info) << "This is a release build.\n";
   #endif
 
+  LoggerSharedInstance::get()->setLevel(levelToInt(Level::Info));
+
   EchelonCompiler compiler;
 
+  try {
+    auto ast = compiler.parse("2 + \"str\"");
+    stream_dump(Level::Info, ast);
+  }
+  catch (const std::runtime_error& e) {
+    LoggerSharedInstance::get()->at(Level::Fatal) << "dev compile failed [" << e.what() << "]";
+    return 1;
+  }
 
   log->at(Level::Info) << "\nProgram will exit normally.\n";
   return 0;
