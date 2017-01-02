@@ -12,6 +12,11 @@ enum class EnhancedAstNodeSubType {
 
   // Type
   IntegerType,
+
+  #ifdef ECHELON_DEBUG
+  First=Unspecified,
+  Last=IntegerType,
+  #endif
 };
 
 #endif

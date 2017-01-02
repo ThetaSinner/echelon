@@ -7,7 +7,7 @@
 #include <list>
 #include <queue>
 
-#include <echelon/parser/echelon-lookup.hpp>
+#include <echelon/util/echelon-lookup.hpp>
 
 #include <echelon/parser/stage1/token.hpp>
 void stream_dump(StreamLoggerLevel level, const Token *t);

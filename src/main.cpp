@@ -78,7 +78,7 @@ int main(int argc, char** args) {
   NodeEnhancerLookup::getInstance() -> addNodeEnhancer(AstNodeType::FunctionParamDefinitions, [] (AstNode* node, Scope scope) -> EnhancedAstNode* {
     auto base = new EnhancedAstNode();
     base->setNodeType(EnhancedAstNodeType::FunctionParamDefinitions);
-    
+
     for (unsigned i = 0; i < node -> getChildCount(); i++) {
       base->putChild(NodeEnhancerLookup::getInstance()->getNodeEnhancer(node->getChild(i)->getType())(node->getChild(i), scope));
     }

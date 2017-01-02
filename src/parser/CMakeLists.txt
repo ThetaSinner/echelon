@@ -31,7 +31,7 @@ add_library(${parser_lib_name}
   stage2/nested-pattern-lookup.cpp
   stage2/ast-transform-data.cpp
 
-  echelon-lookup.cpp
+        ../util/echelon-lookup.cpp
 )
 
 # Disable prefixing library name with 'lib'

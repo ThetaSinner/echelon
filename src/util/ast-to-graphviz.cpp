@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include <echelon/parser/echelon-lookup.hpp>
+#include <echelon/util/echelon-lookup.hpp>
 
 // dot compiler-ast-out.gv -Tjpg -ocompiler-ast-out.jpg && compiler-ast-out.jpg
 

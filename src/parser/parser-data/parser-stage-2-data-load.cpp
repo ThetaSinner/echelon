@@ -1,7 +1,7 @@
 #include <echelon/parser/parser-data/parser-stage-2-data-load.hpp>
 
 #include <echelon/parser/stage2/nested-pattern-lookup.hpp>
-#include <echelon/parser/echelon-lookup.hpp>
+#include <echelon/util/echelon-lookup.hpp>
 #include <echelon/parser/stage2/matcher-lookup.hpp>
 #include <echelon/parser/stage2/ast-transform.hpp>
 #include <echelon/parser/stage2/ast-transform-lookup.hpp>

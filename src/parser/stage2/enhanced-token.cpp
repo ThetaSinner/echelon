@@ -1,6 +1,6 @@
 #include <echelon/parser/stage2/enhanced-token.hpp>
 
-#include <echelon/parser/echelon-lookup.hpp>
+#include <echelon/util/echelon-lookup.hpp>
 
 EnhancedToken::EnhancedToken(Token* t) {
   data = t -> getData();

@@ -9,7 +9,7 @@
 
 #ifdef ECHELON_DEBUG
 #include <iostream>
-#include <echelon/parser/echelon-lookup.hpp>
+#include <echelon/util/echelon-lookup.hpp>
 #endif
 
 typedef std::function<EnhancedAstNode*(AstNode*, Scope)> NodeEnhancer;

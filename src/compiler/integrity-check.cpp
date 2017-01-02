@@ -1,9 +1,11 @@
 #include <echelon/compiler/integrity-check.hpp>
 
 #include <echelon/ast/ast-node-type-enum.hpp>
+#include <echelon/ast/transform-stage/enhanced-ast-node-type-enum.hpp>
+#include <echelon/ast/transform-stage/enhanced-ast-node-sub-type-enum.hpp>
 #include <echelon/parser/token-type-enum.hpp>
 #include <echelon/parser/keyword-enum.hpp>
-#include <echelon/parser/echelon-lookup.hpp>
+#include <echelon/util/echelon-lookup.hpp>
 #include <echelon/parser/stage2/ast-transform-lookup.hpp>
 #include <echelon/parser/stage2/token-pattern-lookup.hpp>
 #include <echelon/parser/stage2/nested-pattern-lookup.hpp>
@@ -24,6 +26,14 @@ void IntegrityCheck::StartupCheck() {
 
   for (auto ant : Enum<AstNodeType>()) {
     EchelonLookup::toString(ant);
+  }
+
+  for (auto eant : Enum<EnhancedAstNodeType>()) {
+    EchelonLookup::toString(eant);
+  }
+
+  for (auto eanst : Enum<EnhancedAstNodeSubType >()) {
+    EchelonLookup::toString(eanst);
   }
   #endif
 }

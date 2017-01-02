@@ -2,7 +2,7 @@
 
 #ifdef ECHELON_DEBUG
 #include <echelon/util/logging/logger-shared-instance.hpp>
-#include <echelon/parser/echelon-lookup.hpp>
+#include <echelon/util/echelon-lookup.hpp>
 #endif
 
 GeneratorLookup *GeneratorLookup::instance = nullptr;

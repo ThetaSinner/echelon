@@ -3,7 +3,7 @@
 #include <echelon/parser/stage2/token-pattern-lookup.hpp>
 
 #include <echelon/util/logging/logger-shared-instance.hpp>
-#include <echelon/parser/echelon-lookup.hpp>
+#include <echelon/util/echelon-lookup.hpp>
 #ifdef ECHELON_DEBUG
 #include <echelon/util/stream-dump.hpp>
 #endif

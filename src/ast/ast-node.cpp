@@ -3,7 +3,7 @@
 
 #ifdef ECHELON_DEBUG
 #include <iostream>
-#include <echelon/parser/echelon-lookup.hpp>
+#include <echelon/util/echelon-lookup.hpp>
 #include <echelon/util/logging/logger-shared-instance.hpp>
 #endif
 
