@@ -4,6 +4,7 @@ add_library(${util_lib_name}
   iterator-util.cpp
   stream-dump.cpp
   ast-to-graphviz.cpp
+  echelon-lookup.cpp
 
   logging/stream-logger.cpp
   logging/stream-logger-level.cpp

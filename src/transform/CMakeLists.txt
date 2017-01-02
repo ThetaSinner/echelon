@@ -2,7 +2,13 @@
 # otherwise it is output to CMAKE_LIBRARY_OUTPUT_DIRECTORY
 add_library(${transform_lib_name}
   type-deduction-engine.cpp
-        ast-enhancer.cpp)
+  ast-enhancer.cpp
+  transform-data/ast-enhancer-data.cpp
+)
+
+target_link_libraries(${transform_lib_name}
+  ${ast_lib_name}
+)
 
 # Disable prefixing library name with 'lib'
 set_target_properties(${transform_lib_name} PROPERTIES PREFIX "")
