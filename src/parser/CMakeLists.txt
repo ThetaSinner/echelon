@@ -32,6 +32,10 @@ add_library(${parser_lib_name}
   stage2/ast-transform-data.cpp
 )
 
+target_link_libraries(${parser_lib_name}
+  ${util_lib_name}
+)
+
 # Disable prefixing library name with 'lib'
 set_target_properties(${parser_lib_name} PROPERTIES PREFIX "")
 
