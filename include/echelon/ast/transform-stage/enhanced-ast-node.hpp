@@ -77,8 +77,8 @@ public:
     }
 
     #ifdef ECHELON_DEBUG
-    std::cout << "Request for child by childType [" << EchelonLookup::getInstance() -> toString(childType) << "] failed.";
-    throw std::runtime_error("Request for child by type failed.");
+    std::string message = "Request for child by childType [" + EchelonLookup::getInstance() -> toString(childType) + "] failed.";
+    throw std::runtime_error(message.c_str());
     #else
     return nullptr;
     #endif

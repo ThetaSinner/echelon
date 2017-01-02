@@ -3,6 +3,7 @@
 #include <map>
 #include <sstream>
 #include <functional>
+#include <stdexcept>
 
 #include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/ast/transform-stage/scope.hpp>
@@ -104,6 +105,7 @@ void enhanceInternal(AstNode* node, EnhancedAstNode* target, Scope scope) {
         auto functions = scope.getFunctions(data);
         for (auto func : *functions) {
           if (doFunctionSignaturesMatch(func, enhancedNode)) {
+            // TODO line+char information.
             std::string message = "Error [" + enhancedNode->getData() + "] re-declares function [" + func->getData() + "] with indistinguishable signature";
             throw std::runtime_error(message.c_str());
           }
