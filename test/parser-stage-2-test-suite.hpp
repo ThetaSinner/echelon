@@ -10,12 +10,14 @@
 #include <echelon/parser/token-type-enum.hpp>
 #include <echelon/ast/ast-node-type-enum.hpp>
 #include <echelon/parser/stage1/tokenizer.hpp>
+#include <echelon/compiler/echelon-compiler.hpp>
 
 class ParserStage2TestSuite : public CxxTest::TestSuite
 {
 private:
   Parser2 parser;
   Tokenizer tokenizer;
+  EchelonCompiler compiler;
 
 public:
   ParserStage2TestSuite() {
@@ -484,5 +486,28 @@ public:
     TS_ASSERT_EQUALS("0.5", call_param_two_val -> getData());
     TS_ASSERT_EQUALS(AstNodeType::Float, call_param_two_val -> getType());
     TS_ASSERT_EQUALS(0, call_param_two_val -> getChildCount());
+  }
+
+  void testExpressionStatement() {
+    auto ast = compiler.parse("2 + \"a string\"");
+
+    TS_ASSERT_EQUALS("root", ast->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
+    TS_ASSERT_EQUALS(1, ast->getChildCount());
+
+    auto plus = ast->getChild(0);
+    TS_ASSERT_EQUALS("+", plus->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, plus->getType());
+    TS_ASSERT_EQUALS(2, plus->getChildCount());
+
+    auto integer = plus->getChild(0);
+    TS_ASSERT_EQUALS("2", integer->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, integer->getType());
+    TS_ASSERT_EQUALS(0, integer->getChildCount());
+
+    auto string = plus->getChild(1);
+    TS_ASSERT_EQUALS("a string", string->getData());
+    TS_ASSERT_EQUALS(AstNodeType::String, string->getType());
+    TS_ASSERT_EQUALS(0, string->getChildCount());
   }
 };

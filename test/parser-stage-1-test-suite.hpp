@@ -81,6 +81,14 @@ public:
       TS_ASSERT_EQUALS("==", (*res.begin()) -> getData());
     }
 
+    void testOperatorAdd(void) {
+      auto res = tokenizer.tokenize("+");
+
+      TS_ASSERT_EQUALS(1, res.size());
+      TS_ASSERT_EQUALS("+", res.front()->getData());
+      TS_ASSERT_EQUALS(TokenType::OperatorAdd, res.front()->getTokenType());
+    }
+
     void testEqualityAndAssignmentOperators(void) {
       auto res = tokenizer.tokenize("== = = ==");
 

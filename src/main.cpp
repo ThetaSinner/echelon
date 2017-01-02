@@ -16,7 +16,7 @@ int main(int argc, char** args) {
   EchelonCompiler compiler;
 
   try {
-    auto ast = compiler.parse("2 + \"str\"");
+    auto ast = compiler.parse("");
     stream_dump(Level::Info, ast);
   }
   catch (const std::runtime_error& e) {
