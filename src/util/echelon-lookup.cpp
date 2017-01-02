@@ -103,6 +103,12 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
       return "explicit type";
     case AstNodeType::Package:
       return "package";
+    case AstNodeType::Enum:
+      return "enum";
+    case AstNodeType::EnumConstant:
+      return "enum constant";
+    case AstNodeType::EnumConstants:
+      return "enum constants";
     case AstNodeType::Module:
       return "module";
     case AstNodeType::BinaryOperator:
@@ -154,6 +160,8 @@ template<> std::string EchelonLookup::toString(Keyword t) {
   switch(t) {
     case Keyword::Package:
       return "package";
+    case Keyword::Enum:
+      return "enum";
     case Keyword::For:
       return "for";
     case Keyword::Module:

@@ -10,9 +10,7 @@
 #include <echelon/parser/stage2/token-pattern-lookup.hpp>
 #include <echelon/parser/stage2/nested-pattern-lookup.hpp>
 
-#ifdef ECHELON_DEBUG
 #include <echelon/util/enum-class-iterator.hpp>
-#endif
 
 void IntegrityCheck::StartupCheck() {
   #ifdef ECHELON_DEBUG

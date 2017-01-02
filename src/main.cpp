@@ -16,7 +16,7 @@ int main(int argc, char** args) {
   EchelonCompiler compiler;
 
   try {
-    auto ast = compiler.parse("");
+    auto ast = compiler.parse("enum MyEnum {\n  EnumConstOne\n  EnumConstTwo\n}");
     stream_dump(Level::Info, ast);
   }
   catch (const std::runtime_error& e) {

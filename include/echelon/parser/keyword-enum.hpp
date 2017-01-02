@@ -3,6 +3,7 @@
 
 enum class Keyword {
   Package,
+  Enum,
   For,
   Module,
   If,

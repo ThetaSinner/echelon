@@ -72,6 +72,14 @@ void loadMatchers() {
     return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Module);
   }));
 
+  MatcherLookup::getInstance() -> addMatcher("kwd_enum", new Matcher([] (Matcher* self) -> bool {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
+      return false;
+    }
+
+    return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Enum);
+  }));
+
   MatcherLookup::getInstance() -> addMatcher("op_structure", Matcher::forTokenType(TokenType::StructureOperator));
   MatcherLookup::getInstance() -> addMatcher("op_assign", Matcher::forTokenType(TokenType::Assign));
   MatcherLookup::getInstance() -> addMatcher("block_delim_o", Matcher::forTokenType(TokenType::BlockDelimO));
@@ -597,6 +605,31 @@ void loadTransformers() {
     return astTransformData->getNestedAstNodes()->front()->getChild(0);
   }));
 
+  AstTransformLookup::getInstance()->addAstTransform("enum", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    auto base = new AstNode();
+    base->setType(AstNodeType::Enum);
+
+    auto tokenIterator = astTransformData->getTokens()->begin();
+    tokenIterator++;
+
+    base->setData((*tokenIterator)->getData());
+
+    tokenIterator++; tokenIterator++;
+
+    auto enumConstants = new AstNode();
+    enumConstants->setType(AstNodeType::EnumConstants);
+    base->putChild(enumConstants);
+
+    while ((*tokenIterator)->getTokenType() != TokenType::BlockDelimC) {
+      auto enumConst = new AstNode();
+      enumConst->setType(AstNodeType::EnumConstant);
+      enumConst->setData((*tokenIterator)->getData());
+      enumConstants->putChild(enumConst);
+      tokenIterator++;
+    }
+
+    return base;
+  }));
 }
 
 void loadNested() {
@@ -747,6 +780,11 @@ void loadPatterns() {
   TokenPatternLookup::getInstance() -> addTokenPattern(
       "expr_statement",
       "expr"
+  );
+
+  TokenPatternLookup::getInstance() -> addTokenPattern(
+      "enum",
+      "kwd_enum identifier block_delim_o [identifier]* block_delim_c"
   );
 }
 

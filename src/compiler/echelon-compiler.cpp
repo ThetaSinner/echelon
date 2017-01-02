@@ -13,16 +13,22 @@
 #endif
 
 EchelonCompiler::EchelonCompiler() {
-  IntegrityCheck::StartupCheck();
+  try {
+    IntegrityCheck::StartupCheck();
 
-  loadParserStage1Data();
-  loadParserStage2Data();
+    loadParserStage1Data();
+    loadParserStage2Data();
 
-  loadAstEnhancerData();
+    loadAstEnhancerData();
 
-  IntegrityCheck::PostLoadCheck();
+    IntegrityCheck::PostLoadCheck();
 
-  codeGenerator = CodeGeneratorFactory::newCodeGenerator();
+    codeGenerator = CodeGeneratorFactory::newCodeGenerator();
+  }
+  catch (const std::runtime_error& e) {
+    LoggerSharedInstance::get()->at(Level::Fatal) << e.what();
+    throw e;
+  }
 }
 
 // TODO test scope only.

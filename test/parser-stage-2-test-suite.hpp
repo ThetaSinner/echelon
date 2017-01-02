@@ -510,4 +510,32 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::String, string->getType());
     TS_ASSERT_EQUALS(0, string->getChildCount());
   }
+
+  void testEnum() {
+    auto ast = compiler.parse("enum MyEnum {\n  EnumConstOne\n  EnumConstTwo\n}");
+
+    TS_ASSERT_EQUALS("root", ast->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
+    TS_ASSERT_EQUALS(1, ast->getChildCount());
+
+    auto _enum = ast->getChild(0);
+    TS_ASSERT_EQUALS("MyEnum", _enum->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Enum, _enum->getType());
+    TS_ASSERT_EQUALS(1, _enum->getChildCount());
+
+    auto enum_constants = _enum->getChild(0);
+    TS_ASSERT_EQUALS("", enum_constants->getData());
+    TS_ASSERT_EQUALS(AstNodeType::EnumConstants, enum_constants->getType());
+    TS_ASSERT_EQUALS(2, enum_constants->getChildCount());
+
+    auto enum_const_one = enum_constants->getChild(0);
+    TS_ASSERT_EQUALS("EnumConstOne", enum_const_one->getData());
+    TS_ASSERT_EQUALS(AstNodeType::EnumConstant, enum_const_one->getType());
+    TS_ASSERT_EQUALS(0, enum_const_one->getChildCount());
+
+    auto enum_const_two = enum_constants->getChild(1);
+    TS_ASSERT_EQUALS("EnumConstTwo", enum_const_two->getData());
+    TS_ASSERT_EQUALS(AstNodeType::EnumConstant, enum_const_two->getType());
+    TS_ASSERT_EQUALS(0, enum_const_two->getChildCount());
+  }
 };
