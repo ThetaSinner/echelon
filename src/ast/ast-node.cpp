@@ -4,7 +4,7 @@
 #ifdef ECHELON_DEBUG
 #include <iostream>
 #include <echelon/parser/echelon-lookup.hpp>
-
+#include <echelon/util/logging/logger-shared-instance.hpp>
 #endif
 
 void AstNode::putChild(AstNode* child) {
@@ -41,7 +41,7 @@ AstNode* AstNode::getChild(AstNodeType childType) {
   }
 
   #ifdef ECHELON_DEBUG
-  std::cout << "Request for child by childType [" << EchelonLookup::getInstance() -> toString(childType) << "] failed.";
+  LoggerSharedInstance::get()->at(Level::Debug) << "Request for child by childType [" << EchelonLookup::getInstance() -> toString(childType) << "] failed.\n";
   throw std::runtime_error("Request for child by type failed.");
   #else
   return nullptr;

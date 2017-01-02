@@ -14,42 +14,6 @@ void mapSubNodes(AstNode* source, EnhancedAstNode* target, Scope& scope) {
   }
 }
 
-void mapSignature(AstNode* source, EnhancedAstNode* target) {
-  #ifdef ECHELON_DEBUG
-  if (source->getType() != AstNodeType::Function || target->getNodeType() != EnhancedAstNodeType::Function) {
-    throw std::runtime_error("mapSignature expects both nodes to have type function.");
-  }
-  #endif
-
-  // Source has no parameters, nothing to map.
-  if (!source->hasChild(AstNodeType::FunctionParamDefinitions)) {
-    return;
-  }
-
-  EnhancedAstNode *targetParamDefinitions = new EnhancedAstNode();
-  targetParamDefinitions->setNodeType(EnhancedAstNodeType::FunctionParamDefinitions);
-  target -> putChild(targetParamDefinitions);
-
-  AstNode *sourceParamDefinitions = source -> getChild(AstNodeType::FunctionParamDefinitions);
-  for (unsigned i = 0; i < sourceParamDefinitions -> getChildCount(); i++) {
-    auto sourceParamDef = sourceParamDefinitions->getChild(i);
-    auto targetParamDef = new EnhancedAstNode();
-
-    targetParamDefinitions->putChild(targetParamDef);
-
-    targetParamDef->setNodeType(EnhancedAstNodeType::FunctionParamDefinition);
-    targetParamDef->setData(sourceParamDef->getData());
-
-    if (sourceParamDef -> getChildCount() > 0) {
-      auto paramType = new EnhancedAstNode();
-      targetParamDef->putChild(paramType);
-      // TODO check that the type is valid mapping. Maybe extract type mapping functions.
-      paramType->setNodeType(EnhancedAstNodeType::Type);
-      paramType->setData(sourceParamDef->getChild(0)->getData());
-    }
-  }
-}
-
 bool doFunctionSignaturesMatch(EnhancedAstNode* left, EnhancedAstNode* right) {
   #ifdef ECHELON_DEBUG
   if (left->getNodeType() != EnhancedAstNodeType::Function || right->getNodeType() != EnhancedAstNodeType::Function) {
@@ -134,9 +98,7 @@ void enhanceInternal(AstNode* node, EnhancedAstNode* target, Scope scope) {
     else if (node -> getChild(i) -> getType() == AstNodeType::Function) {
       // map function and store on scope.
       std::string data = node -> getChild(i) -> getData();
-      enhancedNode->setNodeType(EnhancedAstNodeType::Function);
-      enhancedNode->setData(data);
-      mapSignature(node -> getChild(i), enhancedNode);
+      enhancedNode = NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::Function)(node->getChild(i), scope);
 
       if (scope.hasFunction(data)) {
         auto functions = scope.getFunctions(data);

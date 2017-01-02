@@ -94,9 +94,9 @@ void stream_dump(StreamLoggerLevel level, CharacterPatternGroup* characterPatter
 void stream_dump(StreamLoggerLevel level, EnhancedAstNode* enhancedAstNode, int dump_level) {
   log->at(level) << "Level " << dump_level << "\n";
 
-  log->at(level) << EchelonLookup::toString(enhancedAstNode -> getNodeType()) << ", ";
-  log->at(level) << EchelonLookup::toString(enhancedAstNode -> getNodeSubType()) << ", ";
-  log->at(level) << enhancedAstNode -> getData();
+  log->at(level) << "type=[" << EchelonLookup::toString(enhancedAstNode -> getNodeType()) << "], ";
+  log->at(level) << "data=[" << enhancedAstNode -> getData() << "], ";
+  log->at(level) << "sub_type=[" << EchelonLookup::toString(enhancedAstNode -> getNodeSubType()) << "]";
   log->at(level) << "\n";
 
   for (auto child : *enhancedAstNode -> getChildList()) {
