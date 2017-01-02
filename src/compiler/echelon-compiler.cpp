@@ -6,10 +6,10 @@
 #include <echelon/transform/transform-data/ast-enhancer-data.hpp>
 #include <echelon/parser/parser-data/parser-stage-2-data-load.hpp>
 #include <echelon/parser/parser-data/parser-stage-1-data-load.hpp>
+#include <echelon/util/logging/logger-shared-instance.hpp>
 
 #ifdef ECHELON_DEBUG
 #include <fstream>
-#include <echelon/util/logging/logger-shared-instance.hpp>
 #endif
 
 EchelonCompiler::EchelonCompiler() {
