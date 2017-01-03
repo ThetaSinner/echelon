@@ -538,4 +538,31 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::EnumConstant, enum_const_two->getType());
     TS_ASSERT_EQUALS(0, enum_const_two->getChildCount());
   }
+
+  void testUntilLoop() {
+    auto ast = compiler.parse("until (true || false) {\n  integer x = 3\n}");
+
+    TS_ASSERT_EQUALS("root", ast->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
+    TS_ASSERT_EQUALS(1, ast->getChildCount());
+
+    auto until = ast->getChild(0);
+    TS_ASSERT_EQUALS("", until->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Until, until->getType());
+    TS_ASSERT_EQUALS(2, until->getChildCount());
+
+    auto condition = until->getChild(AstNodeType::Condition);
+    TS_ASSERT_EQUALS("", condition->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Condition, condition->getType());
+    TS_ASSERT_EQUALS(1, condition->getChildCount());
+
+    // don't care about the condition.
+
+    auto block = until->getChild(AstNodeType::Block);
+    TS_ASSERT_EQUALS("", block->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Block, block->getType());
+    TS_ASSERT_EQUALS(1, block->getChildCount());
+
+    // don't care about the block contents
+  }
 };
