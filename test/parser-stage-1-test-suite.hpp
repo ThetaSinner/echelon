@@ -118,4 +118,30 @@ public:
     TS_ASSERT_EQUALS(TokenType::ForwardArrowOperator, res.front()->getTokenType());
     TS_ASSERT_EQUALS("->", res.front()->getData());
   }
+
+  void testEllipsisOperator(void) {
+    auto res = tokenizer.tokenize("...");
+
+    TS_ASSERT_EQUALS(1, res.size());
+    TS_ASSERT_EQUALS(TokenType::EllipsisOperator, res.front()->getTokenType());
+    TS_ASSERT_EQUALS("...", res.front()->getData());
+  }
+
+  void testEllipsisOperatorWithNumbers(void) {
+    auto res = tokenizer.tokenize("1...2");
+
+    TS_ASSERT_EQUALS(3, res.size());
+
+    auto iter = res.begin();
+    TS_ASSERT_EQUALS(TokenType::Integer, (*iter)->getTokenType());
+    TS_ASSERT_EQUALS("1", (*iter)->getData());
+
+    iter++;
+    TS_ASSERT_EQUALS(TokenType::EllipsisOperator, (*iter)->getTokenType());
+    TS_ASSERT_EQUALS("...", (*iter)->getData());
+
+    iter++;
+    TS_ASSERT_EQUALS(TokenType::Integer, (*iter)->getTokenType());
+    TS_ASSERT_EQUALS("2", (*iter)->getData());
+  }
 };
