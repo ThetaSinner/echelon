@@ -106,6 +106,7 @@ void loadMatchers() {
   MatcherLookup::getInstance() -> addMatcher("string", Matcher::forTokenType(TokenType::String));
   MatcherLookup::getInstance() -> addMatcher("integer", Matcher::forTokenType(TokenType::Integer));
   MatcherLookup::getInstance() -> addMatcher("float", Matcher::forTokenType(TokenType::Float));
+  MatcherLookup::getInstance() -> addMatcher("op_forward_arrow", Matcher::forTokenType(TokenType::ForwardArrowOperator));
 
   MatcherLookup::getInstance() -> addMatcher("boolean", new Matcher([] (Matcher* self) -> bool {
     return
@@ -581,22 +582,23 @@ void loadTransformers() {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::Function);
 
-    if (astTransformData -> getPatternMatchInfo() -> getGroupMatchCount(0) == 0) {
-      // return type not specified, first token is function name.
-      base -> setData(astTransformData -> getTokens() -> front() -> getData());
-    }
-    else {
-      auto iter = astTransformData -> getTokens() -> begin();
+    // Map the function name.
+    auto iter = astTransformData->getTokens()->begin();
+    base -> setData((*iter)->getData());
 
-      auto typeNode = new AstNode();
-      typeNode -> setType(AstNodeType::Type);
-      typeNode -> setData((*iter) -> getData());
-      base -> putChild(typeNode);
-
+    while (iter != astTransformData->getTokens()->end() && (*iter)->getTokenType() != TokenType::ForwardArrowOperator && (*iter)->getTokenType() != TokenType::BlockDelimO) {
       iter++;
-      base -> setData((*iter) -> getData());
     }
 
+    iter++;
+    // TODO check that iter actually points at a return type. This involves allowing and recognising more complicated return types though.
+    // Map the return type.
+    auto typeNode = new AstNode();
+    typeNode -> setType(AstNodeType::Type);
+    typeNode -> setData((*iter)->getData());
+    base -> putChild(typeNode);
+
+    // Map the parameter definitions.
     if (!astTransformData -> getNestedAstNodes() -> empty()) {
       base -> putChild(astTransformData -> getNestedAstNodes() -> back() -> getChild(0));
       astTransformData -> getNestedAstNodes() -> pop();
@@ -768,10 +770,13 @@ void loadNested() {
   );
 }
 
+/* TODO use nested for everything and default the parser to using the "default" group at top level.
+ * That way custom scopes can be defined which contain top level elements. For example class methods.
+ */
 void loadPatterns() {
   TokenPatternLookup::getInstance() -> addTokenPattern(
           "function",
-          "[type] identifier paren_open [signature_item] paren_close block_delim_o [block] block_delim_c");
+          "identifier paren_open [signature_item] paren_close [op_forward_arrow type] block_delim_o [block] block_delim_c");
 
   TokenPatternLookup::getInstance() -> addTokenPattern(
           "function_call_stmt",

@@ -82,6 +82,8 @@ template<> std::string EchelonLookup::toString(TokenType t) {
       return "and operator";
     case TokenType::OrOperator:
       return "or operator";
+    case TokenType::ForwardArrowOperator:
+      return "forward arrow operator";
   }
 
   throw std::runtime_error("Missing to string case for token type enum.");

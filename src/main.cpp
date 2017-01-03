@@ -16,7 +16,7 @@ int main(int argc, char** args) {
   EchelonCompiler compiler;
 
   try {
-    auto ast = compiler.parse("package test::name");
+    auto ast = compiler.parse("my_func(integer f, string s) -> integer {//block\n}");
     stream_dump(Level::Info, ast);
   }
   catch (const std::runtime_error& e) {

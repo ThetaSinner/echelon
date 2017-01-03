@@ -96,6 +96,14 @@ void loadCharacterMatchers() {
   CharacterMatcherLookup::getInstance()->addCharacterMatcher("colon", [](char c) -> bool {
     return c == ':';
   });
+
+  CharacterMatcherLookup::getInstance()->addCharacterMatcher("hyphen", [](char c) -> bool {
+    return c == '-';
+  });
+
+  CharacterMatcherLookup::getInstance()->addCharacterMatcher("greater_chevron", [](char c) -> bool {
+    return c == '>';
+  });
 }
 
 void loadCharacterPatterns() {
@@ -184,4 +192,9 @@ void loadCharacterPatterns() {
   auto structureOperatorPattern = parseCharacterPattern(structureOperator);
   structureOperatorPattern->setTokenType(TokenType::StructureOperator);
   CharacterPatternLookup::getInstance()->addCharacterPattern(structureOperatorPattern);
+
+  std::string forwardArrowOperator = "hyphen greater_chevron";
+  auto forwardArrowOperatorPattern = parseCharacterPattern(forwardArrowOperator);
+  forwardArrowOperatorPattern->setTokenType(TokenType::ForwardArrowOperator);
+  CharacterPatternLookup::getInstance()->addCharacterPattern(forwardArrowOperatorPattern);
 }
