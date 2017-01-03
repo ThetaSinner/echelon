@@ -238,7 +238,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
         #ifdef ECHELON_DEBUG
         stream_dump(Level::Debug, *i); log -> at(Level::Debug) << "\n";
         #endif
-        throw std::runtime_error("Unhandled token.");
+        throw std::runtime_error("Unhandled token [" + (*i)->getData() + ", " + EchelonLookup::getInstance()->toString((*i)->getTokenType()) + "]");
       }
     }
   }

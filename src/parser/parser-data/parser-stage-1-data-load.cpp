@@ -92,6 +92,10 @@ void loadCharacterMatchers() {
   CharacterMatcherLookup::getInstance()->addCharacterMatcher("comma", [](char c) -> bool {
     return c == ',';
   });
+
+  CharacterMatcherLookup::getInstance()->addCharacterMatcher("colon", [](char c) -> bool {
+    return c == ':';
+  });
 }
 
 void loadCharacterPatterns() {
@@ -175,4 +179,9 @@ void loadCharacterPatterns() {
   auto addOperatorCharacterPattern = parseCharacterPattern(addOperator);
   addOperatorCharacterPattern->setTokenType(TokenType::OperatorAdd);
   CharacterPatternLookup::getInstance()->addCharacterPattern(addOperatorCharacterPattern);
+
+  std::string structureOperator = "colon colon";
+  auto structureOperatorPattern = parseCharacterPattern(structureOperator);
+  structureOperatorPattern->setTokenType(TokenType::StructureOperator);
+  CharacterPatternLookup::getInstance()->addCharacterPattern(structureOperatorPattern);
 }

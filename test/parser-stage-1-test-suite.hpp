@@ -102,4 +102,12 @@ public:
       iter++;
       TS_ASSERT_EQUALS("==", (*iter) -> getData());
     }
+
+    void testStructureOperator(void) {
+      auto res = tokenizer.tokenize("::");
+
+      TS_ASSERT_EQUALS(1, res.size());
+      TS_ASSERT_EQUALS(TokenType::StructureOperator, res.front()->getTokenType());
+      TS_ASSERT_EQUALS("::", res.front()->getData());
+    }
 };

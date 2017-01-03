@@ -29,6 +29,7 @@ void loadMatchers() {
     return EchelonLookup::getInstance() -> isDataTypeKeyword(self -> getEnhancedToken() -> getData());
   }));
 
+  // TODO remove this...
   MatcherLookup::getInstance() -> addMatcher("keyword", new Matcher([] (Matcher* self) -> bool {
     if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
       return false;
@@ -45,6 +46,7 @@ void loadMatchers() {
       return false;
     }
 
+    // TODO this is an error in the source code. Needs to be reported.
     return !EchelonLookup::getInstance() -> isKeyword(self -> getEnhancedToken() -> getData());
   }));
 

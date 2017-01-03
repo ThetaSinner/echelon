@@ -11,12 +11,12 @@ int main(int argc, char** args) {
   log->at(Level::Info) << "This is a release build.\n";
   #endif
 
-  LoggerSharedInstance::get()->setLevel(levelToInt(Level::Info));
+  LoggerSharedInstance::get()->setLevel(levelToInt(Level::Debug));
 
   EchelonCompiler compiler;
 
   try {
-    auto ast = compiler.parse("until (true || false) {\n  integer x = 3\n}");
+    auto ast = compiler.parse("package test::name");
     stream_dump(Level::Info, ast);
   }
   catch (const std::runtime_error& e) {

@@ -28,23 +28,21 @@ public:
   }
 
   void test_packageDeclaration(void) {
-    std::list<Token*> program;
-    program.push_back(new Token("package", TokenType::Identifier));
-    program.push_back(new Token("echelon", TokenType::Identifier));
-    program.push_back(new Token("::", TokenType::StructureOperator));
-    program.push_back(new Token("test_package", TokenType::Identifier));
-
-    auto ast = parser.parse(program);
+    auto ast = compiler.parse("package echelon::test_package");
 
     TS_ASSERT_EQUALS("root", ast -> getData());
     TS_ASSERT_EQUALS(AstNodeType::Program, ast -> getType());
     TS_ASSERT_EQUALS(1, ast -> getChildCount());
-    TS_ASSERT_EQUALS(AstNodeType::Package, ast -> getChild(0) -> getType());
-    TS_ASSERT_EQUALS("echelon", ast -> getChild(0) -> getData());
-    TS_ASSERT_EQUALS(1, ast -> getChild(0) -> getChildCount());
-    TS_ASSERT_EQUALS(AstNodeType::Package, ast -> getChild(0) -> getChild(0) -> getType());
-    TS_ASSERT_EQUALS("test_package", ast -> getChild(0) -> getChild(0) -> getData());
-    TS_ASSERT_EQUALS(0, ast -> getChild(0) -> getChild(0) -> getChildCount());
+    
+    auto echelon_package = ast->getChild(0);
+    TS_ASSERT_EQUALS("echelon", echelon_package->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Package, echelon_package->getType());
+    TS_ASSERT_EQUALS(1, echelon_package->getChildCount());
+
+    auto test_package = echelon_package->getChild(0);
+    TS_ASSERT_EQUALS("test_package", test_package->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Package, test_package->getType());
+    TS_ASSERT_EQUALS(0, test_package->getChildCount());
   }
 
   void test_LongPackageDeclaration(void) {
