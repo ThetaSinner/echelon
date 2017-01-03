@@ -151,6 +151,10 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
       return "single line comment";
     case AstNodeType::MultiLineComment:
       return "multi line comment";
+    case AstNodeType::Until:
+      return "until";
+    case AstNodeType::Condition:
+      return "condition";
   }
 
   throw std::runtime_error("Mising to string case for ast node type.");
@@ -164,6 +168,8 @@ template<> std::string EchelonLookup::toString(Keyword t) {
       return "enum";
     case Keyword::For:
       return "for";
+    case Keyword::Until:
+      return "until";
     case Keyword::Module:
       return "module";
     case Keyword::If:

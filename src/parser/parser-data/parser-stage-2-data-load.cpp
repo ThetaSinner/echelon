@@ -80,6 +80,14 @@ void loadMatchers() {
     return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Enum);
   }));
 
+  MatcherLookup::getInstance() -> addMatcher("kwd_until", new Matcher([] (Matcher* self) -> bool {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
+      return false;
+    }
+
+    return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Until);
+  }));
+
   MatcherLookup::getInstance() -> addMatcher("op_structure", Matcher::forTokenType(TokenType::StructureOperator));
   MatcherLookup::getInstance() -> addMatcher("op_assign", Matcher::forTokenType(TokenType::Assign));
   MatcherLookup::getInstance() -> addMatcher("block_delim_o", Matcher::forTokenType(TokenType::BlockDelimO));
@@ -620,12 +628,33 @@ void loadTransformers() {
     enumConstants->setType(AstNodeType::EnumConstants);
     base->putChild(enumConstants);
 
+    // TODO if other things are allowed in an enum block then this isn't a good condition.
     while ((*tokenIterator)->getTokenType() != TokenType::BlockDelimC) {
       auto enumConst = new AstNode();
       enumConst->setType(AstNodeType::EnumConstant);
       enumConst->setData((*tokenIterator)->getData());
       enumConstants->putChild(enumConst);
       tokenIterator++;
+    }
+
+    return base;
+  }));
+
+  AstTransformLookup::getInstance()->addAstTransform("until", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    auto base = new AstNode();
+    base->setType(AstNodeType::Until);
+
+    auto condition = new AstNode();
+    condition->setType(AstNodeType::Condition);
+    condition->putChild(astTransformData->getNestedAstNodes()->front()->getChild(0));
+    base->putChild(condition);
+
+    auto nested = astTransformData->getSubProcessAstNodes();
+    if (!nested->empty() && nested->front()->getChildCount() > 0) {
+      auto block = new AstNode();
+      block->setType(AstNodeType::Block);
+      block->putChild(nested->front()->getChild(0));
+      base->putChild(block);
     }
 
     return base;
@@ -785,6 +814,11 @@ void loadPatterns() {
   TokenPatternLookup::getInstance() -> addTokenPattern(
       "enum",
       "kwd_enum identifier block_delim_o [identifier]* block_delim_c"
+  );
+
+  TokenPatternLookup::getInstance() -> addTokenPattern(
+      "until",
+      "kwd_until paren_open bool_expr paren_close block_delim_o [block] block_delim_c"
   );
 }
 

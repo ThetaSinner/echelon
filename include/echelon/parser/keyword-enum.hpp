@@ -5,6 +5,7 @@ enum class Keyword {
   Package,
   Enum,
   For,
+  Until,
   Module,
   If,
   Else,
