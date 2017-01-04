@@ -15,7 +15,7 @@ int main(int argc, char** args) {
 
   EchelonCompiler compiler;
 
-  // TODO allow unary operators like ! and -
+  // TODO allow unary operators like ! and -. Use something like a pattern modifier? apply a '-' modifier to expr elements and a '!' modifier to bool_expr elements
   
   // TODO allow brackets in expressions.
   

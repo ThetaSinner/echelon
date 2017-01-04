@@ -10,9 +10,9 @@ public:
   PatternMatchInfo(int groupSize) : groupMatchCounts(groupSize) {
   }
 
-  void setGroupMatchCount(int groupIndex, int count);
-  int getGroupMatchCount(int groupIndex);
-  int increment(int groupIndex);
+  void setGroupMatchCount(unsigned groupIndex, int count);
+  int getGroupMatchCount(unsigned groupIndex);
+  int increment(unsigned groupIndex);
 };
 
 #endif

@@ -16,38 +16,29 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
   ParserInternalOutput output;
 
-  std::list<Token*> tokens = *parserInternalInput.getTokens();
-
   AstConstructionManager astConstructionManager;
 
+  std::list<Token*> tokens = *parserInternalInput.getTokens();
   auto i = tokens.begin();
   while (i != tokens.end()) {
+    bool somePatternMatches = false;
+    auto tokenPatterns = selectPatternList(parserInternalInput);
 
     #ifdef ECHELON_DEBUG
     log -> at(Level::Debug) << "Start processing at token "; stream_dump(Level::Debug, *i); log -> at(Level::Debug) << "\n";
     #endif
 
-    bool somePatternMatches = false;
-    auto tokenPatterns = TokenPatternLookup::getInstance() -> getTokenPatterns();
-    // If this is a nested call then use the nested patterns instead.
-    if (parserInternalInput.isUseNestedPatterns()) {
-      tokenPatterns = parserInternalInput.getNestedPatterns();
-    }
-
     for (auto p = tokenPatterns -> begin(); p != tokenPatterns -> end(); p++) {
-      std::queue<AstNode*> subProcessAstNodes;
-      std::queue<AstNode*> nestedAstNodes;
-
+      std::queue<AstNode*> subProcessAstNodes, nestedAstNodes;
+      auto it = i;
       bool patternMatches = true;
+
+      // Create a pattern match info to track group matches etc.
+      PatternMatchInfo *patternMatchInfo = new PatternMatchInfo((*p) -> getGroups() -> size());
 
       #ifdef ECHELON_DEBUG
       log -> at(Level::Debug) << "Trying pattern "; stream_dump(Level::Debug, *p); log -> at(Level::Debug) << "\n";
       #endif
-
-      auto it = i;
-
-      // Create a pattern match info to track group matches etc.
-      PatternMatchInfo *patternMatchInfo = new PatternMatchInfo((*p) -> getGroups() -> size());
 
       // match each group in this pattern against the token.
       for (auto g = (*p) -> getGroups() -> begin(); g != (*p) -> getGroups() -> end(); g++) {
@@ -55,19 +46,16 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
         log -> at(Level::Debug) << "Process group "; stream_dump(Level::Debug, *g); log -> at(Level::Debug) << "\n";
         #endif
 
+        /*
+         * Handle the case where the tokens run out before the groups in this pattern.
+         */
         if (it == tokens.end()) {
-          log -> at(Level::Debug) << "End of program, but there are more groups.\n";
-
-          int groupMatchCount = patternMatchInfo -> getGroupMatchCount(std::distance((*p) -> getGroups() -> begin(), g));
-          if (groupMatchCount >= (*g) -> getRepeatLowerBound()) {
-            log -> at(Level::Debug) << "Allowing match at EOP.\n";
-            continue;
-          }
-          else {
-            log -> at(Level::Debug) << "Not allowing match at EOP.\n";
+          if (!isAllowMatchAtEndOfProgram(patternMatchInfo, *p, g)) {
             patternMatches = false;
-            break;
           }
+
+          // The tokens have run out, so whether or not the pattern matches we stop processing.
+          break;
         }
 
         auto itt = it;
@@ -291,6 +279,34 @@ bool Parser2::isEmptyProgram(AstNode* program) {
   }
 
   return program -> getChildCount() == 0;
+}
+
+bool Parser2::isAllowMatchAtEndOfProgram(PatternMatchInfo* patternMatchInfo, TokenPattern* pattern, std::vector<TokenPatternGroup*>::iterator& current_group) {
+  static auto log = LoggerSharedInstance::get();
+  log -> at(Level::Debug) << "End of program, but there may be more groups.\n";
+
+  bool allowMatchAtEndOfProgram = true;
+  for (auto group = current_group; group != pattern->getGroups()->end(); group++) {
+    // TODO this isn't ideal.
+    unsigned groupIndex = static_cast<unsigned> (std::distance(pattern->getGroups()->begin(), group));
+    int groupMatchCount = patternMatchInfo->getGroupMatchCount(groupIndex);
+    if (groupMatchCount < (*group)->getRepeatLowerBound()) {
+      log -> at(Level::Debug) << "Not allowing match at EOP.\n";
+      allowMatchAtEndOfProgram = false;
+      break;
+    }
+  }
+
+  return allowMatchAtEndOfProgram;
+}
+
+std::list<TokenPattern*>* Parser2::selectPatternList(ParserInternalInput& parserInternalInput) {
+  // If this is a nested call then use the nested patterns instead.
+  if (parserInternalInput.isUseNestedPatterns()) {
+    return parserInternalInput.getNestedPatterns();
+  }
+
+  return TokenPatternLookup::getInstance() -> getTokenPatterns();
 }
 
 ParserInternalOutput Parser2::subProcess(std::list<Token*>::iterator start, std::list<Token*>::iterator end, TokenPatternGroup* nextGroup) {

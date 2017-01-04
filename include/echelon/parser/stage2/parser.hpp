@@ -23,6 +23,8 @@ private:
   ParserInternalOutput subProcess(std::list<Token*>::iterator start, std::list<Token*>::iterator end, TokenPatternGroup* nextGroup);
 
   bool isEmptyProgram(AstNode* program);
+  bool isAllowMatchAtEndOfProgram(PatternMatchInfo* patternMatchInfo, TokenPattern* pattern, std::vector<TokenPatternGroup*>::iterator& current_group);
+  std::list<TokenPattern*>* selectPatternList(ParserInternalInput& parserInternalInput);
 public:
   AstNode* parse(std::list<Token*> tokens);
 };
