@@ -16,12 +16,16 @@ int main(int argc, char** args) {
   EchelonCompiler compiler;
 
   try {
-    auto ast = compiler.parse("my_func(integer f, string s) -> integer {//block\n}");
+    auto ast = compiler.parse("behaviour MyBehaviour {\n  add(integer x, integer y) -> integer\n}");
     stream_dump(Level::Info, ast);
   }
   catch (const std::runtime_error& e) {
     LoggerSharedInstance::get()->at(Level::Fatal) << "dev compile failed [" << e.what() << "]";
     return 1;
+  }
+  catch (...) {
+    LoggerSharedInstance::get()->at(Level::Fatal) << "dev compile failed. Exception handling in the program isn't catching this error.";
+    return 2;
   }
 
   log->at(Level::Info) << "\nProgram will exit normally.\n";

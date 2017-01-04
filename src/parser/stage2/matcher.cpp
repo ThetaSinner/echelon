@@ -10,6 +10,16 @@ Matcher* Matcher::forTokenType(TokenType tokenType) {
   });
 }
 
+Matcher* Matcher::forKeyword(Keyword keyword) {
+  return new Matcher([keyword] (Matcher* self) -> bool {
+    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
+      return false;
+    }
+
+    return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(keyword);
+  });
+}
+
 void Matcher::setMatcher(std::function<bool(Matcher*)> matcher) {
   this -> matcher = matcher;
 }

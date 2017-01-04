@@ -89,7 +89,9 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
             auto subOutput = subProcess(itt, tokens.end(), *(std::next(g, 1)));
 
             // Queue the sub process result for processing in an ast transformer.
-            subProcessAstNodes.push(subOutput.getAstNode());
+            if (!isEmptyProgram(subOutput.getAstNode())) {
+              subProcessAstNodes.push(subOutput.getAstNode());
+            }
             // Advance the working iterator to skip the tokens which were matched in the sub process.
             std::advance(itt, subOutput.getTokensConsumedCount());
             // Since the recursive call hasn't thrown an exception the sub process succeeded, so this element is a match.
@@ -199,12 +201,22 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
         auto transformer = AstTransformLookup::getInstance() -> getAstTransform((*p) -> getId());
 
-        auto frag = transformer -> transform(td);
-        #ifdef ECHELON_DEBUG
-        log -> at(Level::Debug) << "frag:\n"; stream_dump(Level::Debug, frag); log -> at(Level::Debug) << "\n";
-        #endif
+        try {
+          auto frag = transformer -> transform(td);
+          #ifdef ECHELON_DEBUG
+          log -> at(Level::Debug) << "frag:\n"; stream_dump(Level::Debug, frag); log -> at(Level::Debug) << "\n";
+          #endif
 
-        astConstructionManager.pushFragment(frag);
+          astConstructionManager.pushFragment(frag);
+        }
+        catch (std::out_of_range& e) {
+          log->at(Level::Fatal) << "Transform to ast failed for pattern [" << (*p)->getId()  << "] with error [" << e.what() << "]\n";
+          throw std::runtime_error("Transform to ast failed");
+        }
+        catch (...) {
+          log->at(Level::Fatal) << "Transform to ast failed for pattern [" << (*p)->getId()  << "] with unknown reason\n";
+          throw std::runtime_error("Transform to ast failed");
+        }
 
         // after this point it is not safe to access i without checking against tokens.end()
         std::advance(i, std::distance(i, it));

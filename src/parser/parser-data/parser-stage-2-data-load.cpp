@@ -15,6 +15,7 @@ void loadDataTypeKeywords() {
   EchelonLookup::getInstance() -> addDataTypeKeyword("string");
 }
 
+// TODO there's a problem here, in that these don't get updated automatically by adding a new keyword...
 void loadKeywords() {
   EchelonLookup::getInstance() -> addKeyword("package");
   EchelonLookup::getInstance() -> addKeyword("if");
@@ -50,45 +51,15 @@ void loadMatchers() {
     return !EchelonLookup::getInstance() -> isKeyword(self -> getEnhancedToken() -> getData());
   }));
 
-  MatcherLookup::getInstance() -> addMatcher("kwd_package", new Matcher([] (Matcher* self) -> bool {
-    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
-      return false;
-    }
-
-    return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Package);
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("kwd_for", new Matcher([] (Matcher* self) -> bool {
-    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
-      return false;
-    }
-
-    return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::For);
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("kwd_module", new Matcher([] (Matcher* self) -> bool {
-    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
-      return false;
-    }
-
-    return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Module);
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("kwd_enum", new Matcher([] (Matcher* self) -> bool {
-    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
-      return false;
-    }
-
-    return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Enum);
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("kwd_until", new Matcher([] (Matcher* self) -> bool {
-    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
-      return false;
-    }
-
-    return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Until);
-  }));
+  MatcherLookup::getInstance() -> addMatcher("kwd_package", Matcher::forKeyword(Keyword::Package));
+  MatcherLookup::getInstance() -> addMatcher("kwd_for", Matcher::forKeyword(Keyword::For));
+  MatcherLookup::getInstance() -> addMatcher("kwd_module", Matcher::forKeyword(Keyword::Module));
+  MatcherLookup::getInstance() -> addMatcher("kwd_enum", Matcher::forKeyword(Keyword::Enum));
+  MatcherLookup::getInstance() -> addMatcher("kwd_until", Matcher::forKeyword(Keyword::Until));
+  MatcherLookup::getInstance()->addMatcher("kwd_while", Matcher::forKeyword(Keyword::While));
+  MatcherLookup::getInstance() -> addMatcher("kwd_if", Matcher::forKeyword(Keyword::If));
+  MatcherLookup::getInstance() -> addMatcher("kwd_else", Matcher::forKeyword(Keyword::Else));
+  MatcherLookup::getInstance()->addMatcher("kwd_behaviour", Matcher::forKeyword(Keyword::Behaviour));
 
   MatcherLookup::getInstance() -> addMatcher("op_structure", Matcher::forTokenType(TokenType::StructureOperator));
   MatcherLookup::getInstance() -> addMatcher("op_assign", Matcher::forTokenType(TokenType::Assign));
@@ -117,22 +88,6 @@ void loadMatchers() {
   MatcherLookup::getInstance() -> addMatcher("op_equality", Matcher::forTokenType(TokenType::Equality));
   MatcherLookup::getInstance() -> addMatcher("op_and", Matcher::forTokenType(TokenType::AndOperator));
   MatcherLookup::getInstance() -> addMatcher("op_or", Matcher::forTokenType(TokenType::OrOperator));
-
-  MatcherLookup::getInstance() -> addMatcher("kwd_if", new Matcher([] (Matcher* self) -> bool {
-    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
-      return false;
-    }
-
-    return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::If);
-  }));
-
-  MatcherLookup::getInstance() -> addMatcher("kwd_else", new Matcher([] (Matcher* self) -> bool {
-    if (self -> getEnhancedToken() -> getTokenType() != TokenType::Identifier) {
-      return false;
-    }
-
-    return self -> getEnhancedToken() -> getData() == EchelonLookup::getInstance() -> toString(Keyword::Else);
-  }));
 
   // TODO this is untidy, do I really need this?
   MatcherLookup::getInstance() -> addMatcher("block", new Matcher([] (Matcher* self) -> bool {
@@ -605,10 +560,42 @@ void loadTransformers() {
     }
 
     // map the code block.
-    auto block = new AstNode();
-    block -> setType(AstNodeType::Block);
-    block -> putChild(astTransformData -> getSubProcessAstNodes() -> front() -> getChild(0));
-    base -> putChild(block);
+    auto subProcess = astTransformData -> getSubProcessAstNodes();
+    if (!subProcess->empty()) {
+      auto block = new AstNode();
+      block -> setType(AstNodeType::Block);
+      block -> putChild(subProcess -> front() -> getChild(0));
+      base -> putChild(block);
+    }
+
+    return base;
+  }));
+
+  AstTransformLookup::getInstance() -> addAstTransform("function_prototype", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::Function);
+
+    // Map the function name.
+    auto iter = astTransformData->getTokens()->begin();
+    base -> setData((*iter)->getData());
+
+    while (iter != astTransformData->getTokens()->end() && (*iter)->getTokenType() != TokenType::ForwardArrowOperator && (*iter)->getTokenType() != TokenType::BlockDelimO) {
+      iter++;
+    }
+
+    iter++;
+    // TODO check that iter actually points at a return type. This involves allowing and recognising more complicated return types though.
+    // Map the return type.
+    auto typeNode = new AstNode();
+    typeNode -> setType(AstNodeType::Type);
+    typeNode -> setData((*iter)->getData());
+    base -> putChild(typeNode);
+
+    // Map the parameter definitions.
+    if (!astTransformData -> getNestedAstNodes() -> empty()) {
+      base -> putChild(astTransformData -> getNestedAstNodes() -> back() -> getChild(0));
+      astTransformData -> getNestedAstNodes() -> pop();
+    }
 
     return base;
   }));
@@ -658,6 +645,46 @@ void loadTransformers() {
       auto block = new AstNode();
       block->setType(AstNodeType::Block);
       block->putChild(nested->front()->getChild(0));
+      base->putChild(block);
+    }
+
+    return base;
+  }));
+
+  AstTransformLookup::getInstance()->addAstTransform("while", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    auto base = new AstNode();
+    base->setType(AstNodeType::While);
+
+    auto condition = new AstNode();
+    condition->setType(AstNodeType::Condition);
+    condition->putChild(astTransformData->getNestedAstNodes()->front()->getChild(0));
+    base->putChild(condition);
+
+    // TODO rename variable.
+    auto nested = astTransformData->getSubProcessAstNodes();
+    if (!nested->empty() && nested->front()->getChildCount() > 0) {
+      auto block = new AstNode();
+      block->setType(AstNodeType::Block);
+      block->putChild(nested->front()->getChild(0));
+      base->putChild(block);
+    }
+
+    return base;
+  }));
+
+  AstTransformLookup::getInstance()->addAstTransform("behaviour", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    auto base = new AstNode();
+    base->setType(AstNodeType::Behaviour);
+
+    auto iter = astTransformData->getTokens()->begin();
+    iter++;
+    base->setData((*iter)->getData());
+
+    auto subProcess = astTransformData->getSubProcessAstNodes();
+    if (!subProcess->empty()) {
+      auto block = new AstNode();
+      block->setType(AstNodeType::Block);
+      block->putChild(subProcess->front()->getChild(0));
       base->putChild(block);
     }
 
@@ -772,11 +799,17 @@ void loadNested() {
 
 /* TODO use nested for everything and default the parser to using the "default" group at top level.
  * That way custom scopes can be defined which contain top level elements. For example class methods.
+ *
+ * Or by adding a scope list to the top level lookup, otherwise the nested behaviour becomes insanely complex.
  */
 void loadPatterns() {
   TokenPatternLookup::getInstance() -> addTokenPattern(
           "function",
           "identifier paren_open [signature_item] paren_close [op_forward_arrow type] block_delim_o [block] block_delim_c");
+
+  TokenPatternLookup::getInstance() -> addTokenPattern(
+      "function_prototype",
+      "identifier paren_open [signature_item] paren_close [op_forward_arrow type]");
 
   TokenPatternLookup::getInstance() -> addTokenPattern(
           "function_call_stmt",
@@ -826,6 +859,16 @@ void loadPatterns() {
   TokenPatternLookup::getInstance() -> addTokenPattern(
       "until",
       "kwd_until paren_open bool_expr paren_close block_delim_o [block] block_delim_c"
+  );
+
+  TokenPatternLookup::getInstance() -> addTokenPattern(
+      "while",
+      "kwd_while paren_open bool_expr paren_close block_delim_o [block] block_delim_c"
+  );
+
+  TokenPatternLookup::getInstance()->addTokenPattern(
+      "behaviour",
+      "kwd_behaviour identifier block_delim_o [block] block_delim_c"
   );
 }
 

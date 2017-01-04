@@ -157,8 +157,12 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
       return "multi line comment";
     case AstNodeType::Until:
       return "until";
+    case AstNodeType::While:
+      return "while";
     case AstNodeType::Condition:
       return "condition";
+    case AstNodeType::Behaviour:
+      return "behaviour";
   }
 
   throw std::runtime_error("Mising to string case for ast node type.");
@@ -174,6 +178,8 @@ template<> std::string EchelonLookup::toString(Keyword t) {
       return "for";
     case Keyword::Until:
       return "until";
+    case Keyword::While:
+      return "while";
     case Keyword::Module:
       return "module";
     case Keyword::If:
@@ -188,6 +194,8 @@ template<> std::string EchelonLookup::toString(Keyword t) {
       return "true";
     case Keyword::False:
       return "false";
+    case Keyword::Behaviour:
+      return "behaviour";
   }
 
   throw std::runtime_error("Missing to string case for keyword.");

@@ -32,11 +32,13 @@ enum class AstNodeType {
   SingleLineComment,
   MultiLineComment,
   Until,
+  While,
   Condition,
+  Behaviour,
 
   #ifdef ECHELON_DEBUG
   First = Program,
-  Last = Condition,
+  Last = Behaviour,
   #endif
 };
 
