@@ -60,6 +60,7 @@ void loadMatchers() {
   MatcherLookup::getInstance() -> addMatcher("kwd_if", Matcher::forKeyword(Keyword::If));
   MatcherLookup::getInstance() -> addMatcher("kwd_else", Matcher::forKeyword(Keyword::Else));
   MatcherLookup::getInstance()->addMatcher("kwd_behaviour", Matcher::forKeyword(Keyword::Behaviour));
+  MatcherLookup::getInstance()->addMatcher("kwd_function", Matcher::forKeyword(Keyword::Function));
 
   MatcherLookup::getInstance() -> addMatcher("op_structure", Matcher::forTokenType(TokenType::StructureOperator));
   MatcherLookup::getInstance() -> addMatcher("op_assign", Matcher::forTokenType(TokenType::Assign));
@@ -539,6 +540,7 @@ void loadTransformers() {
 
     // Map the function name.
     auto iter = astTransformData->getTokens()->begin();
+    iter++; // skip the function keyword.
     base -> setData((*iter)->getData());
 
     while (iter != astTransformData->getTokens()->end() && (*iter)->getTokenType() != TokenType::ForwardArrowOperator && (*iter)->getTokenType() != TokenType::BlockDelimO) {
@@ -577,6 +579,7 @@ void loadTransformers() {
 
     // Map the function name.
     auto iter = astTransformData->getTokens()->begin();
+    iter++; // skip the function keyword.
     base -> setData((*iter)->getData());
 
     while (iter != astTransformData->getTokens()->end() && (*iter)->getTokenType() != TokenType::ForwardArrowOperator && (*iter)->getTokenType() != TokenType::BlockDelimO) {
@@ -805,11 +808,11 @@ void loadNested() {
 void loadPatterns() {
   TokenPatternLookup::getInstance() -> addTokenPattern(
           "function",
-          "identifier paren_open [signature_item] paren_close [op_forward_arrow type] block_delim_o [block] block_delim_c");
+          "kwd_function identifier paren_open [signature_item] paren_close [op_forward_arrow type] block_delim_o [block] block_delim_c");
 
   TokenPatternLookup::getInstance() -> addTokenPattern(
       "function_prototype",
-      "identifier paren_open [signature_item] paren_close [op_forward_arrow type]");
+      "kwd_function identifier paren_open [signature_item] paren_close [op_forward_arrow type]");
 
   TokenPatternLookup::getInstance() -> addTokenPattern(
           "function_call_stmt",

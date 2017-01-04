@@ -15,7 +15,7 @@ TokenPatternElement::TokenPatternElement(std::string element) {
     matcher = MatcherLookup::getInstance() -> getMatcher(data);
   }
 
-  // TODO
+  // TODO This isn't unique and shouldn't be hardcoded, e.g. behaviour scope
   if (data == "block") {
     subProcess = true;
   }

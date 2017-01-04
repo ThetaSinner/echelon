@@ -196,6 +196,8 @@ template<> std::string EchelonLookup::toString(Keyword t) {
       return "false";
     case Keyword::Behaviour:
       return "behaviour";
+    case Keyword::Function:
+      return "function";
   }
 
   throw std::runtime_error("Missing to string case for keyword.");

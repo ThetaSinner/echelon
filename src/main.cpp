@@ -15,8 +15,10 @@ int main(int argc, char** args) {
 
   EchelonCompiler compiler;
 
+  // TODO a function in a behaviour block without the function keyword will cause an infinite loop. This is a class of problems with nested processing.
+
   try {
-    auto ast = compiler.parse("behaviour MyBehaviour {\n  add(integer x, integer y) -> integer\n}");
+    auto ast = compiler.parse("behaviour MyBehaviour {\n  function add(integer x, integer y) -> integer\n}");
     stream_dump(Level::Info, ast);
   }
   catch (const std::runtime_error& e) {

@@ -392,7 +392,7 @@ public:
   }
 
   void testFunctionDeclaration(void) {
-    auto ast = parser.parse(tokenizer.tokenize("my_func(string t, x) -> integer {// test comment\n}"));
+    auto ast = parser.parse(tokenizer.tokenize("function my_func(string t, x) -> integer {// test comment\n}"));
 
     TS_ASSERT_EQUALS("root", ast -> getData());
     TS_ASSERT_EQUALS(AstNodeType::Program, ast -> getType());

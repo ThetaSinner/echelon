@@ -16,10 +16,11 @@ enum class Keyword {
   True,
   False,
   Behaviour,
+  Function,
 
   #ifdef ECHELON_DEBUG
   First = Package,
-  Last = Behaviour,
+  Last = Function,
   #endif
 };
 
