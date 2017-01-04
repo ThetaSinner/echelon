@@ -15,10 +15,16 @@ int main(int argc, char** args) {
 
   EchelonCompiler compiler;
 
+  // TODO allow unary operators like ! and -
+  
+  // TODO allow brackets in expressions.
+  
+  // TODO allow comments inside patterns. e.g. multi line comment inside function call which has been broken over lines.
+  
   // TODO a function in a behaviour block without the function keyword will cause an infinite loop. This is a class of problems with nested processing.
 
   try {
-    auto ast = compiler.parse("behaviour MyBehaviour {\n  function add(integer x, integer y) -> integer\n}");
+    auto ast = compiler.parse("each i in 1...3 {\n  //do something\n}");
     stream_dump(Level::Info, ast);
   }
   catch (const std::runtime_error& e) {

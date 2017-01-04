@@ -7,6 +7,7 @@ enum class Keyword {
   For,
   Until,
   While,
+  Each,
   Module,
   If,
   Else,
@@ -17,10 +18,11 @@ enum class Keyword {
   False,
   Behaviour,
   Function,
+  In,
 
   #ifdef ECHELON_DEBUG
   First = Package,
-  Last = Function,
+  Last = In,
   #endif
 };
 

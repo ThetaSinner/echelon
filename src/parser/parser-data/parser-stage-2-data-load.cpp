@@ -61,6 +61,8 @@ void loadMatchers() {
   MatcherLookup::getInstance() -> addMatcher("kwd_else", Matcher::forKeyword(Keyword::Else));
   MatcherLookup::getInstance()->addMatcher("kwd_behaviour", Matcher::forKeyword(Keyword::Behaviour));
   MatcherLookup::getInstance()->addMatcher("kwd_function", Matcher::forKeyword(Keyword::Function));
+  MatcherLookup::getInstance()->addMatcher("kwd_each", Matcher::forKeyword(Keyword::Each));
+  MatcherLookup::getInstance()->addMatcher("kwd_in", Matcher::forKeyword(Keyword::In));
 
   MatcherLookup::getInstance() -> addMatcher("op_structure", Matcher::forTokenType(TokenType::StructureOperator));
   MatcherLookup::getInstance() -> addMatcher("op_assign", Matcher::forTokenType(TokenType::Assign));
@@ -79,6 +81,7 @@ void loadMatchers() {
   MatcherLookup::getInstance() -> addMatcher("integer", Matcher::forTokenType(TokenType::Integer));
   MatcherLookup::getInstance() -> addMatcher("float", Matcher::forTokenType(TokenType::Float));
   MatcherLookup::getInstance() -> addMatcher("op_forward_arrow", Matcher::forTokenType(TokenType::ForwardArrowOperator));
+  MatcherLookup::getInstance() -> addMatcher("op_ellipsis", Matcher::forTokenType(TokenType::EllipsisOperator));
 
   MatcherLookup::getInstance() -> addMatcher("boolean", new Matcher([] (Matcher* self) -> bool {
     return
@@ -693,6 +696,54 @@ void loadTransformers() {
 
     return base;
   }));
+
+  // TODO check overwrite when ast transformer is added.
+
+  AstTransformLookup::getInstance()->addAstTransform("each", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    auto base = new AstNode();
+    base->setType(AstNodeType::Each);
+
+    auto iter = astTransformData->getTokens()->begin();
+    iter++; // skip the each keyword.
+
+    auto iterator = new AstNode();
+    iterator->setType(AstNodeType::Iterator);
+    iterator->setData((*iter)->getData());
+    base->putChild(iterator);
+
+    // Map the expression_range
+    iterator->putChild(astTransformData->getNestedAstNodes()->front()->getChild(0));
+
+    auto block = new AstNode();
+    block->setType(AstNodeType::Block);
+    block->putChild(astTransformData->getSubProcessAstNodes()->front()->getChild(0));
+    base->putChild(block);
+
+    return base;
+  }));
+
+  AstTransformLookup::getInstance()->addAstTransform("expression_range", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    auto base = new AstNode();
+    base->setType(AstNodeType::ExpressionRange);
+
+    auto nested = astTransformData->getNestedAstNodes();
+
+    auto beginNode = new AstNode();
+    beginNode->setType(AstNodeType::ExpressionRangeBegin);
+    beginNode->putChildFront(nested->front()->getChild(0));
+    base->putChild(beginNode);
+
+    nested->pop();
+
+    auto endNode = new AstNode();
+    endNode->setType(AstNodeType::ExpressionRangeEnd);
+    endNode->putChild(nested->front()->getChild(0));
+    base->putChild(endNode);
+
+    nested->pop();
+
+    return base;
+  }));
 }
 
 void loadNested() {
@@ -798,6 +849,13 @@ void loadNested() {
           "function_call",
           "identifier paren_open [function_call_params] paren_close"
   );
+
+  std::string iterable = "iterable";
+  NestedPatternLookup::getInstance()->registerNested(
+      iterable,
+      "expression_range",
+      "expr op_ellipsis expr" // TODO the expressions need to evaluate to something which can be stepped through. e.g. integers.
+  );
 }
 
 /* TODO use nested for everything and default the parser to using the "default" group at top level.
@@ -872,6 +930,11 @@ void loadPatterns() {
   TokenPatternLookup::getInstance()->addTokenPattern(
       "behaviour",
       "kwd_behaviour identifier block_delim_o [block] block_delim_c"
+  );
+
+  TokenPatternLookup::getInstance()->addTokenPattern(
+      "each",
+      "kwd_each identifier kwd_in iterable block_delim_o [block] block_delim_c"
   );
 }
 
