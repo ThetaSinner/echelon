@@ -590,4 +590,54 @@ public:
 
     // don't care about the block contents
   }
+
+  void testEachLoop() {
+    auto ast = compiler.parse("each i in 1...3 {\n  //do something\n}");
+
+    TS_ASSERT_EQUALS("root", ast->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
+    TS_ASSERT_EQUALS(1, ast->getChildCount());
+
+    auto each = ast->getChild(0);
+    TS_ASSERT_EQUALS("", each->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Each, each->getType());
+    TS_ASSERT_EQUALS(2, each->getChildCount());
+
+    auto iterator = each->getChild(0);
+    TS_ASSERT_EQUALS("i", iterator->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Iterator, iterator->getType());
+    TS_ASSERT_EQUALS(1, iterator->getChildCount());
+
+    auto iterator_range = iterator->getChild(0);
+    TS_ASSERT_EQUALS("", iterator_range->getData());
+    TS_ASSERT_EQUALS(AstNodeType::ExpressionRange, iterator_range->getType());
+    TS_ASSERT_EQUALS(2, iterator_range->getChildCount());
+
+    auto iterator_begin = iterator_range->getChild(0);
+    TS_ASSERT_EQUALS("", iterator_begin->getData());
+    TS_ASSERT_EQUALS(AstNodeType::ExpressionRangeBegin, iterator_begin->getType());
+    TS_ASSERT_EQUALS(1, iterator_begin->getChildCount());
+
+    auto iterator_begin_int = iterator_begin->getChild(0);
+    TS_ASSERT_EQUALS("1", iterator_begin_int->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, iterator_begin_int->getType());
+    TS_ASSERT_EQUALS(0, iterator_begin_int->getChildCount());
+
+    auto iterator_end = iterator_range->getChild(1);
+    TS_ASSERT_EQUALS("", iterator_end->getData());
+    TS_ASSERT_EQUALS(AstNodeType::ExpressionRangeEnd, iterator_end->getType());
+    TS_ASSERT_EQUALS(1, iterator_end->getChildCount());
+
+    auto iterator_end_int = iterator_end->getChild(0);
+    TS_ASSERT_EQUALS("3", iterator_end_int->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, iterator_end_int->getType());
+    TS_ASSERT_EQUALS(0, iterator_end_int->getChildCount());
+
+    auto block = each->getChild(1);
+    TS_ASSERT_EQUALS("", block->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Block, block->getType());
+    TS_ASSERT_EQUALS(1, block->getChildCount());
+
+    // don't care about block contents.
+  }
 };
