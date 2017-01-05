@@ -9,6 +9,21 @@
 // TODO report which pattern was the closest match and which token failed to match.
 // TODO e.g. a function call which is passed a float but expr doesn't allow floats.
 
+// patternMatches, it, tokens.end(), patternMatchInfo, *p, g
+bool Parser2::isTerminateForEndOfProgram(bool& patternMatches, std::list<Token*>::iterator current_token, std::list<Token*>::iterator tokens_end,
+                                PatternMatchInfo* patternMatchInfo, TokenPattern* pattern, std::vector<TokenPatternGroup*>::iterator& current_group) {
+  if (current_token == tokens_end) {
+    if (!isAllowMatchAtEndOfProgram(patternMatchInfo, pattern, current_group)) {
+      patternMatches = false;
+    }
+
+    // The tokens have run out, so whether or not the pattern matches we stop processing.
+    return true;
+  }
+
+  return false;
+}
+
 ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
   auto log = LoggerSharedInstance::get();
 
@@ -41,12 +56,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
         /*
          * Handle the case where the tokens run out before the groups in this pattern.
          */
-        if (it == tokens.end()) {
-          if (!isAllowMatchAtEndOfProgram(patternMatchInfo, *p, g)) {
-            patternMatches = false;
-          }
-
-          // The tokens have run out, so whether or not the pattern matches we stop processing.
+        if (isTerminateForEndOfProgram(patternMatches, it, tokens.end(), patternMatchInfo, *p, g)) {
           break;
         }
 
@@ -61,17 +71,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
           log -> at(Level::Debug) << "Matches: " << to_string(enhancedToken) << " ? ";
 
           if ((*element) -> isSubProcess()) {
-            // Try to match this pattern element by starting a new parse from the working iterator's position.
-            auto subOutput = subProcess(itt, tokens.end(), *(std::next(g, 1)));
-
-            // Queue the sub process result for processing in an ast transformer.
-            if (!isEmptyProgram(subOutput.getAstNode())) {
-              subProcessAstNodes.push(subOutput.getAstNode());
-            }
-            // Advance the working iterator to skip the tokens which were matched in the sub process.
-            std::advance(itt, subOutput.getTokensConsumedCount());
-            // Since the recursive call hasn't thrown an exception the sub process succeeded, so this element is a match.
-            matchCount++;
+            doSubProcess(tokens, subProcessAstNodes, g, itt, matchCount);
           }
           else if ((*element) -> isUseNestedPatterns()) {
             log -> at(Level::Debug) << "Nested pattern.\n";
@@ -225,6 +225,23 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
   log -> at(Level::Debug) << "built result:\n" << to_string(astConstructionManager.getRoot()) << "\n";
   output.setAstNode(astConstructionManager.getRoot());
   return output;
+}
+
+void Parser2::doSubProcess(std::list<Token *> &tokens, std::queue<AstNode *> &subProcessAstNodes,
+                           const std::vector<TokenPatternGroup *>::iterator &g, std::list<Token *>::iterator &itt,
+                           int &matchCount) {
+  // Try to match this pattern element by starting a new parse from the working iterator's position.
+  auto subOutput = this->subProcess(itt, tokens.end(), *(next(g, 1)));
+
+  // Queue the sub process result for processing in an ast transformer.
+  if (!this->isEmptyProgram(subOutput.getAstNode())) {
+    subProcessAstNodes.push(subOutput.getAstNode());
+  }
+
+  // Advance the working iterator to skip the tokens which were matched in the sub process.
+  advance(itt, subOutput.getTokensConsumedCount());
+  // Since the recursive call hasn't thrown an exception the sub process succeeded, so this element is a match.
+  matchCount++;
 }
 
 bool Parser2::simpleGroupMatch(std::list<Token*>& tokens, TokenPatternGroup* group) {
