@@ -2,20 +2,73 @@
 
 auto log = LoggerSharedInstance::get();
 
-void stream_dump(StreamLoggerLevel level, const Token* t) {
-  log->at(level) << "`" << t -> getData() << ", " << EchelonLookup::getInstance() -> toString(t -> getTokenType()) << "`";
+std::string to_string(const Token* t) {
+  std::stringstream ss;
+  ss << "`" << t->getData() << ", " << EchelonLookup::getInstance()->toString(t->getTokenType()) << "`";
+  return ss.str();
 }
 
-void stream_dump(StreamLoggerLevel level, std::vector<Token> tokens) {
-  for (auto& i : tokens) {
-    log->at(level) << EchelonLookup::toString(i.getTokenType()) << " ["<< i.getData() << "], ";
+std::string to_string(const std::list<Token*>* tokens) {
+  std::stringstream ss;
+  for (auto& i : *tokens) {
+    ss << EchelonLookup::toString(i->getTokenType()) << " ["<< i->getData() << "], ";
   }
+  return ss.str();
 }
 
-void stream_dump(StreamLoggerLevel level, std::list<Token*> tokens) {
-  for (auto& i : tokens) {
-    log->at(level) << EchelonLookup::toString(i -> getTokenType()) << " ["<< i -> getData() << "], ";
+std::string to_string(TokenPattern* characterPattern) {
+  std::stringstream ss;
+  for (auto g : *characterPattern->getGroups()) {
+    for (auto e : *g->getElements()) {
+      ss << e->getData() << " ";
+    }
   }
+  return ss.str();
+}
+
+std::string to_string(TokenPatternGroup* tokenPatternGroup) {
+  std::stringstream ss;
+
+  ss << "'";
+  int sp = false;
+  for (auto& i : *tokenPatternGroup->getElements()) {
+    if (sp) {
+      ss << " ";
+    }
+    ss << to_string(i);
+    sp = true;
+  }
+  ss << "'{" << tokenPatternGroup->getRepeatLowerBound() << "," << tokenPatternGroup->getRepeatUpperBound() << "}";
+
+  return ss.str();
+}
+
+std::string to_string(TokenPatternElement* tokenPatternElement) {
+  std::stringstream ss;
+  ss << tokenPatternElement -> getData();
+  return ss.str();
+}
+
+std::string to_string(EnhancedToken* enhancedToken) {
+  std::stringstream ss;
+  ss << enhancedToken -> getData() << ", " << EchelonLookup::getInstance() -> toString(enhancedToken -> getTokenType());
+  return ss.str();
+}
+
+std::string to_string(AstNode* node, int to_string_level) {
+  std::stringstream ss;
+  ss << "Level " << to_string_level << "\n";
+
+  ss << EchelonLookup::toString(node -> getType()) << ", ";
+  ss << node -> getData();
+  ss << "\n";
+
+  for (int i = 0; i < node -> getChildCount(); i++) {
+    ss << to_string(node -> getChild(i), to_string_level + 1);
+    ss << "\n";
+  }
+
+  return ss.str();
 }
 
 void stream_dump(StreamLoggerLevel level, TokenPatternElement* tokenPatternElement) {

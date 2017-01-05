@@ -24,11 +24,11 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
     bool somePatternMatches = false;
     auto tokenPatterns = selectPatternList(parserInternalInput);
 
-    #ifdef ECHELON_DEBUG
-    log -> at(Level::Debug) << "Start processing at token "; stream_dump(Level::Debug, *i); log -> at(Level::Debug) << "\n";
-    #endif
+    log -> at(Level::Debug) << "Start processing at token " << to_string(*i) << "\n";
 
     for (auto p = tokenPatterns -> begin(); p != tokenPatterns -> end(); p++) {
+      log -> at(Level::Debug) << "Trying pattern " << to_string(*p) << "\n";
+
       std::queue<AstNode*> subProcessAstNodes, nestedAstNodes;
       auto it = i;
       bool patternMatches = true;
@@ -36,15 +36,9 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
       // Create a pattern match info to track group matches etc.
       PatternMatchInfo *patternMatchInfo = new PatternMatchInfo((*p) -> getGroups() -> size());
 
-      #ifdef ECHELON_DEBUG
-      log -> at(Level::Debug) << "Trying pattern "; stream_dump(Level::Debug, *p); log -> at(Level::Debug) << "\n";
-      #endif
-
       // match each group in this pattern against the token.
       for (auto g = (*p) -> getGroups() -> begin(); g != (*p) -> getGroups() -> end(); g++) {
-        #ifdef ECHELON_DEBUG
-        log -> at(Level::Debug) << "Process group "; stream_dump(Level::Debug, *g); log -> at(Level::Debug) << "\n";
-        #endif
+        log -> at(Level::Debug) << "Process group " << to_string(*g) << "\n";
 
         /*
          * Handle the case where the tokens run out before the groups in this pattern.
@@ -59,18 +53,14 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
         }
 
         auto itt = it;
-        #ifdef ECHELON_DEBUG
-        log -> at(Level::Debug) << "Current starting token "; stream_dump(Level::Debug, *itt); log -> at(Level::Debug) << "\n";
-        #endif
+        log -> at(Level::Debug) << "Current starting token " << to_string(*itt) << "\n";
 
         int matchCount = 0;
         for (auto element = (*g) -> getElements() -> begin(); element != (*g) -> getElements() -> end(); element++) {
           EnhancedToken *enhancedToken = new EnhancedToken(*itt);
 
-          #ifdef ECHELON_DEBUG
-          log -> at(Level::Debug) << "Element: "; stream_dump(Level::Debug, *element); log -> at(Level::Debug) << "\n";
-          log -> at(Level::Debug) << "Matches: "; stream_dump(Level::Debug, enhancedToken); log -> at(Level::Debug) << " ? ";
-          #endif
+          log -> at(Level::Debug) << "Element: " << to_string(*element) << "\n";
+          log -> at(Level::Debug) << "Matches: " << to_string(enhancedToken) << " ? ";
 
           if ((*element) -> isSubProcess()) {
             // Try to match this pattern element by starting a new parse from the working iterator's position.
@@ -96,9 +86,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
             auto subOutput = _parse(subInput);
 
-            #ifdef ECHELON_DEBUG
-            log -> at(Level::Debug) << "Nested result.\n"; stream_dump(Level::Debug, subOutput.getAstNode()); log -> at(Level::Debug) << "\n";
-            #endif
+            log -> at(Level::Debug) << "Nested result.\n" << to_string(subOutput.getAstNode()) << "\n";
 
             if (!isEmptyProgram(subOutput.getAstNode())) {
               nestedAstNodes.push(subOutput.getAstNode());
@@ -191,9 +179,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
 
         try {
           auto frag = transformer -> transform(td);
-          #ifdef ECHELON_DEBUG
-          log -> at(Level::Debug) << "frag:\n"; stream_dump(Level::Debug, frag); log -> at(Level::Debug) << "\n";
-          #endif
+          log -> at(Level::Debug) << "frag:\n" << to_string(frag) << "\n";
 
           astConstructionManager.pushFragment(frag);
         }
@@ -216,9 +202,7 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
     output.setTokensConsumedCount(std::distance(tokens.begin(), i));
 
     if (!somePatternMatches) {
-      #ifdef ECHELON_DEBUG
-      log -> at(Level::Debug) << "No matching patterns for "; stream_dump(Level::Debug, *i); log -> at(Level::Debug) << "\n";
-      #endif
+      log -> at(Level::Debug) << "No matching patterns for " << to_string(*i) << "\n";
 
       // This is the case where a sub-process has been requested, check if we can safely return control to the caller.
       if (parserInternalInput.getSubProcessFinishGroup() != nullptr) {
@@ -234,18 +218,13 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
         break;
       }
       else {
-        log -> at(Level::Fatal) << "Unhandled token.\n";
-        #ifdef ECHELON_DEBUG
-        stream_dump(Level::Debug, *i); log -> at(Level::Debug) << "\n";
-        #endif
+        log -> at(Level::Fatal) << "Unhandled token [" << to_string(*i); log -> at(Level::Debug) << "]\n";
         throw std::runtime_error("Unhandled token [" + (*i)->getData() + ", " + EchelonLookup::getInstance()->toString((*i)->getTokenType()) + "]");
       }
     }
   }
 
-  #ifdef ECHELON_DEBUG
-  log -> at(Level::Debug) << "built result:\n"; stream_dump(Level::Debug, astConstructionManager.getRoot()); log -> at(Level::Debug) << "\n";
-  #endif
+  log -> at(Level::Debug) << "built result:\n" << to_string(astConstructionManager.getRoot()) << "\n";
   output.setAstNode(astConstructionManager.getRoot());
   return output;
 }
