@@ -4,9 +4,7 @@
 
 #include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/util/echelon-lookup.hpp>
-#ifdef ECHELON_DEBUG
 #include <echelon/util/stream-dump.hpp>
-#endif
 
 // TODO report which pattern was the closest match and which token failed to match.
 // TODO e.g. a function call which is passed a float but expr doesn't allow floats.
