@@ -104,6 +104,10 @@ void loadCharacterMatchers() {
   CharacterMatcherLookup::getInstance()->addCharacterMatcher("greater_chevron", [](char c) -> bool {
     return c == '>';
   });
+
+  CharacterMatcherLookup::getInstance()->addCharacterMatcher("exclamation", [](char c) -> bool {
+    return c == '!';
+  });
 }
 
 void loadCharacterPatterns() {
@@ -207,4 +211,9 @@ void loadCharacterPatterns() {
   auto ellipsisOperatorPattern = parseCharacterPattern(ellipsisOperator);
   ellipsisOperatorPattern->setTokenType(TokenType::EllipsisOperator);
   CharacterPatternLookup::getInstance()->addCharacterPattern(ellipsisOperatorPattern);
+
+  std::string notOperator = "exclamation";
+  auto notOperatorPattern = parseCharacterPattern(notOperator);
+  notOperatorPattern->setTokenType(TokenType::NotOperator);
+  CharacterPatternLookup::getInstance()->addCharacterPattern(notOperatorPattern);
 }

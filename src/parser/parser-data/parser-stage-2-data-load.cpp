@@ -83,6 +83,7 @@ void loadMatchers() {
   MatcherLookup::getInstance() -> addMatcher("float", Matcher::forTokenType(TokenType::Float));
   MatcherLookup::getInstance() -> addMatcher("op_forward_arrow", Matcher::forTokenType(TokenType::ForwardArrowOperator));
   MatcherLookup::getInstance() -> addMatcher("op_ellipsis", Matcher::forTokenType(TokenType::EllipsisOperator));
+  MatcherLookup::getInstance() -> addMatcher("op_not", Matcher::forTokenType(TokenType::NotOperator));
 
   MatcherLookup::getInstance() -> addMatcher("boolean", new Matcher([] (Matcher* self) -> bool {
     return
@@ -302,10 +303,20 @@ void loadTransformers() {
   }));
 
   AstTransformLookup::getInstance() -> addAstTransform("bool_expr_val", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
-    // This transform is just a wrapper around a "expr" type, so just map the result from the "expr" transform.
-    auto node = astTransformData -> getNestedAstNodes() -> front();
-    astTransformData -> getNestedAstNodes() -> pop();
-    return node;
+    AstNode* base;
+
+    if (astTransformData->getTokens()->front()->getTokenType() == TokenType::NotOperator) {
+      base = new AstNode();
+      base->setType(AstNodeType::BooleanInvert);
+      base->putChild(astTransformData->getNestedAstNodes()->front()->getChild(0));
+    }
+    else {
+      base = astTransformData->getNestedAstNodes()->front()->getChild(0);
+    }
+
+    astTransformData->getNestedAstNodes()->pop();
+
+    return base;
   }));
 
   AstTransformLookup::getInstance() -> addAstTransform("bool_expr_compare", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
@@ -338,7 +349,19 @@ void loadTransformers() {
     base -> setType(AstNodeType::BooleanBinaryOperator);
     base -> setData(op -> getChild(0) -> getData()); // this is redundant
 
-    base -> putChild(left -> getChild(0));
+    LoggerSharedInstance::get()->at(Level::Debug) << to_string(astTransformData->getTokens()) << "\n";
+
+    if (astTransformData->getTokens()->front()->getTokenType() == TokenType::NotOperator) {
+      auto invert_left = new AstNode();
+      invert_left->setType(AstNodeType::BooleanInvert);
+      invert_left->putChild(left->getChild(0));
+
+      base -> putChild(invert_left);
+    }
+    else {
+      base -> putChild(left -> getChild(0));
+    }
+
     base -> putChild(right -> getChild(0));
 
     return base;
@@ -622,6 +645,10 @@ void loadTransformers() {
     return astTransformData->getNestedAstNodes()->front()->getChild(0);
   }));
 
+  AstTransformLookup::getInstance() -> addAstTransform("bool_expr_statement", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    return astTransformData->getNestedAstNodes()->front()->getChild(0);
+  }));
+
   AstTransformLookup::getInstance() -> addAstTransform("paren_expr", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     auto nested = astTransformData->getNestedAstNodes();
 
@@ -779,6 +806,16 @@ void loadTransformers() {
 
     return base;
   }));
+
+/*  AstTransformLookup::getInstance()->addAstTransform("inverted_bool_expr", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    auto base = new AstNode();
+    base->setType(AstNodeType::BooleanInvert);
+
+    auto bool_expr = astTransformData->getNestedAstNodes()->front()->getChild(0);
+    base->putChild(bool_expr);
+
+    return base;
+  }));*/
 }
 
 void loadNested() {
@@ -801,8 +838,6 @@ void loadNested() {
           "divide_operator");
 
   NestedPatternLookup::getInstance() -> forwardDeclareNested("function_call");
-
-
   std::string expr = "expr";
   NestedPatternLookup::getInstance() -> registerNested(
       expr,
@@ -853,12 +888,12 @@ void loadNested() {
   NestedPatternLookup::getInstance() -> registerNested(
           bool_expr,
           "bool_expr_logic",
-          "expr any_logic_op bool_expr");
+          "[op_not] expr any_logic_op bool_expr");
   // Important this is loaded last
   NestedPatternLookup::getInstance() -> registerNested(
           bool_expr,
           "bool_expr_val",
-          "expr");
+          "[op_not] expr");
 
   NestedPatternLookup::getInstance() -> registerNested(
           "if_stmt",
@@ -951,6 +986,11 @@ void loadPatterns() {
   TokenPatternLookup::getInstance() -> addTokenPattern(
       "expr_statement",
       "expr"
+  );
+
+  TokenPatternLookup::getInstance() -> addTokenPattern(
+      "bool_expr_statement",
+      "bool_expr"
   );
 
   TokenPatternLookup::getInstance() -> addTokenPattern(

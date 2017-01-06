@@ -41,10 +41,11 @@ enum class AstNodeType {
   ExpressionRangeEnd,
   Iterator,
   ExprGroup,
+  BooleanInvert,
 
   #ifdef ECHELON_DEBUG
   First = Program,
-  Last = ExprGroup,
+  Last = BooleanInvert,
   #endif
 };
 

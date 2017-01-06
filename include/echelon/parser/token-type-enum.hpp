@@ -29,10 +29,11 @@ enum class TokenType {
   OrOperator,
   ForwardArrowOperator,
   EllipsisOperator,
+  NotOperator,
 
   #ifdef ECHELON_DEBUG
   First = String,
-  Last = EllipsisOperator,
+  Last = NotOperator,
   #endif
 };
 
