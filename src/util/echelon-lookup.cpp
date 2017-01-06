@@ -173,6 +173,8 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
       return "expression range end";
     case AstNodeType::Iterator:
       return "iterator";
+    case AstNodeType::ExprGroup:
+      return "expr group";
   }
 
   throw std::runtime_error("Mising to string case for ast node type.");

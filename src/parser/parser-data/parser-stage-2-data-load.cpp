@@ -623,8 +623,26 @@ void loadTransformers() {
   }));
 
   AstTransformLookup::getInstance() -> addAstTransform("paren_expr", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
-    // TODO
-    return astTransformData->getNestedAstNodes()->front()->getChild(0);
+    auto nested = astTransformData->getNestedAstNodes();
+
+    auto base = new AstNode();
+    base->setType(AstNodeType::ExprGroup);
+    base->putChild(nested->front()->getChild(0));
+    nested->pop();
+
+    if (nested->size()) {
+      auto oper = nested->front()->getChild(0);
+      nested->pop();
+
+      auto next_expr = nested->front()->getChild(0);
+      nested->pop();
+
+      oper->putChild(base);
+      oper->putChild(next_expr);
+      base = oper;
+    }
+
+    return base;
   }));
 
   AstTransformLookup::getInstance()->addAstTransform("enum", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {

@@ -40,10 +40,11 @@ enum class AstNodeType {
   ExpressionRangeBegin,
   ExpressionRangeEnd,
   Iterator,
+  ExprGroup,
 
   #ifdef ECHELON_DEBUG
   First = Program,
-  Last = Iterator,
+  Last = ExprGroup,
   #endif
 };
 

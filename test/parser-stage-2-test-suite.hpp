@@ -640,4 +640,52 @@ public:
 
     // don't care about block contents.
   }
+
+  void testExprWithParenthesis(void) {
+    auto ast = compiler.parse("1 + (2 * 3) + 4");
+
+    TS_ASSERT_EQUALS("root", ast->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
+    TS_ASSERT_EQUALS(1, ast->getChildCount());
+
+    auto top_plus = ast->getChild(0);
+    TS_ASSERT_EQUALS("+", top_plus->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, top_plus->getType());
+    TS_ASSERT_EQUALS(2, top_plus->getChildCount());
+
+    auto one = top_plus->getChild(0);
+    TS_ASSERT_EQUALS("1", one->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, one->getType());
+    TS_ASSERT_EQUALS(0, one->getChildCount());
+
+    auto plus = top_plus->getChild(1);
+    TS_ASSERT_EQUALS("+", plus->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, plus->getType());
+    TS_ASSERT_EQUALS(2, plus->getChildCount());
+
+    auto expr_group = plus->getChild(0);
+    TS_ASSERT_EQUALS("", expr_group->getData());
+    TS_ASSERT_EQUALS(AstNodeType::ExprGroup, expr_group->getType());
+    TS_ASSERT_EQUALS(1, expr_group->getChildCount());
+
+    auto times = expr_group->getChild(0);
+    TS_ASSERT_EQUALS("*", times->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, times->getType());
+    TS_ASSERT_EQUALS(2, times->getChildCount());
+
+    auto two = times->getChild(0);
+    TS_ASSERT_EQUALS("2", two->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, two->getType());
+    TS_ASSERT_EQUALS(0, two->getChildCount());
+
+    auto three = times->getChild(1);
+    TS_ASSERT_EQUALS("3", three->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, three->getType());
+    TS_ASSERT_EQUALS(0, three->getChildCount());
+
+    auto four = plus->getChild(1);
+    TS_ASSERT_EQUALS("4", four->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, four->getType());
+    TS_ASSERT_EQUALS(0, four->getChildCount());
+  }
 };
