@@ -687,4 +687,170 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::Integer, four->getType());
     TS_ASSERT_EQUALS(0, four->getChildCount());
   }
+
+  void testNotOperator() {
+    auto ast = compiler.parse("!true || !false");
+
+    auto or_operator = ast->getChild(0);
+    TS_ASSERT_EQUALS("||", or_operator->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BooleanBinaryOperator, or_operator->getType());
+    TS_ASSERT_EQUALS(2, or_operator->getChildCount());
+
+    auto left_not = or_operator->getChild(0);
+    TS_ASSERT_EQUALS("", left_not->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BooleanInvert, left_not->getType());
+    TS_ASSERT_EQUALS(1, left_not->getChildCount());
+
+    auto left_bool = left_not->getChild(0);
+    TS_ASSERT_EQUALS("true", left_bool->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Boolean, left_bool->getType());
+    TS_ASSERT_EQUALS(0, left_bool->getChildCount());
+
+    auto right_not = or_operator->getChild(1);
+    TS_ASSERT_EQUALS("", right_not->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BooleanInvert, right_not->getType());
+    TS_ASSERT_EQUALS(1, right_not->getChildCount());
+
+    auto right_bool = right_not->getChild(0);
+    TS_ASSERT_EQUALS("false", right_bool->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Boolean, right_bool->getType());
+    TS_ASSERT_EQUALS(0, right_bool->getChildCount());
+  }
+
+  void testNotOperatorWithParenthesis() {
+    auto ast = compiler.parse("!false || !(true && !false)");
+
+    auto or_operator = ast->getChild(0);
+    TS_ASSERT_EQUALS("||", or_operator->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BooleanBinaryOperator, or_operator->getType());
+    TS_ASSERT_EQUALS(2, or_operator->getChildCount());
+
+    auto left_not = or_operator->getChild(0);
+    TS_ASSERT_EQUALS("", left_not->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BooleanInvert, left_not->getType());
+    TS_ASSERT_EQUALS(1, left_not->getChildCount());
+
+    auto left_bool = left_not->getChild(0);
+    TS_ASSERT_EQUALS("false", left_bool->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Boolean, left_bool->getType());
+    TS_ASSERT_EQUALS(0, left_bool->getChildCount());
+
+    auto right_not = or_operator->getChild(1);
+    TS_ASSERT_EQUALS("", right_not->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BooleanInvert, right_not->getType());
+    TS_ASSERT_EQUALS(1, right_not->getChildCount());
+
+    auto expr_group = right_not->getChild(0);
+    TS_ASSERT_EQUALS("", expr_group->getData());
+    TS_ASSERT_EQUALS(AstNodeType::ExprGroup, expr_group->getType());
+    TS_ASSERT_EQUALS(1, expr_group->getChildCount());
+
+    auto and_operator = expr_group->getChild(0);
+    TS_ASSERT_EQUALS("&&", and_operator->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BooleanBinaryOperator, and_operator->getType());
+    TS_ASSERT_EQUALS(2, and_operator->getChildCount());
+
+    auto and_operator_left = and_operator->getChild(0);
+    TS_ASSERT_EQUALS("true", and_operator_left->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Boolean, and_operator_left->getType());
+    TS_ASSERT_EQUALS(0, and_operator_left->getChildCount());
+
+    auto and_operator_right_not = and_operator->getChild(1);
+    TS_ASSERT_EQUALS("", and_operator_right_not->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BooleanInvert, and_operator_right_not->getType());
+    TS_ASSERT_EQUALS(1, and_operator_right_not->getChildCount());
+
+    auto and_operator_right_bool = and_operator_right_not->getChild(0);
+    TS_ASSERT_EQUALS("false", and_operator_right_bool->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Boolean, and_operator_right_bool->getType());
+    TS_ASSERT_EQUALS(0, and_operator_right_bool->getChildCount());
+  }
+
+  void testUnaryMinus() {
+    auto ast = compiler.parse("-1 - (2 * -5)");
+
+    auto minus = ast->getChild(0);
+    TS_ASSERT_EQUALS("-", minus->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, minus->getType());
+    TS_ASSERT_EQUALS(2, minus->getChildCount());
+
+    auto minus_left_unary_minus = minus->getChild(0);
+    TS_ASSERT_EQUALS("", minus_left_unary_minus->getData());
+    TS_ASSERT_EQUALS(AstNodeType::UnaryMinus, minus_left_unary_minus->getType());
+    TS_ASSERT_EQUALS(1, minus_left_unary_minus->getChildCount());
+
+    auto minus_left_integer = minus_left_unary_minus->getChild(0);
+    TS_ASSERT_EQUALS("1", minus_left_integer->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, minus_left_integer->getType());
+    TS_ASSERT_EQUALS(0, minus_left_integer->getChildCount());
+
+    auto expr_group = minus->getChild(1);
+    TS_ASSERT_EQUALS("", expr_group->getData());
+    TS_ASSERT_EQUALS(AstNodeType::ExprGroup, expr_group->getType());
+    TS_ASSERT_EQUALS(1, expr_group->getChildCount());
+
+    auto multiply = expr_group->getChild(0);
+    TS_ASSERT_EQUALS("*", multiply->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, multiply->getType());
+    TS_ASSERT_EQUALS(2, multiply->getChildCount());
+
+    auto multiply_left = multiply->getChild(0);
+    TS_ASSERT_EQUALS("2", multiply_left->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, multiply_left->getType());
+    TS_ASSERT_EQUALS(0, multiply_left->getChildCount());
+
+    auto multiply_right_unary_minus = multiply->getChild(1);
+    TS_ASSERT_EQUALS("", multiply_right_unary_minus->getData());
+    TS_ASSERT_EQUALS(AstNodeType::UnaryMinus, multiply_right_unary_minus->getType());
+    TS_ASSERT_EQUALS(1, multiply_right_unary_minus->getChildCount());
+
+    auto multiply_right_integer = multiply_right_unary_minus->getChild(0);
+    TS_ASSERT_EQUALS("5", multiply_right_integer->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, multiply_right_integer->getType());
+    TS_ASSERT_EQUALS(0, multiply_right_integer->getChildCount());
+  }
+
+  void testUnaryMinusWithParenthesis() {
+    auto ast = compiler.parse("2 * -(2 * -5)");
+
+    auto multiply = ast->getChild(0);
+    TS_ASSERT_EQUALS("*", multiply->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, multiply->getType());
+    TS_ASSERT_EQUALS(2, multiply->getChildCount());
+
+    auto multiply_left = multiply->getChild(0);
+    TS_ASSERT_EQUALS("2", multiply_left->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, multiply_left->getType());
+    TS_ASSERT_EQUALS(0, multiply_left->getChildCount());
+
+    auto unary_minus = multiply->getChild(1);
+    TS_ASSERT_EQUALS("", unary_minus->getData());
+    TS_ASSERT_EQUALS(AstNodeType::UnaryMinus, unary_minus->getType());
+    TS_ASSERT_EQUALS(1, unary_minus->getChildCount());
+
+    auto expr_group = unary_minus->getChild(0);
+    TS_ASSERT_EQUALS("", expr_group->getData());
+    TS_ASSERT_EQUALS(AstNodeType::ExprGroup, expr_group->getType());
+    TS_ASSERT_EQUALS(1, expr_group->getChildCount());
+
+    auto group_multiply = expr_group->getChild(0);
+    TS_ASSERT_EQUALS("*", group_multiply->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, group_multiply->getType());
+    TS_ASSERT_EQUALS(2, group_multiply->getChildCount());
+
+    auto group_multiply_left = group_multiply->getChild(0);
+    TS_ASSERT_EQUALS("2", group_multiply_left->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, group_multiply_left->getType());
+    TS_ASSERT_EQUALS(0, group_multiply_left->getChildCount());
+
+    auto group_unary_minus = group_multiply->getChild(1);
+    TS_ASSERT_EQUALS("", group_unary_minus->getData());
+    TS_ASSERT_EQUALS(AstNodeType::UnaryMinus, group_unary_minus->getType());
+    TS_ASSERT_EQUALS(1, group_unary_minus->getChildCount());
+
+    auto group_integer_right = group_unary_minus->getChild(0);
+    TS_ASSERT_EQUALS("5", group_integer_right->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Integer, group_integer_right->getType());
+    TS_ASSERT_EQUALS(0, group_integer_right->getChildCount());
+  }
 };

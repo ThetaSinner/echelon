@@ -182,6 +182,8 @@ std::string EchelonLookup::toString(AstNodeType t) {
       return "expr group";
     case AstNodeType::BooleanInvert:
       return "boolean invert";
+    case AstNodeType::UnaryMinus:
+      return "unary minus";
   }
 
   throw std::runtime_error("Mising to string case for ast node type.");

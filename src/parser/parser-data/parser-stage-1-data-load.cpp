@@ -207,6 +207,11 @@ void loadCharacterPatterns() {
   forwardArrowOperatorPattern->setTokenType(TokenType::ForwardArrowOperator);
   CharacterPatternLookup::getInstance()->addCharacterPattern(forwardArrowOperatorPattern);
 
+  std::string subtractOperator = "hyphen";
+  auto subtractOperatorPattern = parseCharacterPattern(subtractOperator);
+  subtractOperatorPattern->setTokenType(TokenType::OperatorSubtract);
+  CharacterPatternLookup::getInstance()->addCharacterPattern(subtractOperatorPattern);
+
   std::string ellipsisOperator = "full_stop full_stop full_stop";
   auto ellipsisOperatorPattern = parseCharacterPattern(ellipsisOperator);
   ellipsisOperatorPattern->setTokenType(TokenType::EllipsisOperator);

@@ -220,6 +220,14 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput &parserInternalInput) {
                                  EchelonLookup::getInstance()->toString((*i)->getTokenType()) + "]");
       }
     }
+    else {
+      // we found a pattern match.
+
+      if (parserInternalInput.isUseNestedPatterns()) {
+        // We found a matching pattern for the requested sub process. exit.
+        break;
+      }
+    }
   }
 
   log->at(Level::Debug) << "built result:\n" << to_string(astConstructionManager.getRoot()) << "\n";

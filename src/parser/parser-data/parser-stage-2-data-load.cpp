@@ -158,6 +158,15 @@ void loadTransformers() {
         return base;
       }));
 
+  AstTransformLookup::getInstance()->addAstTransform("subtract", new AstTransform(
+      [](AstTransformData *astTransformData) -> AstNode * {
+        AstNode *base = new AstNode();
+        base->setType(AstNodeType::BinaryOperator);
+        base->setData(astTransformData->getTokens()->front()->getData());
+
+        return base;
+      }));
+
   // TODO should be more specific with node type than just mapping the operator as data.
   AstTransformLookup::getInstance()->addAstTransform("multiply", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
@@ -231,10 +240,23 @@ void loadTransformers() {
   AstTransformLookup::getInstance()->addAstTransform("integer", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
-        base->setType(AstNodeType::Integer);
-        int tokenCount = astTransformData->getTokens()->size();
-        LoggerSharedInstance::get()->at(Level::Debug) << to_string(astTransformData->getTokens()) << "\n";
-        base->setData(astTransformData->getTokens()->front()->getData());
+        std::list<EnhancedToken *> *tokens = astTransformData->getTokens();
+        if (tokens->front()->getTokenType() == TokenType::OperatorSubtract) {
+          base->setType(AstNodeType::UnaryMinus);
+          tokens->pop_front();
+
+          auto integer = new AstNode();
+          integer->setType(AstNodeType::Integer);
+          integer->setData(tokens->front()->getData());
+          tokens->pop_front();
+          
+          base->putChild(integer);
+        }
+        else {
+          base->setType(AstNodeType::Integer);
+          base->setData(tokens->front()->getData());
+          tokens->pop_front();
+        }
 
         auto nested = astTransformData->getNestedAstNodes();
         if (nested != nullptr && nested->size() == 2) {
@@ -697,10 +719,24 @@ void loadTransformers() {
       [](AstTransformData *astTransformData) -> AstNode * {
         auto nested = astTransformData->getNestedAstNodes();
 
+        LoggerSharedInstance::get()->at(Level::Debug) << to_string(astTransformData->getTokens()) << "\n";
+
         auto base = new AstNode();
-        base->setType(AstNodeType::ExprGroup);
-        base->putChild(nested->front()->getChild(0));
-        nested->pop();
+        if (astTransformData->getTokens()->front()->getTokenType() == TokenType::OperatorSubtract) {
+          base->setType(AstNodeType::UnaryMinus);
+
+          auto expr_group = new AstNode();
+          expr_group->setType(AstNodeType::ExprGroup);
+          expr_group->putChild(nested->front()->getChild(0));
+          nested->pop();
+
+          base->putChild(expr_group);
+        }
+        else {
+          base->setType(AstNodeType::ExprGroup);
+          base->putChild(nested->front()->getChild(0));
+          nested->pop();
+        }
 
         if (nested->size()) {
           auto oper = nested->front()->getChild(0);
@@ -903,7 +939,7 @@ void loadNested() {
   NestedPatternLookup::getInstance()->registerNested(
       expr,
       "paren_expr",
-      "paren_open expr paren_close [binary_operator expr]");
+      "[subtract_operator] paren_open expr paren_close [binary_operator expr]");
   NestedPatternLookup::getInstance()->registerNested(
       expr,
       "expr_function_call",
@@ -915,7 +951,7 @@ void loadNested() {
   NestedPatternLookup::getInstance()->registerNested(
       expr,
       "integer",
-      "integer [binary_operator expr]");
+      "[subtract_operator] integer [binary_operator expr]");
   NestedPatternLookup::getInstance()->registerNested(
       expr,
       "float",

@@ -15,17 +15,12 @@ int main(int argc, char **args) {
 
   EchelonCompiler compiler;
 
-  // TODO allow unary operators like ! and -. Use something like a pattern modifier? apply a '-' modifier to expr elements and a '!' modifier to bool_expr elements
-
-  // TODO allow brackets in expressions.
-
   // TODO allow comments inside patterns. e.g. multi line comment inside function call which has been broken over lines.
 
   // TODO a function in a behaviour block without the function keyword will cause an infinite loop. This is a class of problems with nested processing.
 
   try {
-    //auto ast = compiler.parse("! true || ! false"); TODO make test
-    auto ast = compiler.parse("! true || !(true && !false)");
+    auto ast = compiler.parse("2 * -(2 * -5)");
     stream_dump(Level::Info, ast);
   }
   catch (const std::runtime_error &e) {
