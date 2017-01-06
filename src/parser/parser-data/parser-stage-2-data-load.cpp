@@ -622,6 +622,11 @@ void loadTransformers() {
     return astTransformData->getNestedAstNodes()->front()->getChild(0);
   }));
 
+  AstTransformLookup::getInstance() -> addAstTransform("paren_expr", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    // TODO
+    return astTransformData->getNestedAstNodes()->front()->getChild(0);
+  }));
+
   AstTransformLookup::getInstance()->addAstTransform("enum", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     auto base = new AstNode();
     base->setType(AstNodeType::Enum);
@@ -778,7 +783,13 @@ void loadNested() {
           "divide_operator");
 
   NestedPatternLookup::getInstance() -> forwardDeclareNested("function_call");
+
+
   std::string expr = "expr";
+  NestedPatternLookup::getInstance() -> registerNested(
+      expr,
+      "paren_expr",
+      "paren_open expr paren_close [binary_operator expr]");
   NestedPatternLookup::getInstance() -> registerNested(
           expr,
           "expr_function_call",
@@ -790,7 +801,6 @@ void loadNested() {
   NestedPatternLookup::getInstance() -> registerNested(
           expr,
           "integer",
-          // "[paren_open]* integer [paren_close]* [binary_operator expr] [paren_close]*");
           "integer [binary_operator expr]");
   NestedPatternLookup::getInstance() -> registerNested(
           expr,
