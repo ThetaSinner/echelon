@@ -174,6 +174,17 @@ void loadTransformers() {
     return base;
   }));
 
+  AstTransformLookup::getInstance() -> addAstTransform("op_and", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::BooleanBinaryOperator);
+    // TODO Map sub type.
+    base -> setData(astTransformData -> getTokens() -> front() -> getData());
+
+    // TODO astTransformData -> getNestedAstNodes();
+
+    return base;
+  }));
+
   AstTransformLookup::getInstance() -> addAstTransform("function_call", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::FunctionCall);
@@ -807,15 +818,15 @@ void loadTransformers() {
     return base;
   }));
 
-/*  AstTransformLookup::getInstance()->addAstTransform("inverted_bool_expr", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+  AstTransformLookup::getInstance()->addAstTransform("paren_bool_expr", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     auto base = new AstNode();
-    base->setType(AstNodeType::BooleanInvert);
+    base->setType(AstNodeType::ExprGroup);
 
     auto bool_expr = astTransformData->getNestedAstNodes()->front()->getChild(0);
     base->putChild(bool_expr);
 
     return base;
-  }));*/
+  }));
 }
 
 void loadNested() {
@@ -881,6 +892,10 @@ void loadNested() {
           "op_or");
 
   std::string bool_expr = "bool_expr";
+  NestedPatternLookup::getInstance() -> registerNested(
+      bool_expr,
+      "paren_bool_expr",
+      "paren_open bool_expr paren_close");
   NestedPatternLookup::getInstance() -> registerNested(
           bool_expr,
           "bool_expr_compare",

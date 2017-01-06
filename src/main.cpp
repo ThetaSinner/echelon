@@ -24,7 +24,8 @@ int main(int argc, char** args) {
   // TODO a function in a behaviour block without the function keyword will cause an infinite loop. This is a class of problems with nested processing.
 
   try {
-    auto ast = compiler.parse("! true || ! false");
+    //auto ast = compiler.parse("! true || ! false"); TODO make test
+    auto ast = compiler.parse("! true || (true && !false)");
     stream_dump(Level::Info, ast);
   }
   catch (const std::runtime_error& e) {
