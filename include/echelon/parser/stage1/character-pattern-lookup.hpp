@@ -6,18 +6,22 @@
 #include <echelon/parser/stage1/character-pattern.hpp>
 
 class CharacterPatternLookup {
-    static CharacterPatternLookup *instance;
+  static CharacterPatternLookup *instance;
 
-    std::list<CharacterPattern*> characterPatternList;
+  std::list<CharacterPattern *> characterPatternList;
 
-    CharacterPatternLookup() {}
-    CharacterPatternLookup(const CharacterPatternLookup&) {}
-    CharacterPatternLookup& operator=(const CharacterPatternLookup&) {}
+  CharacterPatternLookup() {}
+
+  CharacterPatternLookup(const CharacterPatternLookup &) {}
+
+  CharacterPatternLookup &operator=(const CharacterPatternLookup &) {}
+
 public:
-    static CharacterPatternLookup* getInstance();
+  static CharacterPatternLookup *getInstance();
 
-    void addCharacterPattern(CharacterPattern* characterPattern);
-    std::list<CharacterPattern*>* getCharacterPatternList();
+  void addCharacterPattern(CharacterPattern *characterPattern);
+
+  std::list<CharacterPattern *> *getCharacterPatternList();
 };
 
 #endif

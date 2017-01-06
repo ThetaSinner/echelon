@@ -6,7 +6,7 @@
 
 class AstEnhancer {
 public:
-  EnhancedAstNode* enhance(AstNode* node);
+  EnhancedAstNode *enhance(AstNode *node);
 };
 
 #endif

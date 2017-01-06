@@ -8,15 +8,15 @@ enum class EnhancedAstNodeSubType {
   Assign,
 
   // Primitive Value
-  Integer,
+      Integer,
 
   // Type
-  IntegerType,
+      IntegerType,
 
-  #ifdef ECHELON_DEBUG
-  First=Unspecified,
-  Last=IntegerType,
-  #endif
+#ifdef ECHELON_DEBUG
+  First = Unspecified,
+  Last = IntegerType,
+#endif
 };
 
 #endif

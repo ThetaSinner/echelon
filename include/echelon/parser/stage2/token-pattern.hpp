@@ -10,14 +10,16 @@
 class TokenPatternGroup;
 
 class TokenPattern {
-  std::vector<TokenPatternGroup*> tokenPatternGroups;
+  std::vector<TokenPatternGroup *> tokenPatternGroups;
 
   std::string id;
 public:
-  void addGroup(TokenPatternGroup* tokenPatternGroup);
-  std::vector<TokenPatternGroup*>* getGroups();
+  void addGroup(TokenPatternGroup *tokenPatternGroup);
+
+  std::vector<TokenPatternGroup *> *getGroups();
 
   void setId(std::string id);
+
   std::string getId();
 };
 

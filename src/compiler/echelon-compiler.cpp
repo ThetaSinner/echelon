@@ -9,7 +9,9 @@
 #include <echelon/util/logging/logger-shared-instance.hpp>
 
 #ifdef ECHELON_DEBUG
+
 #include <fstream>
+
 #endif
 
 EchelonCompiler::EchelonCompiler() {
@@ -25,34 +27,34 @@ EchelonCompiler::EchelonCompiler() {
 
     codeGenerator = CodeGeneratorFactory::newCodeGenerator();
   }
-  catch (const std::runtime_error& e) {
+  catch (const std::runtime_error &e) {
     LoggerSharedInstance::get()->at(Level::Fatal) << e.what();
     throw e;
   }
 }
 
 // TODO test scope only.
-void EchelonCompiler::setCodeGenerator(CodeGenerator* codeGenerator) {
-  this -> codeGenerator = codeGenerator;
+void EchelonCompiler::setCodeGenerator(CodeGenerator *codeGenerator) {
+  this->codeGenerator = codeGenerator;
 }
 
-std::list<Token*> EchelonCompiler::tokenize(std::string input) {
+std::list<Token *> EchelonCompiler::tokenize(std::string input) {
   return tokenizer.tokenize(input);
 }
 
-AstNode* EchelonCompiler::parse(std::list<Token*> input) {
+AstNode *EchelonCompiler::parse(std::list<Token *> input) {
   return parser.parse(input);
 }
 
-AstNode* EchelonCompiler::parse(std::string input) {
+AstNode *EchelonCompiler::parse(std::string input) {
   return parse(tokenize(input));
 }
 
-EnhancedAstNode* EchelonCompiler::enhance(AstNode* input) {
+EnhancedAstNode *EchelonCompiler::enhance(AstNode *input) {
   return astEnhancer.enhance(input);
 }
 
-EnhancedAstNode* EchelonCompiler::enhance(std::string input) {
+EnhancedAstNode *EchelonCompiler::enhance(std::string input) {
   return enhance(parse(tokenize(input)));
 }
 
@@ -60,20 +62,20 @@ std::string EchelonCompiler::compile(std::string input) {
   try {
     auto tokens = tokenize(input);
     auto ast = parse(tokens);
-    #ifdef ECHELON_DEBUG
+#ifdef ECHELON_DEBUG
     std::ofstream f("compiler-ast-out.gv", std::ios::out);
     f << toGraphviz(ast);
     f.close();
-    #endif
+#endif
 
     typeDeductionEngine.deduceTypes(ast);
 
-    return codeGenerator -> generate(ast);
+    return codeGenerator->generate(ast);
   }
-  catch (const std::runtime_error& e) {
-    #ifdef ECHELON_DEBUG
+  catch (const std::runtime_error &e) {
+#ifdef ECHELON_DEBUG
     LoggerSharedInstance::get()->at(Level::Fatal) << "Compilation failed: [" << e.what() << "]\n";
-    #endif
+#endif
     throw std::runtime_error("Compilation failed.");
   }
   catch (...) {

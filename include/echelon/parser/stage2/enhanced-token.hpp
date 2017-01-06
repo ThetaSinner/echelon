@@ -13,12 +13,14 @@ private:
   bool keyword = false;
   bool dataTypeKeyword;
 public:
-  EnhancedToken(Token* t);
+  EnhancedToken(Token *t);
 
   TokenType getTokenType();
+
   std::string getData();
 
   bool isKeyword();
+
   bool isDataTypeKeyword();
 };
 

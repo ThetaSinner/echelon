@@ -5,6 +5,6 @@
 
 #include <echelon/parser/stage1/character-pattern.hpp>
 
-CharacterPattern* parseCharacterPattern(std::string pattern);
+CharacterPattern *parseCharacterPattern(std::string pattern);
 
 #endif

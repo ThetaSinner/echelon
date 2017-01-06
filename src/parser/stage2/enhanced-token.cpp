@@ -2,14 +2,14 @@
 
 #include <echelon/util/echelon-lookup.hpp>
 
-EnhancedToken::EnhancedToken(Token* t) {
-  data = t -> getData();
-  tokenType = t -> getTokenType();
+EnhancedToken::EnhancedToken(Token *t) {
+  data = t->getData();
+  tokenType = t->getTokenType();
 
-  switch(tokenType) {
+  switch (tokenType) {
     case TokenType::Identifier:
-      keyword = EchelonLookup::getInstance() -> isKeyword(data);
-      dataTypeKeyword = EchelonLookup::getInstance() -> isDataTypeKeyword(data);
+      keyword = EchelonLookup::getInstance()->isKeyword(data);
+      dataTypeKeyword = EchelonLookup::getInstance()->isDataTypeKeyword(data);
       break;
     default:
       // do nothing.

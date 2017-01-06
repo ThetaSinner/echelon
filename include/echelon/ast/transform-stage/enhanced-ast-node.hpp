@@ -8,8 +8,10 @@
 #include <echelon/ast/transform-stage/enhanced-ast-node-sub-type-enum.hpp>
 
 #ifdef ECHELON_DEBUG
+
 #include <iostream>
 #include <echelon/util/echelon-lookup.hpp>
+
 #endif
 
 class EnhancedAstNode {
@@ -17,7 +19,7 @@ class EnhancedAstNode {
   EnhancedAstNodeSubType nodeSubType = EnhancedAstNodeSubType::Unspecified;
   std::string data;
 
-  std::vector<EnhancedAstNode*> childList;
+  std::vector<EnhancedAstNode *> childList;
 public:
   EnhancedAstNodeType getNodeType() const {
     return nodeType;
@@ -36,14 +38,14 @@ public:
   }
 
   void setData(std::string data) {
-    this -> data = data;
+    this->data = data;
   }
 
-  std::string& getData() {
+  std::string &getData() {
     return data;
   }
 
-  void putChild(EnhancedAstNode* child) {
+  void putChild(EnhancedAstNode *child) {
     childList.push_back(child);
   }
 
@@ -51,17 +53,17 @@ public:
     return childList.size();
   }
 
-  std::vector<EnhancedAstNode*>* getChildList() {
+  std::vector<EnhancedAstNode *> *getChildList() {
     return &childList;
   }
 
-  EnhancedAstNode* getChild(int childIndex) {
+  EnhancedAstNode *getChild(int childIndex) {
     return childList.at(childIndex);
   }
 
   bool hasChild(EnhancedAstNodeType childType) {
     for (auto i : childList) {
-      if (i -> getNodeType() == childType) {
+      if (i->getNodeType() == childType) {
         return true;
       }
     }
@@ -69,19 +71,20 @@ public:
     return false;
   }
 
-  EnhancedAstNode* getChild(EnhancedAstNodeType childType) {
+  EnhancedAstNode *getChild(EnhancedAstNodeType childType) {
     for (auto i : childList) {
-      if (i -> getNodeType() == childType) {
+      if (i->getNodeType() == childType) {
         return i;
       }
     }
 
-    #ifdef ECHELON_DEBUG
-    std::string message = "Request for child by childType [" + EchelonLookup::getInstance() -> toString(childType) + "] failed.";
+#ifdef ECHELON_DEBUG
+    std::string message =
+        "Request for child by childType [" + EchelonLookup::getInstance()->toString(childType) + "] failed.";
     throw std::runtime_error(message.c_str());
-    #else
+#else
     return nullptr;
-    #endif
+#endif
   }
 };
 

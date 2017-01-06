@@ -7,30 +7,35 @@
 #include <echelon/parser/stage1/character-pattern-element.hpp>
 
 class CharacterPatternGroup {
-    std::list<CharacterPatternElement*> elements;
+  std::list<CharacterPatternElement *> elements;
 
-    int repeatLowerBound = 1;
-    int repeatUpperBound = 1;
+  int repeatLowerBound = 1;
+  int repeatUpperBound = 1;
 
-    bool doNotConsumeConsume = false;
+  bool doNotConsumeConsume = false;
 
-    CharacterPatternGroupType type;
+  CharacterPatternGroupType type;
 
 public:
-    void addElement(CharacterPatternElement* cpe);
-    std::list<CharacterPatternElement*>* getElements();
+  void addElement(CharacterPatternElement *cpe);
 
-    void setRepeatLowerBound(int repeatLowerBound);
-    int getRepeatLowerBound();
+  std::list<CharacterPatternElement *> *getElements();
 
-    void setRepeatUpperBound(int repeatUpperBound);
-    int getRepeatUpperBound();
+  void setRepeatLowerBound(int repeatLowerBound);
 
-    void setDoNotConsumeConsume(bool doNotConsumeConsume);
-    bool isDoNotConsumeConsume();
+  int getRepeatLowerBound();
 
-    void setType(CharacterPatternGroupType type);
-    CharacterPatternGroupType getType();
+  void setRepeatUpperBound(int repeatUpperBound);
+
+  int getRepeatUpperBound();
+
+  void setDoNotConsumeConsume(bool doNotConsumeConsume);
+
+  bool isDoNotConsumeConsume();
+
+  void setType(CharacterPatternGroupType type);
+
+  CharacterPatternGroupType getType();
 };
 
 #endif

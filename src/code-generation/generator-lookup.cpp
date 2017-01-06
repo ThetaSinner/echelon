@@ -1,13 +1,15 @@
 #include <echelon/code-generation/generator-lookup.hpp>
 
 #ifdef ECHELON_DEBUG
+
 #include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/util/echelon-lookup.hpp>
+
 #endif
 
 GeneratorLookup *GeneratorLookup::instance = nullptr;
 
-GeneratorLookup* GeneratorLookup::getInstance() {
+GeneratorLookup *GeneratorLookup::getInstance() {
   if (instance == nullptr) {
     instance = new GeneratorLookup();
   }
@@ -15,17 +17,18 @@ GeneratorLookup* GeneratorLookup::getInstance() {
   return instance;
 }
 
-void GeneratorLookup::addGenerator(AstNodeType astNodeType, Generator* generator) {
+void GeneratorLookup::addGenerator(AstNodeType astNodeType, Generator *generator) {
   generatorHash.insert({astNodeType, generator});
 }
 
-Generator* GeneratorLookup::getGenerator(AstNodeType astNodeType) {
-  #ifdef ECHELON_DEBUG
+Generator *GeneratorLookup::getGenerator(AstNodeType astNodeType) {
+#ifdef ECHELON_DEBUG
   if (generatorHash.find(astNodeType) == generatorHash.end()) {
-    LoggerSharedInstance::get()->at(Level::Fatal) << "Missing generator [" << EchelonLookup::toString(astNodeType) << "]\n";
+    LoggerSharedInstance::get()->at(Level::Fatal) << "Missing generator [" << EchelonLookup::toString(astNodeType)
+                                                  << "]\n";
     throw std::runtime_error("Missing generator");
   }
-  #endif
+#endif
 
   return generatorHash.at(astNodeType);
 }

@@ -13,46 +13,46 @@
 #include <echelon/util/enum-class-iterator.hpp>
 
 void IntegrityCheck::StartupCheck() {
-  #ifdef ECHELON_DEBUG
-  for (auto tte : Enum<TokenType>()) {
+#ifdef ECHELON_DEBUG
+  for (auto tte : Enum < TokenType > ()) {
     EchelonLookup::toString(tte);
   }
 
-  for (auto k : Enum<Keyword>()) {
+  for (auto k : Enum < Keyword > ()) {
     EchelonLookup::toString(k);
   }
 
-  for (auto ant : Enum<AstNodeType>()) {
+  for (auto ant : Enum < AstNodeType > ()) {
     EchelonLookup::toString(ant);
   }
 
-  for (auto eant : Enum<EnhancedAstNodeType>()) {
+  for (auto eant : Enum < EnhancedAstNodeType > ()) {
     EchelonLookup::toString(eant);
   }
 
-  for (auto eanst : Enum<EnhancedAstNodeSubType >()) {
+  for (auto eanst : Enum < EnhancedAstNodeSubType > ()) {
     EchelonLookup::toString(eanst);
   }
-  #endif
+#endif
 }
 
 void IntegrityCheck::PostLoadCheck() {
-  #ifdef ECHELON_DEBUG
+#ifdef ECHELON_DEBUG
   // Check that an AST transform is defined for all pattern identifiers.
-  for (auto i : *TokenPatternLookup::getInstance() -> getTokenPatterns()) {
-    AstTransformLookup::getInstance() -> getAstTransform(i -> getId());
+  for (auto i : *TokenPatternLookup::getInstance()->getTokenPatterns()) {
+    AstTransformLookup::getInstance()->getAstTransform(i->getId());
 
     // TODO This isn't enough, patterns can be nested more than once (binary operator inside expression) but can also be circular...
     // Unwind each pattern and check that any elements which will be matched with nested patterns has an AST transformer.
-    for (auto k : *i -> getGroups()) {
-      for (auto t : *k -> getElements()) {
-        if (NestedPatternLookup::getInstance() -> isNest(t -> getData())) {
-          for (auto m : *NestedPatternLookup::getInstance() -> getNested(t -> getData())) {
-            AstTransformLookup::getInstance() -> getAstTransform(m -> getId());
+    for (auto k : *i->getGroups()) {
+      for (auto t : *k->getElements()) {
+        if (NestedPatternLookup::getInstance()->isNest(t->getData())) {
+          for (auto m : *NestedPatternLookup::getInstance()->getNested(t->getData())) {
+            AstTransformLookup::getInstance()->getAstTransform(m->getId());
           }
         }
       }
     }
   }
-  #endif
+#endif
 }

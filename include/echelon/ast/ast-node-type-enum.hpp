@@ -43,10 +43,10 @@ enum class AstNodeType {
   ExprGroup,
   BooleanInvert,
 
-  #ifdef ECHELON_DEBUG
+#ifdef ECHELON_DEBUG
   First = Program,
   Last = BooleanInvert,
-  #endif
+#endif
 };
 
 #endif

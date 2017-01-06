@@ -11,7 +11,7 @@ bool is_identifier_char(int c) {
   return is_letter(c) || c == '_';
 }
 
-TokenPatternElement* PatternTranslator::readIdentifier(std::string::iterator& i, std::string& pattern) {
+TokenPatternElement *PatternTranslator::readIdentifier(std::string::iterator &i, std::string &pattern) {
   if (is_letter(*i)) {
     auto it = i;
     while (is_identifier_char(*(++it))) {}
@@ -26,7 +26,7 @@ TokenPatternElement* PatternTranslator::readIdentifier(std::string::iterator& i,
   return nullptr;
 }
 
-TokenPattern* PatternTranslator::translate(std::string pattern) {
+TokenPattern *PatternTranslator::translate(std::string pattern) {
   auto log = LoggerSharedInstance::get();
 
   TokenPattern *tokenPattern = new TokenPattern();
@@ -36,10 +36,9 @@ TokenPattern* PatternTranslator::translate(std::string pattern) {
 
     if (*i == ' ') {
       continue;
-    }
-    else if (*i == '[') {
+    } else if (*i == '[') {
       // is optional.
-      tokenPatternGroup -> setRepeatLowerBound(0);
+      tokenPatternGroup->setRepeatLowerBound(0);
 
       i++;
       while (true) {
@@ -54,7 +53,7 @@ TokenPattern* PatternTranslator::translate(std::string pattern) {
           break;
         }
 
-        tokenPatternGroup -> addElement(ident);
+        tokenPatternGroup->addElement(ident);
       }
 
       while (*i == ' ') {
@@ -67,20 +66,18 @@ TokenPattern* PatternTranslator::translate(std::string pattern) {
       safe_advance(i, 1, pattern);
 
       if (*i == '*') {
-        tokenPatternGroup -> setRepeatUpperBound(-1);
+        tokenPatternGroup->setRepeatUpperBound(-1);
         safe_advance(i, 1, pattern);
       }
-    }
-    else if (is_letter(*i)) {
+    } else if (is_letter(*i)) {
       auto ident = readIdentifier(i, pattern);
-      tokenPatternGroup -> addElement(ident);
-    }
-    else {
+      tokenPatternGroup->addElement(ident);
+    } else {
       log->at(Level::Error) << "(0041) syntax error." << *i << "\n";
       break;
     }
 
-    tokenPattern -> addGroup(tokenPatternGroup);
+    tokenPattern->addGroup(tokenPatternGroup);
     if (i == pattern.end()) {
       i--;
     }

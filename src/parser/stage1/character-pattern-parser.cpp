@@ -4,7 +4,7 @@ bool isIdent(char c) {
   return (97 <= c && c <= 122) || (48 <= c && c <= 57) || c == '_';
 }
 
-CharacterPattern* parseCharacterPattern(std::string pattern) {
+CharacterPattern *parseCharacterPattern(std::string pattern) {
   CharacterPattern *characterPattern = new CharacterPattern();
 
   int strPos = 0;
@@ -16,14 +16,14 @@ CharacterPattern* parseCharacterPattern(std::string pattern) {
       int subStrPos = strPos + 1;
 
       CharacterPatternGroup *group = new CharacterPatternGroup();
-      group -> setType(CharacterPatternGroupType::Union);
+      group->setType(CharacterPatternGroupType::Union);
       while (subStrPos < strLen && pattern[subStrPos] != ')') {
         int start = subStrPos;
         while (isIdent(pattern[subStrPos])) {
           subStrPos++;
         }
 
-        group -> addElement(new CharacterPatternElement(pattern.substr(start, subStrPos - start)));
+        group->addElement(new CharacterPatternElement(pattern.substr(start, subStrPos - start)));
         if (pattern[subStrPos] == ' ') {
           subStrPos++;
         }
@@ -34,18 +34,18 @@ CharacterPattern* parseCharacterPattern(std::string pattern) {
       }
 
       if (pattern[subStrPos] == '*') {
-        group -> setRepeatLowerBound(0);
-        group -> setRepeatUpperBound(-1);
+        group->setRepeatLowerBound(0);
+        group->setRepeatUpperBound(-1);
         subStrPos++;
       }
 
       if (pattern[subStrPos] == '+') {
-        group -> setRepeatLowerBound(1);
-        group -> setRepeatUpperBound(-1);
+        group->setRepeatLowerBound(1);
+        group->setRepeatUpperBound(-1);
         subStrPos++;
       }
 
-      characterPattern -> addGroup(group);
+      characterPattern->addGroup(group);
       strPos = subStrPos;
       continue;
     }
@@ -54,14 +54,14 @@ CharacterPattern* parseCharacterPattern(std::string pattern) {
       int subStrPos = strPos + 1;
 
       CharacterPatternGroup *group = new CharacterPatternGroup();
-      group -> setType(CharacterPatternGroupType::Sequence);
+      group->setType(CharacterPatternGroupType::Sequence);
       while (subStrPos < strLen && pattern[subStrPos] != ']') {
         int start = subStrPos;
         while (isIdent(pattern[subStrPos])) {
           subStrPos++;
         }
 
-        group -> addElement(new CharacterPatternElement(pattern.substr(start, subStrPos - start)));
+        group->addElement(new CharacterPatternElement(pattern.substr(start, subStrPos - start)));
         if (pattern[subStrPos] == ' ') {
           subStrPos++;
         }
@@ -71,7 +71,7 @@ CharacterPattern* parseCharacterPattern(std::string pattern) {
         subStrPos++;
       }
 
-      characterPattern -> addGroup(group);
+      characterPattern->addGroup(group);
       strPos = subStrPos;
       continue;
     }
@@ -86,24 +86,24 @@ CharacterPattern* parseCharacterPattern(std::string pattern) {
       CharacterPatternElement *cpe = new CharacterPatternElement(pattern.substr(start, subStrPos - start));
 
       CharacterPatternGroup *cpg = new CharacterPatternGroup();
-      cpg -> addElement(cpe);
+      cpg->addElement(cpe);
 
-      characterPattern -> addGroup(cpg);
+      characterPattern->addGroup(cpg);
 
       if (pattern[subStrPos] == '*') {
-        cpg -> setRepeatLowerBound(0);
-        cpg -> setRepeatUpperBound(-1);
+        cpg->setRepeatLowerBound(0);
+        cpg->setRepeatUpperBound(-1);
         subStrPos++;
       }
 
       if (pattern[subStrPos] == '+') {
-        cpg -> setRepeatLowerBound(1);
-        cpg -> setRepeatUpperBound(-1);
+        cpg->setRepeatLowerBound(1);
+        cpg->setRepeatUpperBound(-1);
         subStrPos++;
       }
 
       if (pattern[subStrPos] == '`') {
-        cpg -> setDoNotConsumeConsume(true);
+        cpg->setDoNotConsumeConsume(true);
         subStrPos++;
       }
 

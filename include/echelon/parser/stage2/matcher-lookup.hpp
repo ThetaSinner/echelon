@@ -8,18 +8,21 @@
 class MatcherLookup {
   static MatcherLookup *self;
 
-  std::map<std::string, Matcher*> matcherHash;
+  std::map<std::string, Matcher *> matcherHash;
 
   MatcherLookup() {};
-  MatcherLookup(const MatcherLookup& _) {}
-  void operator=(const MatcherLookup& _) {}
+
+  MatcherLookup(const MatcherLookup &_) {}
+
+  void operator=(const MatcherLookup &_) {}
+
 public:
-  static MatcherLookup* getInstance();
+  static MatcherLookup *getInstance();
 
-  void addMatcher(std::string key, Matcher* matcher);
-  Matcher* getMatcher(std::string key);
+  void addMatcher(std::string key, Matcher *matcher);
+
+  Matcher *getMatcher(std::string key);
 };
-
 
 
 #endif

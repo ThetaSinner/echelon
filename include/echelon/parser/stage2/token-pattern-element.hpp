@@ -13,9 +13,9 @@ class TokenPattern;
 class TokenPatternElement {
 private:
   std::string data;
-  Matcher* matcher;
+  Matcher *matcher;
 
-  std::list<TokenPattern*>* nestedPatterns;
+  std::list<TokenPattern *> *nestedPatterns;
   bool useNestedPatterns = false;
 
   bool subProcess = false;
@@ -23,10 +23,13 @@ public:
   TokenPatternElement(std::string element);
 
   std::string getData() const;
-  Matcher* getMatcher() const;
-  std::list<TokenPattern*>* getNestedPatterns() const;
+
+  Matcher *getMatcher() const;
+
+  std::list<TokenPattern *> *getNestedPatterns() const;
 
   bool isSubProcess();
+
   bool isUseNestedPatterns();
 };
 

@@ -20,10 +20,10 @@ enum class Keyword {
   Function,
   In,
 
-  #ifdef ECHELON_DEBUG
+#ifdef ECHELON_DEBUG
   First = Package,
   Last = In,
-  #endif
+#endif
 };
 
 #endif

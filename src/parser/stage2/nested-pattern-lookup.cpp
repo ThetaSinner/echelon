@@ -1,12 +1,12 @@
 #include <echelon/parser/stage2/nested-pattern-lookup.hpp>
 
-NestedPatternLookup* NestedPatternLookup::self = nullptr;
+NestedPatternLookup *NestedPatternLookup::self = nullptr;
 
 void NestedPatternLookup::registerNest(std::string str) {
-  nestedPatternLookup.insert({str, new std::list<TokenPattern*> ()});
+  nestedPatternLookup.insert({str, new std::list<TokenPattern *>()});
 }
 
-NestedPatternLookup* NestedPatternLookup::getInstance() {
+NestedPatternLookup *NestedPatternLookup::getInstance() {
   if (self == nullptr) {
     self = new NestedPatternLookup();
   }
@@ -22,8 +22,8 @@ void NestedPatternLookup::registerNested(std::string nest, std::string id, std::
   }
 
   auto p = patternTranslator.translate(pattern);
-  p -> setId(id);
-  nestedPatternLookup.at(nest) -> push_back(p);
+  p->setId(id);
+  nestedPatternLookup.at(nest)->push_back(p);
 }
 
 void NestedPatternLookup::forwardDeclareNested(std::string nest) {
@@ -36,6 +36,6 @@ bool NestedPatternLookup::isNest(std::string nest) {
   return nestedPatternLookup.find(nest) != nestedPatternLookup.end();
 }
 
-std::list<TokenPattern*>* NestedPatternLookup::getNested(std::string nest) {
+std::list<TokenPattern *> *NestedPatternLookup::getNested(std::string nest) {
   return nestedPatternLookup.at(nest);
 }

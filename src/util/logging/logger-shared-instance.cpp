@@ -1,23 +1,23 @@
 #include <echelon/util/logging/logger-shared-instance.hpp>
 
-Logger* LoggerSharedInstance::logger = nullptr;
+Logger *LoggerSharedInstance::logger = nullptr;
 
 // TODO assign level from preprocessor symbols.
 
-Logger* LoggerSharedInstance::get() {
+Logger *LoggerSharedInstance::get() {
   if (logger == nullptr) {
-    #ifdef LOG_FILE
+#ifdef LOG_FILE
     std::ofstream *f = new std::ofstream(LOG_FILE);
     logger = new Logger(new StreamLogger(f));
-    #else
+#else
     logger = new Logger(new StreamLogger(&std::cout));
-    #endif
+#endif
 
-    #if LOG_LEVEL > 0
+#if LOG_LEVEL > 0
     logger -> setLevel(LOG_LEVEL);
-    #else
-    logger -> setLevel(levelToInt(Level::Trace));
-    #endif
+#else
+    logger->setLevel(levelToInt(Level::Trace));
+#endif
   }
 
   return logger;

@@ -8,20 +8,21 @@
 #include <echelon/util/echelon-lookup.hpp>
 
 class Matcher {
-  std::function<bool(Matcher*)> matcher;
+  std::function<bool(Matcher *)> matcher;
 
-  EnhancedToken* enhancedToken;
+  EnhancedToken *enhancedToken;
 public:
-  Matcher(std::function<bool(Matcher*)> matcher);
+  Matcher(std::function<bool(Matcher *)> matcher);
 
-  static Matcher* forTokenType(TokenType tokenType);
-  static Matcher* forKeyword(Keyword keyword);
+  static Matcher *forTokenType(TokenType tokenType);
 
-  void setMatcher(std::function<bool(Matcher*)> matcher);
+  static Matcher *forKeyword(Keyword keyword);
 
-  bool matches(EnhancedToken* enhancedToken);
+  void setMatcher(std::function<bool(Matcher *)> matcher);
 
-  EnhancedToken* getEnhancedToken();
+  bool matches(EnhancedToken *enhancedToken);
+
+  EnhancedToken *getEnhancedToken();
 };
 
 #endif

@@ -6,16 +6,18 @@
 #include <echelon/parser/stage1/character-matcher-lookup.hpp>
 
 class CharacterPatternElement {
-    std::string data;
-    CharacterMatcher matcher;
+  std::string data;
+  CharacterMatcher matcher;
 
-    bool useLookahead = false;
+  bool useLookahead = false;
 public:
-    CharacterPatternElement(std::string data);
+  CharacterPatternElement(std::string data);
 
-    std::string getData();
-    CharacterMatcher getMatcher();
-    bool isUseLookahead();
+  std::string getData();
+
+  CharacterMatcher getMatcher();
+
+  bool isUseLookahead();
 };
 
 #endif

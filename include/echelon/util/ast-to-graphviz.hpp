@@ -4,6 +4,6 @@
 #include <string>
 #include <echelon/ast/ast-node.hpp>
 
-std::string toGraphviz(AstNode* program);
+std::string toGraphviz(AstNode *program);
 
 #endif

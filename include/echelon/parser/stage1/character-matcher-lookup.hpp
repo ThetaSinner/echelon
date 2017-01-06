@@ -8,18 +8,22 @@
 typedef std::function<bool(char)> CharacterMatcher;
 
 class CharacterMatcherLookup {
-    static CharacterMatcherLookup *instance;
+  static CharacterMatcherLookup *instance;
 
-    std::map<std::string, CharacterMatcher> matcherHash;
+  std::map<std::string, CharacterMatcher> matcherHash;
 
-    CharacterMatcherLookup() {}
-    CharacterMatcherLookup(const CharacterMatcherLookup&) {}
-    CharacterMatcherLookup& operator=(const CharacterMatcherLookup&) {}
+  CharacterMatcherLookup() {}
+
+  CharacterMatcherLookup(const CharacterMatcherLookup &) {}
+
+  CharacterMatcherLookup &operator=(const CharacterMatcherLookup &) {}
+
 public:
-    static CharacterMatcherLookup* getInstance();
+  static CharacterMatcherLookup *getInstance();
 
-    void addCharacterMatcher(std::string key, CharacterMatcher matcher);
-    CharacterMatcher getMatcher(std::string key);
+  void addCharacterMatcher(std::string key, CharacterMatcher matcher);
+
+  CharacterMatcher getMatcher(std::string key);
 };
 
 

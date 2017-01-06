@@ -9,21 +9,26 @@
 class AstNode {
   AstNodeType type;
   std::string data;
-  std::vector<AstNode*> children;
+  std::vector<AstNode *> children;
 public:
   int getChildCount();
 
-  void putChild(AstNode* child);
-  void putChildFront(AstNode* child);
-  AstNode* getChild(unsigned index);
+  void putChild(AstNode *child);
+
+  void putChildFront(AstNode *child);
+
+  AstNode *getChild(unsigned index);
 
   bool hasChild(AstNodeType type);
-  AstNode* getChild(AstNodeType type);
+
+  AstNode *getChild(AstNodeType type);
 
   void setType(AstNodeType type);
+
   AstNodeType getType();
 
   void setData(std::string data);
+
   std::string getData();
 };
 

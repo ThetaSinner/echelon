@@ -1,7 +1,7 @@
 #include <echelon/util/logging/stream-logger-level.hpp>
 
 int levelToInt(StreamLoggerLevel streamLoggerLevel) {
-  switch(streamLoggerLevel) {
+  switch (streamLoggerLevel) {
     case StreamLoggerLevel::Off:
       return 7;
     case StreamLoggerLevel::Fatal:

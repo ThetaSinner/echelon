@@ -11,7 +11,9 @@ public:
   }
 
   void setGroupMatchCount(unsigned groupIndex, int count);
+
   int getGroupMatchCount(unsigned groupIndex);
+
   int increment(unsigned groupIndex);
 };
 

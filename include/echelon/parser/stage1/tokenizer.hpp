@@ -11,7 +11,7 @@
 
 class Tokenizer {
 public:
-  std::list<Token*> tokenize(std::string input);
+  std::list<Token *> tokenize(std::string input);
 };
 
 #endif

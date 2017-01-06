@@ -5,7 +5,7 @@
 
 class TypeDeductionEngine {
 public:
-  void deduceTypes(AstNode* root);
+  void deduceTypes(AstNode *root);
 };
 
 #endif

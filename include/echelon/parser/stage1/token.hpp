@@ -11,9 +11,11 @@ private:
 
 public:
   Token() {}
+
   Token(std::string data, TokenType type);
 
   std::string getData() const;
+
   TokenType getTokenType() const;
 };
 

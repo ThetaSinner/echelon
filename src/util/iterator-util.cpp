@@ -1,11 +1,10 @@
 #include <echelon/util/iterator-util.hpp>
 
-bool safe_advance(std::string::iterator& it, int n, std::string& s) {
+bool safe_advance(std::string::iterator &it, int n, std::string &s) {
   while (n) {
     if (it != s.end()) {
       it++;
-    }
-    else {
+    } else {
       return false;
     }
     n--;

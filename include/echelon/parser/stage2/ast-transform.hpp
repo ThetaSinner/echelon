@@ -7,12 +7,12 @@
 #include <echelon/parser/stage2/ast-transform-data.hpp>
 
 class AstTransform {
-  std::function<AstNode*(AstTransformData*)> transformer;
+  std::function<AstNode *(AstTransformData *)> transformer;
 
 public:
-  AstTransform(std::function<AstNode*(AstTransformData*)> transformer);
+  AstTransform(std::function<AstNode *(AstTransformData *)> transformer);
 
-  AstNode* transform(AstTransformData* astTransformData);
+  AstNode *transform(AstTransformData *astTransformData);
 };
 
 #endif

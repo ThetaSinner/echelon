@@ -4,8 +4,8 @@
 
 #include <echelon/code-generation/generator-lookup.hpp>
 
-std::string SpiderMonkeyJSCodeGenerator::generate(AstNode* root) {
+std::string SpiderMonkeyJSCodeGenerator::generate(AstNode *root) {
   loadGenerators();
 
-  return GeneratorLookup::getInstance() -> getGenerator(root -> getType()) -> generate(root);
+  return GeneratorLookup::getInstance()->getGenerator(root->getType())->generate(root);
 }

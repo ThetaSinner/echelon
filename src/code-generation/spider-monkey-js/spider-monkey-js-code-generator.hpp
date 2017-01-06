@@ -5,7 +5,7 @@
 
 class SpiderMonkeyJSCodeGenerator : public CodeGenerator {
 public:
-  std::string generate(AstNode* root);
+  std::string generate(AstNode *root);
 };
 
 #endif

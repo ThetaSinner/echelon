@@ -8,10 +8,10 @@
 #include <echelon/ast/ast-node.hpp>
 
 class Scope {
-  std::map<std::string, AstNode*> variables;
-  std::map<std::string, std::list<EnhancedAstNode*>*> functions;
+  std::map<std::string, AstNode *> variables;
+  std::map<std::string, std::list<EnhancedAstNode *> *> functions;
 public:
-  void addVariable(std::string name, AstNode* astNode) {
+  void addVariable(std::string name, AstNode *astNode) {
     variables.insert({name, astNode});
   }
 
@@ -19,9 +19,9 @@ public:
     return variables.find(name) != variables.end();
   }
 
-  void addFunction(std::string name, EnhancedAstNode* enhancedAstNode) {
+  void addFunction(std::string name, EnhancedAstNode *enhancedAstNode) {
     if (!hasFunction(name)) {
-      functions.insert({name, new std::list<EnhancedAstNode*>});
+      functions.insert({name, new std::list<EnhancedAstNode *>});
     }
 
     functions.at(name)->push_back(enhancedAstNode);
@@ -31,7 +31,7 @@ public:
     return functions.find(name) != functions.end();
   }
 
-  std::list<EnhancedAstNode*>* getFunctions(std::string name) {
+  std::list<EnhancedAstNode *> *getFunctions(std::string name) {
     return functions.at(name);
   }
 };

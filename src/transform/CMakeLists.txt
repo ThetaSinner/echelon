@@ -4,11 +4,11 @@ add_library(${transform_lib_name}
   type-deduction-engine.cpp
   ast-enhancer.cpp
   transform-data/ast-enhancer-data.cpp
-)
+  )
 
 target_link_libraries(${transform_lib_name}
   ${ast_lib_name}
-)
+  )
 
 # Disable prefixing library name with 'lib'
 set_target_properties(${transform_lib_name} PROPERTIES PREFIX "")
@@ -17,4 +17,4 @@ target_compile_features(${transform_lib_name} PRIVATE cxx_range_for)
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
   target_compile_definitions(${transform_lib_name} PUBLIC ECHELON_DEBUG)
-endif()
+endif ()

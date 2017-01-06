@@ -11,11 +11,11 @@ class Logger {
   int loggerLevel;
 
 public:
-  Logger(StreamLogger* streamLogger);
+  Logger(StreamLogger *streamLogger);
 
   void setLevel(int loggerLevel);
 
-  StreamLogger& at(StreamLoggerLevel loggerLevel);
+  StreamLogger &at(StreamLoggerLevel loggerLevel);
 };
 
 #endif

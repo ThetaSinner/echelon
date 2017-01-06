@@ -9,16 +9,20 @@
 class AstTransformLookup {
   static AstTransformLookup *self;
 
-  std::map<std::string, AstTransform*> astTransformHash;
+  std::map<std::string, AstTransform *> astTransformHash;
 
   AstTransformLookup() {};
-  AstTransformLookup(const AstTransformLookup& _) {}
-  void operator=(const AstTransformLookup& _) {}
-public:
-  static AstTransformLookup* getInstance();
 
-  void addAstTransform(std::string key, AstTransform* astTransform);
-  AstTransform* getAstTransform(std::string key);
+  AstTransformLookup(const AstTransformLookup &_) {}
+
+  void operator=(const AstTransformLookup &_) {}
+
+public:
+  static AstTransformLookup *getInstance();
+
+  void addAstTransform(std::string key, AstTransform *astTransform);
+
+  AstTransform *getAstTransform(std::string key);
 };
 
 #endif

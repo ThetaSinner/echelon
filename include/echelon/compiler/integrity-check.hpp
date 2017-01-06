@@ -3,6 +3,7 @@
 
 namespace IntegrityCheck {
   void StartupCheck();
+
   void PostLoadCheck();
 };
 

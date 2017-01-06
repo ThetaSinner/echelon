@@ -12,8 +12,9 @@ class AstConstructionManager {
 public:
   AstConstructionManager();
 
-  void pushFragment(AstNode* fragment);
-  AstNode* getRoot();
+  void pushFragment(AstNode *fragment);
+
+  AstNode *getRoot();
 
   bool areAnyFragmentsPushed();
 };

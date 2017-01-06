@@ -8,9 +8,9 @@
 
 #include <stdexcept>
 
-EchelonLookup* EchelonLookup::self = nullptr;
+EchelonLookup *EchelonLookup::self = nullptr;
 
-EchelonLookup* EchelonLookup::getInstance() {
+EchelonLookup *EchelonLookup::getInstance() {
   if (self == nullptr) {
     self = new EchelonLookup();
   }
@@ -36,8 +36,9 @@ bool EchelonLookup::isKeyword(std::string str) {
   return keywordSet.find(str) != keywordSet.end();
 }
 
-template<> std::string EchelonLookup::toString(TokenType t) {
-  switch(t) {
+template<>
+std::string EchelonLookup::toString(TokenType t) {
+  switch (t) {
     case TokenType::String:
       return "string";
     case TokenType::Identifier:
@@ -93,12 +94,14 @@ template<> std::string EchelonLookup::toString(TokenType t) {
   throw std::runtime_error("Missing to string case for token type enum.");
 }
 
-template<> std::string EchelonLookup::toString(bool b) {
+template<>
+std::string EchelonLookup::toString(bool b) {
   return b ? "true" : "false";
 }
 
-template<> std::string EchelonLookup::toString(AstNodeType t) {
-  switch(t) {
+template<>
+std::string EchelonLookup::toString(AstNodeType t) {
+  switch (t) {
     case AstNodeType::Program:
       return "program";
     case AstNodeType::Block:
@@ -184,8 +187,9 @@ template<> std::string EchelonLookup::toString(AstNodeType t) {
   throw std::runtime_error("Mising to string case for ast node type.");
 }
 
-template<> std::string EchelonLookup::toString(Keyword t) {
-  switch(t) {
+template<>
+std::string EchelonLookup::toString(Keyword t) {
+  switch (t) {
     case Keyword::Package:
       return "package";
     case Keyword::Enum:
@@ -223,7 +227,8 @@ template<> std::string EchelonLookup::toString(Keyword t) {
   throw std::runtime_error("Missing to string case for keyword.");
 }
 
-template<> std::string EchelonLookup::toString(EnhancedAstNodeType t) {
+template<>
+std::string EchelonLookup::toString(EnhancedAstNodeType t) {
   switch (t) {
     case EnhancedAstNodeType::None:
       return "none";
@@ -246,7 +251,8 @@ template<> std::string EchelonLookup::toString(EnhancedAstNodeType t) {
   throw std::runtime_error("Missing to string case for enhanced ast node type.");
 }
 
-template<> std::string EchelonLookup::toString(EnhancedAstNodeSubType t) {
+template<>
+std::string EchelonLookup::toString(EnhancedAstNodeSubType t) {
   switch (t) {
     case EnhancedAstNodeSubType::Assign:
       return "assign";

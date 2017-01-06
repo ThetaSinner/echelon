@@ -9,16 +9,20 @@
 class GeneratorLookup {
   static GeneratorLookup *instance;
 
-  std::map<AstNodeType, Generator*> generatorHash;
+  std::map<AstNodeType, Generator *> generatorHash;
 
   GeneratorLookup() {}
-  GeneratorLookup(const GeneratorLookup& gl) {}
-  GeneratorLookup& operator=(const GeneratorLookup& gl) {}
-public:
-  static GeneratorLookup* getInstance();
 
-  void addGenerator(AstNodeType astNodeType, Generator* generator);
-  Generator* getGenerator(AstNodeType astNodeType);
+  GeneratorLookup(const GeneratorLookup &gl) {}
+
+  GeneratorLookup &operator=(const GeneratorLookup &gl) {}
+
+public:
+  static GeneratorLookup *getInstance();
+
+  void addGenerator(AstNodeType astNodeType, Generator *generator);
+
+  Generator *getGenerator(AstNodeType astNodeType);
 };
 
 #endif

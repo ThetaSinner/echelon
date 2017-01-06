@@ -5,7 +5,7 @@
 
 class CodeGeneratorFactory {
 public:
-    static CodeGenerator* newCodeGenerator();
+  static CodeGenerator *newCodeGenerator();
 };
 
 #endif

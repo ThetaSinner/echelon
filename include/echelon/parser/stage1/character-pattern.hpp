@@ -7,15 +7,17 @@
 #include <echelon/parser/token-type-enum.hpp>
 
 class CharacterPattern {
-    std::list<CharacterPatternGroup*> groups;
+  std::list<CharacterPatternGroup *> groups;
 
-    TokenType type;
+  TokenType type;
 public:
-    void addGroup(CharacterPatternGroup* cpg);
-    std::list<CharacterPatternGroup*>* getGroups();
+  void addGroup(CharacterPatternGroup *cpg);
 
-    void setTokenType(TokenType type);
-    TokenType getTokenType();
+  std::list<CharacterPatternGroup *> *getGroups();
+
+  void setTokenType(TokenType type);
+
+  TokenType getTokenType();
 };
 
 #endif

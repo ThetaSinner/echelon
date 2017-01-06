@@ -17,12 +17,12 @@ void CharacterMatcherLookup::addCharacterMatcher(std::string key, CharacterMatch
 }
 
 CharacterMatcher CharacterMatcherLookup::getMatcher(std::string key) {
-  #ifdef ECHELON_DEBUG
+#ifdef ECHELON_DEBUG
   if (matcherHash.find(key) == matcherHash.end()) {
-    LoggerSharedInstance::get() -> at(Level::Fatal) << "Missing character matcher [" << key << "]\n";
+    LoggerSharedInstance::get()->at(Level::Fatal) << "Missing character matcher [" << key << "]\n";
     throw std::runtime_error("Missing character matcher");
   }
-  #endif
+#endif
 
   return matcherHash.at(key);
 }

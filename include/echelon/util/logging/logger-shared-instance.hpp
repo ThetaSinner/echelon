@@ -11,7 +11,7 @@ class LoggerSharedInstance {
   static Logger *logger;
 
 public:
-  static Logger* get();
+  static Logger *get();
 };
 
 #endif

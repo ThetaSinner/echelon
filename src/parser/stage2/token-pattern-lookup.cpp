@@ -2,9 +2,9 @@
 
 #include <echelon/parser/stage2/pattern-translator.hpp>
 
-TokenPatternLookup* TokenPatternLookup::self = nullptr;
+TokenPatternLookup *TokenPatternLookup::self = nullptr;
 
-TokenPatternLookup* TokenPatternLookup::getInstance() {
+TokenPatternLookup *TokenPatternLookup::getInstance() {
   if (self == nullptr) {
     self = new TokenPatternLookup();
   }
@@ -15,10 +15,10 @@ TokenPatternLookup* TokenPatternLookup::getInstance() {
 void TokenPatternLookup::addTokenPattern(std::string id, std::string tokenPattern) {
   static PatternTranslator patternTranslator;
   auto pattern = patternTranslator.translate(tokenPattern);
-  pattern -> setId(id);
+  pattern->setId(id);
   tokenPatterns.push_back(pattern);
 }
 
-std::list<TokenPattern*>* TokenPatternLookup::getTokenPatterns() {
+std::list<TokenPattern *> *TokenPatternLookup::getTokenPatterns() {
   return &tokenPatterns;
 }

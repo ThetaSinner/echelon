@@ -5,15 +5,17 @@
 #include <iostream>
 
 class StreamLogger {
-  std::ostream* out;
+  std::ostream *out;
 
 protected:
   StreamLogger() {}
-public:
-  StreamLogger(std::ostream* os);
 
-  virtual StreamLogger& operator<<(std::string str);
-  virtual StreamLogger& operator<<(int i);
+public:
+  StreamLogger(std::ostream *os);
+
+  virtual StreamLogger &operator<<(std::string str);
+
+  virtual StreamLogger &operator<<(int i);
 };
 
 

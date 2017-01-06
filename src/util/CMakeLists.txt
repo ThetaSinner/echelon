@@ -11,7 +11,7 @@ add_library(${util_lib_name}
   logging/noop-stream-logger.cpp
   logging/logger.cpp
   logging/logger-shared-instance.cpp
-)
+  )
 
 # Disable prefixing library name with 'lib'
 set_target_properties(${util_lib_name} PROPERTIES PREFIX "")
@@ -20,8 +20,8 @@ target_compile_features(${util_lib_name} PRIVATE cxx_range_for cxx_strong_enums)
 
 if (LOG_FILE)
   target_compile_definitions(${util_lib_name} PUBLIC LOG_FILE="${LOG_FILE}")
-endif()
+endif ()
 
 if (LOG_LEVEL)
   target_compile_definitions(${util_lib_name} PUBLIC LOG_LEVEL=${LOG_LEVEL})
-endif()
+endif ()

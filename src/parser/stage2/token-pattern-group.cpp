@@ -1,15 +1,15 @@
 #include <echelon/parser/stage2/token-pattern-group.hpp>
 
-void TokenPatternGroup::addElement(TokenPatternElement* tokenPatternElement) {
+void TokenPatternGroup::addElement(TokenPatternElement *tokenPatternElement) {
   tokenPatternElements.push_back(tokenPatternElement);
 }
 
-std::vector<TokenPatternElement*>* TokenPatternGroup::getElements() {
+std::vector<TokenPatternElement *> *TokenPatternGroup::getElements() {
   return &tokenPatternElements;
 }
 
 void TokenPatternGroup::setRepeatLowerBound(int repeatLowerBound) {
-  this -> repeatLowerBound = repeatLowerBound;
+  this->repeatLowerBound = repeatLowerBound;
 }
 
 int TokenPatternGroup::getRepeatLowerBound() const {
@@ -17,7 +17,7 @@ int TokenPatternGroup::getRepeatLowerBound() const {
 }
 
 void TokenPatternGroup::setRepeatUpperBound(int repeatUpperBound) {
-  this -> repeatUpperBound = repeatUpperBound;
+  this->repeatUpperBound = repeatUpperBound;
 }
 
 int TokenPatternGroup::getRepeatUpperBound() const {

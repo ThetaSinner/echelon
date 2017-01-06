@@ -9,26 +9,27 @@
 #include <echelon/ast/transform-stage/scope.hpp>
 #include <echelon/ast/transform-stage/node-enhancer-lookup.hpp>
 
-void mapSubNodes(AstNode* source, EnhancedAstNode* target, Scope& scope) {
-  for (unsigned i = 0; i < source -> getChildCount(); i++) {
-    target -> putChild(NodeEnhancerLookup::getInstance() -> getNodeEnhancer(source -> getChild(i) -> getType())(source -> getChild(i), scope));
+void mapSubNodes(AstNode *source, EnhancedAstNode *target, Scope &scope) {
+  for (unsigned i = 0; i < source->getChildCount(); i++) {
+    target->putChild(
+        NodeEnhancerLookup::getInstance()->getNodeEnhancer(source->getChild(i)->getType())(source->getChild(i), scope));
   }
 }
 
-bool doFunctionSignaturesMatch(EnhancedAstNode* left, EnhancedAstNode* right) {
-  #ifdef ECHELON_DEBUG
+bool doFunctionSignaturesMatch(EnhancedAstNode *left, EnhancedAstNode *right) {
+#ifdef ECHELON_DEBUG
   if (left->getNodeType() != EnhancedAstNodeType::Function || right->getNodeType() != EnhancedAstNodeType::Function) {
     throw std::runtime_error("doFunctionSignaturesMatch expects both nodes to have type function.");
   }
-  #endif
+#endif
 
   // Handle functions with empty signatures.
   if (!left->hasChild(EnhancedAstNodeType::FunctionParamDefinitions)) {
     return !right->hasChild(EnhancedAstNodeType::FunctionParamDefinitions);
   }
 
-  auto leftParams = left -> getChild(EnhancedAstNodeType::FunctionParamDefinitions);
-  auto rightParams = right -> getChild(EnhancedAstNodeType::FunctionParamDefinitions);
+  auto leftParams = left->getChild(EnhancedAstNodeType::FunctionParamDefinitions);
+  auto rightParams = right->getChild(EnhancedAstNodeType::FunctionParamDefinitions);
 
   auto paramCount = leftParams->getChildCount();
 
@@ -55,12 +56,10 @@ bool doFunctionSignaturesMatch(EnhancedAstNode* left, EnhancedAstNode* right) {
     if (leftType == nullptr && rightType != nullptr) {
       match = false;
       break;
-    }
-    else if (leftType != nullptr && rightType == nullptr) {
+    } else if (leftType != nullptr && rightType == nullptr) {
       match = false;
       break;
-    }
-    else if (leftType != nullptr && *leftType != *rightType) {
+    } else if (leftType != nullptr && *leftType != *rightType) {
       match = false;
       break;
     }
@@ -69,45 +68,45 @@ bool doFunctionSignaturesMatch(EnhancedAstNode* left, EnhancedAstNode* right) {
   return match;
 }
 
-void enhanceInternal(AstNode* node, EnhancedAstNode* target, Scope scope) {
-  for (unsigned i = 0; i < node -> getChildCount(); i++) {
+void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope scope) {
+  for (unsigned i = 0; i < node->getChildCount(); i++) {
     auto enhancedNode = new EnhancedAstNode();
 
-    if (node -> getChild(i) -> getType() == AstNodeType::Variable) {
-      auto data = node -> getChild(i) -> getData();
-      enhancedNode -> setNodeType(EnhancedAstNodeType::Variable);
+    if (node->getChild(i)->getType() == AstNodeType::Variable) {
+      auto data = node->getChild(i)->getData();
+      enhancedNode->setNodeType(EnhancedAstNodeType::Variable);
       enhancedNode->setData(data);
 
       // This is the first time we've seen this variable in this scope, add it.
       if (!scope.hasVariable(data)) {
-        enhancedNode -> setNodeSubType(EnhancedAstNodeSubType::Declaration);
-        scope.addVariable(data, node -> getChild(i));
-      }
-      else {
+        enhancedNode->setNodeSubType(EnhancedAstNodeSubType::Declaration);
+        scope.addVariable(data, node->getChild(i));
+      } else {
         // The variable has been seen before. Check that there is no type declaration.
-        if (node -> getChild(i) -> getChild(0) -> getType() == AstNodeType::Type) {
+        if (node->getChild(i)->getChild(0)->getType() == AstNodeType::Type) {
           std::string message = "Error, redeclaration of variable [" + data + "].";
           throw std::runtime_error(message.c_str());
         }
 
-        enhancedNode -> setNodeSubType(EnhancedAstNodeSubType::Assign);
+        enhancedNode->setNodeSubType(EnhancedAstNodeSubType::Assign);
       }
 
       // TODO map variable name and type?
 
-      mapSubNodes(node -> getChild(i), enhancedNode, scope);
-    }
-    else if (node -> getChild(i) -> getType() == AstNodeType::Function) {
+      mapSubNodes(node->getChild(i), enhancedNode, scope);
+    } else if (node->getChild(i)->getType() == AstNodeType::Function) {
       // map function and store on scope.
-      std::string data = node -> getChild(i) -> getData();
-      enhancedNode = NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::Function)(node->getChild(i), scope);
+      std::string data = node->getChild(i)->getData();
+      enhancedNode = NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::Function)(node->getChild(i),
+                                                                                               scope);
 
       if (scope.hasFunction(data)) {
         auto functions = scope.getFunctions(data);
         for (auto func : *functions) {
           if (doFunctionSignaturesMatch(func, enhancedNode)) {
             // TODO line+char information.
-            std::string message = "Error [" + enhancedNode->getData() + "] re-declares function [" + func->getData() + "] with indistinguishable signature";
+            std::string message = "Error [" + enhancedNode->getData() + "] re-declares function [" + func->getData() +
+                                  "] with indistinguishable signature";
             throw std::runtime_error(message.c_str());
           }
         }
@@ -115,20 +114,20 @@ void enhanceInternal(AstNode* node, EnhancedAstNode* target, Scope scope) {
 
       // None of the existing functions with the same name have the same signature, so it is safe to add it.
       scope.addFunction(data, enhancedNode);
-    }
-    else {
+    } else {
       // This is not new data being declared, so map it and ensure that all references to variables and functions are valid.
-      target -> putChild(NodeEnhancerLookup::getInstance() -> getNodeEnhancer(node -> getChild(i) -> getType())(node -> getChild(i), scope));
+      target->putChild(
+          NodeEnhancerLookup::getInstance()->getNodeEnhancer(node->getChild(i)->getType())(node->getChild(i), scope));
     }
 
-    target -> putChild(enhancedNode);
+    target->putChild(enhancedNode);
   }
 }
 
-EnhancedAstNode* AstEnhancer::enhance(AstNode* node) {
+EnhancedAstNode *AstEnhancer::enhance(AstNode *node) {
   EnhancedAstNode *root = new EnhancedAstNode();
-  root -> setNodeType(EnhancedAstNodeType::Program);
-  root -> setData(node -> getData());
+  root->setNodeType(EnhancedAstNodeType::Program);
+  root->setData(node->getData());
 
   Scope scope;
   enhanceInternal(node, root, scope);

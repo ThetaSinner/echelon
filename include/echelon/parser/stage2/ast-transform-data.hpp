@@ -9,23 +9,27 @@
 #include <echelon/parser/stage2/pattern-match-info.hpp>
 
 class AstTransformData {
-  std::list<EnhancedToken*> tokens;
-  PatternMatchInfo* patternMatchInfo;
+  std::list<EnhancedToken *> tokens;
+  PatternMatchInfo *patternMatchInfo;
 
-  std::queue<AstNode*>* subProcessAstNodes;
-  std::queue<AstNode*>* nestedAstNodes;
+  std::queue<AstNode *> *subProcessAstNodes;
+  std::queue<AstNode *> *nestedAstNodes;
 public:
-  void setTokens(std::list<EnhancedToken*> tokens);
-  std::list<EnhancedToken*>* getTokens();
+  void setTokens(std::list<EnhancedToken *> tokens);
 
-  void setPatternMatchInfo(PatternMatchInfo* patternMatchInfo);
-  PatternMatchInfo* getPatternMatchInfo();
+  std::list<EnhancedToken *> *getTokens();
 
-  void setSubProcessAstNodes(std::queue<AstNode*>* subProcessAstNodes);
-  std::queue<AstNode*>* getSubProcessAstNodes();
+  void setPatternMatchInfo(PatternMatchInfo *patternMatchInfo);
 
-  void setNestedAstNodes(std::queue<AstNode*>* nestedAstNodes);
-  std::queue<AstNode*>* getNestedAstNodes();
+  PatternMatchInfo *getPatternMatchInfo();
+
+  void setSubProcessAstNodes(std::queue<AstNode *> *subProcessAstNodes);
+
+  std::queue<AstNode *> *getSubProcessAstNodes();
+
+  void setNestedAstNodes(std::queue<AstNode *> *nestedAstNodes);
+
+  std::queue<AstNode *> *getNestedAstNodes();
 };
 
 #endif

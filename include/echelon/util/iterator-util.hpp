@@ -3,6 +3,6 @@
 
 #include <string>
 
-bool safe_advance(std::string::iterator& it, int n, std::string& s);
+bool safe_advance(std::string::iterator &it, int n, std::string &s);
 
 #endif

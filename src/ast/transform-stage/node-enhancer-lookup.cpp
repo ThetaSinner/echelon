@@ -1,13 +1,15 @@
 #include <echelon/ast/transform-stage/node-enhancer-lookup.hpp>
 
 #ifdef ECHELON_DEBUG
+
 #include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/util/echelon-lookup.hpp>
+
 #endif
 
-NodeEnhancerLookup* NodeEnhancerLookup::instance = nullptr;
+NodeEnhancerLookup *NodeEnhancerLookup::instance = nullptr;
 
-NodeEnhancerLookup* NodeEnhancerLookup::getInstance() {
+NodeEnhancerLookup *NodeEnhancerLookup::getInstance() {
   if (instance == nullptr) {
     instance = new NodeEnhancerLookup();
   }
@@ -19,13 +21,14 @@ void NodeEnhancerLookup::addNodeEnhancer(AstNodeType type, NodeEnhancer nodeEnha
   nodeEnhancers.insert({type, nodeEnhancer});
 }
 
-NodeEnhancer& NodeEnhancerLookup::getNodeEnhancer(AstNodeType type) {
-  #ifdef ECHELON_DEBUG
+NodeEnhancer &NodeEnhancerLookup::getNodeEnhancer(AstNodeType type) {
+#ifdef ECHELON_DEBUG
   if (nodeEnhancers.find(type) == nodeEnhancers.end()) {
-    LoggerSharedInstance::get()->at(Level::Fatal) << "Missing node enhancer for [" << EchelonLookup::getInstance() -> toString(type) << "]\n";
+    LoggerSharedInstance::get()->at(Level::Fatal) << "Missing node enhancer for ["
+                                                  << EchelonLookup::getInstance()->toString(type) << "]\n";
     throw std::runtime_error("Missing node enhancer");
   }
-  #endif
+#endif
 
   return nodeEnhancers.at(type);
 }

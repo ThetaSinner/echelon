@@ -8,9 +8,10 @@
 
 class PatternTranslator {
 private:
-  TokenPatternElement* readIdentifier(std::string::iterator& i, std::string& pattern);
+  TokenPatternElement *readIdentifier(std::string::iterator &i, std::string &pattern);
+
 public:
-  TokenPattern* translate(std::string pattern);
+  TokenPattern *translate(std::string pattern);
 };
 
 #endif

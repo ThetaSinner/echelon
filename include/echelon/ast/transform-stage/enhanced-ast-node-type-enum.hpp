@@ -13,10 +13,10 @@ enum class EnhancedAstNodeType {
   FunctionParamDefinition,
   FunctionParamDefinitions,
 
-  #ifdef ECHELON_DEBUG
-  First=None,
-  Last=FunctionParamDefinitions,
-  #endif
+#ifdef ECHELON_DEBUG
+  First = None,
+  Last = FunctionParamDefinitions,
+#endif
 };
 
 #endif

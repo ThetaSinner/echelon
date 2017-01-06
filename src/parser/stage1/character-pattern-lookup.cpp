@@ -1,19 +1,19 @@
 #include <echelon/parser/stage1/character-pattern-lookup.hpp>
 
-CharacterPatternLookup* CharacterPatternLookup::instance = nullptr;
+CharacterPatternLookup *CharacterPatternLookup::instance = nullptr;
 
-CharacterPatternLookup* CharacterPatternLookup::getInstance() {
-    if (instance == nullptr) {
-        instance = new CharacterPatternLookup();
-    }
+CharacterPatternLookup *CharacterPatternLookup::getInstance() {
+  if (instance == nullptr) {
+    instance = new CharacterPatternLookup();
+  }
 
-    return instance;
+  return instance;
 }
 
-void CharacterPatternLookup::addCharacterPattern(CharacterPattern* characterPattern) {
-    characterPatternList.push_back(characterPattern);
+void CharacterPatternLookup::addCharacterPattern(CharacterPattern *characterPattern) {
+  characterPatternList.push_back(characterPattern);
 }
 
-std::list<CharacterPattern*>* CharacterPatternLookup::getCharacterPatternList() {
-    return &characterPatternList;
+std::list<CharacterPattern *> *CharacterPatternLookup::getCharacterPatternList() {
+  return &characterPatternList;
 }

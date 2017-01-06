@@ -7,10 +7,12 @@ class ParserInternalOutput {
   AstNode *astNode;
   int tokensConsumedCount = 0;
 public:
-  void setAstNode(AstNode* astNode);
-  AstNode* getAstNode();
+  void setAstNode(AstNode *astNode);
+
+  AstNode *getAstNode();
 
   void setTokensConsumedCount(int tokensConsumedCount);
+
   int getTokensConsumedCount();
 };
 

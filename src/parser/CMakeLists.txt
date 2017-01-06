@@ -30,11 +30,11 @@ add_library(${parser_lib_name}
   stage2/token-pattern-lookup.cpp
   stage2/nested-pattern-lookup.cpp
   stage2/ast-transform-data.cpp
-)
+  )
 
 target_link_libraries(${parser_lib_name}
   ${util_lib_name}
-)
+  )
 
 # Disable prefixing library name with 'lib'
 set_target_properties(${parser_lib_name} PROPERTIES PREFIX "")
@@ -43,4 +43,4 @@ target_compile_features(${parser_lib_name} PRIVATE cxx_range_for cxx_strong_enum
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
   target_compile_definitions(${parser_lib_name} PUBLIC ECHELON_DEBUG)
-endif()
+endif ()

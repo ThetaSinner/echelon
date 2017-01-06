@@ -9,16 +9,20 @@
 class TokenPatternLookup {
   static TokenPatternLookup *self;
 
-  std::list<TokenPattern*> tokenPatterns;
+  std::list<TokenPattern *> tokenPatterns;
 
   TokenPatternLookup() {}
-  TokenPatternLookup(const TokenPatternLookup& tpl) {}
-  TokenPatternLookup& operator=(const TokenPatternLookup& tpl) {}
+
+  TokenPatternLookup(const TokenPatternLookup &tpl) {}
+
+  TokenPatternLookup &operator=(const TokenPatternLookup &tpl) {}
+
 public:
-  static TokenPatternLookup* getInstance();
+  static TokenPatternLookup *getInstance();
 
   void addTokenPattern(std::string id, std::string tokenPattern);
-  std::list<TokenPattern*>* getTokenPatterns();
+
+  std::list<TokenPattern *> *getTokenPatterns();
 
 
 };

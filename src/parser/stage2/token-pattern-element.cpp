@@ -6,13 +6,12 @@
 TokenPatternElement::TokenPatternElement(std::string element) {
   data = element;
 
-  if (NestedPatternLookup::getInstance() -> isNest(element)) {
-    nestedPatterns = NestedPatternLookup::getInstance() -> getNested(element);
+  if (NestedPatternLookup::getInstance()->isNest(element)) {
+    nestedPatterns = NestedPatternLookup::getInstance()->getNested(element);
     useNestedPatterns = true;
-  }
-  else {
+  } else {
     // Get the appropriate matcher.
-    matcher = MatcherLookup::getInstance() -> getMatcher(data);
+    matcher = MatcherLookup::getInstance()->getMatcher(data);
   }
 
   // TODO This isn't unique and shouldn't be hardcoded, e.g. behaviour scope
@@ -25,11 +24,11 @@ std::string TokenPatternElement::getData() const {
   return data;
 }
 
-Matcher* TokenPatternElement::getMatcher() const {
+Matcher *TokenPatternElement::getMatcher() const {
   return matcher;
 }
 
-std::list<TokenPattern*>* TokenPatternElement::getNestedPatterns() const {
+std::list<TokenPattern *> *TokenPatternElement::getNestedPatterns() const {
   return nestedPatterns;
 }
 

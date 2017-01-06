@@ -7,24 +7,28 @@
 #include <echelon/parser/stage2/token-pattern-group.hpp>
 
 class ParserInternalInput {
-  std::list<Token*>* tokens;
+  std::list<Token *> *tokens;
 
   TokenPatternGroup *subProcessFinishGroup = nullptr;
 
-  std::list<TokenPattern*>* nestedPatterns = nullptr;
+  std::list<TokenPattern *> *nestedPatterns = nullptr;
   bool useNestedPatterns = false;
 
 public:
-  void setTokens(std::list<Token*>* tokens);
-  std::list<Token*>* getTokens();
+  void setTokens(std::list<Token *> *tokens);
 
-  void setSubProcessFinishGroup(TokenPatternGroup* subProcessFinishGroup);
-  TokenPatternGroup* getSubProcessFinishGroup();
+  std::list<Token *> *getTokens();
 
-  void setNestedPatterns(std::list<TokenPattern*>* nestedPatterns);
-  std::list<TokenPattern*>* getNestedPatterns() const;
+  void setSubProcessFinishGroup(TokenPatternGroup *subProcessFinishGroup);
+
+  TokenPatternGroup *getSubProcessFinishGroup();
+
+  void setNestedPatterns(std::list<TokenPattern *> *nestedPatterns);
+
+  std::list<TokenPattern *> *getNestedPatterns() const;
 
   void setUseNestedPatterns(bool useNestedPatterns);
+
   bool isUseNestedPatterns();
 };
 
