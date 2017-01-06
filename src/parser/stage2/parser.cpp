@@ -216,7 +216,11 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput& parserInternalInput) {
         break;
       }
       else {
-        log -> at(Level::Fatal) << "Unhandled token [" << to_string(*i); log -> at(Level::Debug) << "]\n";
+        log -> at(Level::Fatal) << "Unhandled tokens\n";
+        for (int k = 0; k < 5; k++) {
+          // TODO handle running off the end of i.
+          log -> at(Level::Fatal) << to_string(*std::next(i, k)) << "]\n";
+        }
         throw std::runtime_error("Unhandled token [" + (*i)->getData() + ", " + EchelonLookup::getInstance()->toString((*i)->getTokenType()) + "]");
       }
     }

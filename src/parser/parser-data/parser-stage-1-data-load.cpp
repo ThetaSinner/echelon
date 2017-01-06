@@ -188,6 +188,11 @@ void loadCharacterPatterns() {
   addOperatorCharacterPattern->setTokenType(TokenType::OperatorAdd);
   CharacterPatternLookup::getInstance()->addCharacterPattern(addOperatorCharacterPattern);
 
+  std::string multiplyOperator = "star";
+  auto multiplyOperatorPattern = parseCharacterPattern(multiplyOperator);
+  multiplyOperatorPattern->setTokenType(TokenType::OperatorMultiply);
+  CharacterPatternLookup::getInstance()->addCharacterPattern(multiplyOperatorPattern);
+
   std::string structureOperator = "colon colon";
   auto structureOperatorPattern = parseCharacterPattern(structureOperator);
   structureOperatorPattern->setTokenType(TokenType::StructureOperator);

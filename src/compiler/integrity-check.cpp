@@ -42,6 +42,7 @@ void IntegrityCheck::PostLoadCheck() {
   for (auto i : *TokenPatternLookup::getInstance() -> getTokenPatterns()) {
     AstTransformLookup::getInstance() -> getAstTransform(i -> getId());
 
+    // TODO This isn't enough, patterns can be nested more than once (binary operator inside expression) but can also be circular...
     // Unwind each pattern and check that any elements which will be matched with nested patterns has an AST transformer.
     for (auto k : *i -> getGroups()) {
       for (auto t : *k -> getElements()) {

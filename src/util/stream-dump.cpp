@@ -16,6 +16,18 @@ std::string to_string(const std::list<Token*>* tokens) {
   return ss.str();
 }
 
+std::string to_string(std::list<EnhancedToken*>* enhancedToken) {
+  std::stringstream ss;
+  std::list<EnhancedToken*> copy(*enhancedToken);
+  while (copy.size() > 0) {
+    ss << to_string(copy.back());
+    ss << "\n";
+    copy.pop_back();
+  }
+
+  return ss.str();
+}
+
 std::string to_string(TokenPattern* characterPattern) {
   std::stringstream ss;
   for (auto g : *characterPattern->getGroups()) {

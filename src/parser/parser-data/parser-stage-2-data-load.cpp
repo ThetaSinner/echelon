@@ -9,6 +9,7 @@
 #include <echelon/parser/keyword-enum.hpp>
 
 #include <echelon/util/logging/logger-shared-instance.hpp>
+#include <echelon/util/stream-dump.hpp>
 
 void loadDataTypeKeywords() {
   EchelonLookup::getInstance() -> addDataTypeKeyword("integer");
@@ -152,6 +153,15 @@ void loadTransformers() {
     return base;
   }));
 
+  // TODO should be more specific with node type than just mapping the operator as data.
+  AstTransformLookup::getInstance() -> addAstTransform("multiply", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
+    AstNode *base = new AstNode();
+    base -> setType(AstNodeType::BinaryOperator);
+    base -> setData(astTransformData->getTokens()->front()->getData());
+
+    return base;
+  }));
+
   AstTransformLookup::getInstance() -> addAstTransform("op_or", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::BooleanBinaryOperator);
@@ -200,6 +210,8 @@ void loadTransformers() {
   AstTransformLookup::getInstance() -> addAstTransform("integer", new AstTransform([] (AstTransformData* astTransformData) -> AstNode* {
     AstNode *base = new AstNode();
     base -> setType(AstNodeType::Integer);
+    int tokenCount = astTransformData->getTokens()->size();
+    LoggerSharedInstance::get()->at(Level::Debug) << to_string(astTransformData->getTokens()) << "\n";
     base -> setData(astTransformData -> getTokens() -> front() -> getData());
 
     auto nested = astTransformData -> getNestedAstNodes();
@@ -778,6 +790,7 @@ void loadNested() {
   NestedPatternLookup::getInstance() -> registerNested(
           expr,
           "integer",
+          // "[paren_open]* integer [paren_close]* [binary_operator expr] [paren_close]*");
           "integer [binary_operator expr]");
   NestedPatternLookup::getInstance() -> registerNested(
           expr,
