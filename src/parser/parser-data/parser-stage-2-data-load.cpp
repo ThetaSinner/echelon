@@ -825,6 +825,14 @@ void loadTransformers() {
     auto bool_expr = astTransformData->getNestedAstNodes()->front()->getChild(0);
     base->putChild(bool_expr);
 
+    if (astTransformData->getTokens()->front()->getTokenType() == TokenType::NotOperator) {
+      auto invert = new AstNode();
+      invert->setType(AstNodeType::BooleanInvert);
+      invert->putChild(base);
+
+      base = invert;
+    }
+
     return base;
   }));
 }
@@ -895,7 +903,7 @@ void loadNested() {
   NestedPatternLookup::getInstance() -> registerNested(
       bool_expr,
       "paren_bool_expr",
-      "paren_open bool_expr paren_close");
+      "[op_not] paren_open bool_expr paren_close");
   NestedPatternLookup::getInstance() -> registerNested(
           bool_expr,
           "bool_expr_compare",

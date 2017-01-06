@@ -25,7 +25,7 @@ int main(int argc, char** args) {
 
   try {
     //auto ast = compiler.parse("! true || ! false"); TODO make test
-    auto ast = compiler.parse("! true || (true && !false)");
+    auto ast = compiler.parse("! true || !(true && !false)");
     stream_dump(Level::Info, ast);
   }
   catch (const std::runtime_error& e) {
