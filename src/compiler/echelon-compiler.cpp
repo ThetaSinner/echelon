@@ -1,5 +1,8 @@
 #include <echelon/compiler/echelon-compiler.hpp>
 
+#include <functional>
+#include <fstream>
+
 #include <echelon/code-generation/code-generator-factory.hpp>
 #include <echelon/util/ast-to-graphviz.hpp>
 #include <echelon/compiler/integrity-check.hpp>
@@ -8,11 +11,21 @@
 #include <echelon/parser/parser-data/parser-stage-1-data-load.hpp>
 #include <echelon/util/logging/logger-shared-instance.hpp>
 
-#ifdef ECHELON_DEBUG
-
-#include <fstream>
-
-#endif
+template<typename I, typename O>
+O exception_wrapper(EchelonCompiler *instance, O (EchelonCompiler::*exec)(I), I in) {
+  static auto log = LoggerSharedInstance::get();
+  try {
+    return ((*instance).*(exec))(in);
+  }
+  catch (const std::out_of_range& e) {
+    log->at(Level::Fatal) << "Out of range while executing compile step.\n";
+    throw std::runtime_error("Failed to execute compile step.");
+  }
+  catch (...) {
+    log->at(Level::Fatal) << "Failed to execute compile step.\n";
+    throw std::runtime_error("Failed to execute compile step.");
+  }
+}
 
 EchelonCompiler::EchelonCompiler() {
   try {
@@ -38,11 +51,15 @@ void EchelonCompiler::setCodeGenerator(CodeGenerator *codeGenerator) {
   this->codeGenerator = codeGenerator;
 }
 
-std::list<Token *> EchelonCompiler::tokenize(std::string input) {
+std::list<Token*> EchelonCompiler::tokenizeInternal(std::string input) {
   return tokenizer.tokenize(input);
 }
 
-AstNode *EchelonCompiler::parse(std::list<Token *> input) {
+std::list<Token*> EchelonCompiler::tokenize(std::string input) {
+  return exception_wrapper(this, &EchelonCompiler::tokenizeInternal, input);
+}
+
+AstNode* EchelonCompiler::parse(std::list<Token *> input) {
   return parser.parse(input);
 }
 

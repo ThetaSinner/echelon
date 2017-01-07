@@ -15,6 +15,8 @@ class EchelonCompiler {
   AstEnhancer astEnhancer;
   TypeDeductionEngine typeDeductionEngine;
   CodeGenerator *codeGenerator;
+
+  std::list<Token *> tokenizeInternal(std::string input);
 public:
   EchelonCompiler();
 
@@ -25,11 +27,9 @@ public:
   std::list<Token *> tokenize(std::string input);
 
   AstNode *parse(std::list<Token *> input);
-
   AstNode *parse(std::string input);
 
   EnhancedAstNode *enhance(AstNode *input);
-
   EnhancedAstNode *enhance(std::string input);
   // TODO type engine needs to be converted to take enhanced nodes.
   // TODO generator needs to be converted to take enhanced nodes.
