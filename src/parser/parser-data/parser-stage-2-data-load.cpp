@@ -64,6 +64,7 @@ void loadMatchers() {
   MatcherLookup::getInstance()->addMatcher("kwd_function", Matcher::forKeyword(Keyword::Function));
   MatcherLookup::getInstance()->addMatcher("kwd_each", Matcher::forKeyword(Keyword::Each));
   MatcherLookup::getInstance()->addMatcher("kwd_in", Matcher::forKeyword(Keyword::In));
+  MatcherLookup::getInstance()->addMatcher("kwd_type", Matcher::forKeyword(Keyword::Type));
 
   MatcherLookup::getInstance()->addMatcher("op_structure", Matcher::forTokenType(TokenType::StructureOperator));
   MatcherLookup::getInstance()->addMatcher("op_assign", Matcher::forTokenType(TokenType::Assign));
@@ -854,6 +855,26 @@ void loadTransformers() {
         return base;
       }));
 
+  AstTransformLookup::getInstance()->addAstTransform("type", new AstTransform(
+      [](AstTransformData *astTransformData) -> AstNode * {
+        auto base = new AstNode();
+        base->setType(AstNodeType::Type); // TODO conflict.
+
+        auto iter = astTransformData->getTokens()->begin();
+        iter++;
+        base->setData((*iter)->getData());
+
+        auto subProcess = astTransformData->getSubProcessAstNodes();
+        if (!subProcess->empty()) {
+          auto block = new AstNode();
+          block->setType(AstNodeType::Block);
+          block->putChild(subProcess->front()->getChild(0));
+          base->putChild(block);
+        }
+
+        return base;
+      }));
+
   // TODO check overwrite when ast transformer is added.
 
   AstTransformLookup::getInstance()->addAstTransform("each", new AstTransform(
@@ -1121,6 +1142,11 @@ void loadPatterns() {
   TokenPatternLookup::getInstance()->addTokenPattern(
       "behaviour",
       "kwd_behaviour identifier block_delim_o [block] block_delim_c"
+  );
+
+  TokenPatternLookup::getInstance()->addTokenPattern(
+      "type",
+      "kwd_type identifier block_delim_o [block] block_delim_c"
   );
 
   TokenPatternLookup::getInstance()->addTokenPattern(

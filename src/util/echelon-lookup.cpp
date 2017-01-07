@@ -224,6 +224,8 @@ std::string EchelonLookup::toString(Keyword t) {
       return "function";
     case Keyword::In:
       return "in";
+    case Keyword::Type:
+      return "type";
   }
 
   throw std::runtime_error("Missing to string case for keyword.");

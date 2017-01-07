@@ -19,6 +19,7 @@ enum class Keyword {
   Behaviour,
   Function,
   In,
+  Type,
 
 #ifdef ECHELON_DEBUG
   First = Package,

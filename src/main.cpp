@@ -20,7 +20,9 @@ int main(int argc, char **args) {
   // TODO a function in a behaviour block without the function keyword will cause an infinite loop. This is a class of problems with nested processing.
 
   try {
-    auto ast = compiler.parse("2 * -(2 * -5)");
+    // TODO this causes a quiet exception ---------> auto ast = compiler.parse("// comment}");
+
+    auto ast = compiler.parse("type MyType {\n  // comment\n}");
     log->at(Level::Info) << to_string(ast) << "\n";
   }
   catch (const std::runtime_error &e) {
