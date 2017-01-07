@@ -2,8 +2,6 @@
 
 Logger *LoggerSharedInstance::logger = nullptr;
 
-// TODO assign level from preprocessor symbols.
-
 Logger *LoggerSharedInstance::get() {
   if (logger == nullptr) {
 #ifdef LOG_FILE

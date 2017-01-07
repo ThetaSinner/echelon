@@ -67,7 +67,13 @@ CharacterPattern *parseCharacterPattern(std::string pattern) {
         }
       }
 
+      // TODO shouldn't require logic, this is either an error or just increment.
       if (pattern[subStrPos] == ']') {
+        subStrPos++;
+      }
+
+      if (pattern[subStrPos] == '`') {
+        group->setDoNotConsumeConsume(true);
         subStrPos++;
       }
 

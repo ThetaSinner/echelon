@@ -73,11 +73,16 @@ public:
 
     TS_ASSERT_EQUALS(3, res.size());
     auto iter = res.begin();
-    TS_ASSERT_EQUALS("// Single line comment", (*iter)->getData());
+    TS_ASSERT_EQUALS(" Single line comment", (*iter)->getData());
+    TS_ASSERT_EQUALS(TokenType::SingleLineComment, (*iter)->getTokenType());
+
     iter++;
-    TS_ASSERT_EQUALS("/**/", (*iter)->getData());
+    TS_ASSERT_EQUALS("", (*iter)->getData());
+    TS_ASSERT_EQUALS(TokenType::MultiLineComment, (*iter)->getTokenType());
+
     iter++;
-    TS_ASSERT_EQUALS("/*\n * Multi-line comment\n */", (*iter)->getData());
+    TS_ASSERT_EQUALS("\n * Multi-line comment\n ", (*iter)->getData());
+    TS_ASSERT_EQUALS(TokenType::MultiLineComment, (*iter)->getTokenType());
   }
 
   void test_Fundamentals_Enum(void) {
