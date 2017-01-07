@@ -2,7 +2,7 @@
 
 #ifdef ECHELON_DEBUG
 
-#include <echelon/util/stream-dump.hpp>
+#include <echelon/util/to-string.hpp>
 
 #endif
 

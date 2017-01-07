@@ -1,5 +1,5 @@
 #include <echelon/util/logging/logger-shared-instance.hpp>
-#include <echelon/util/stream-dump.hpp>
+#include <echelon/util/to-string.hpp>
 #include <echelon/compiler/echelon-compiler.hpp>
 
 int main(int argc, char **args) {
@@ -21,7 +21,7 @@ int main(int argc, char **args) {
 
   try {
     auto ast = compiler.parse("2 * -(2 * -5)");
-    stream_dump(Level::Info, ast);
+    log->at(Level::Info) << to_string(ast) << "\n";
   }
   catch (const std::runtime_error &e) {
     LoggerSharedInstance::get()->at(Level::Fatal) << "dev compile failed [" << e.what() << "]";

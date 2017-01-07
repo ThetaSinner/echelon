@@ -9,7 +9,7 @@
 #include <echelon/parser/keyword-enum.hpp>
 
 #include <echelon/util/logging/logger-shared-instance.hpp>
-#include <echelon/util/stream-dump.hpp>
+#include <echelon/util/to-string.hpp>
 
 void loadDataTypeKeywords() {
   EchelonLookup::getInstance()->addDataTypeKeyword("integer");

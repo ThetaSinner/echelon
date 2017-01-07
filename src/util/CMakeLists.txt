@@ -2,7 +2,7 @@
 # otherwise it is output to CMAKE_LIBRARY_OUTPUT_DIRECTORY
 add_library(${util_lib_name}
   iterator-util.cpp
-  stream-dump.cpp
+  to-string.cpp
   ast-to-graphviz.cpp
   echelon-lookup.cpp
 
