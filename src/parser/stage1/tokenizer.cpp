@@ -173,7 +173,15 @@ bool matchLookahead(std::list<CharacterPatternElement *>::iterator &element,
     if ((*next_group)->getType() == CharacterPatternGroupType::Union) {
       int groupMatchCount = matchUnionGroup(groups, next_group, ig_copy, input_end);
 
-      if (groupMatchCount > 0) {
+      // If the next group has a non-zero lower bound then the condition must be met.
+      if ((*next_group)->getRepeatLowerBound() > 0) {
+        if (groupMatchCount > (*next_group)->getRepeatLowerBound()) {
+          nextGroupMatches = true;
+        }
+      }
+      else if (groupMatchCount > 0) {
+        // If the next group has a zero lower bound then only allow match if something was actually matched.
+        // This behaviour exists because a lookahead shouldn't match unless something was actually matched.
         nextGroupMatches = true;
       }
     } else {
