@@ -167,6 +167,15 @@ void loadTransformers() {
         return base;
       }));
 
+  AstTransformLookup::getInstance()->addAstTransform("divide", new AstTransform(
+      [](AstTransformData *astTransformData) -> AstNode * {
+        AstNode *base = new AstNode();
+        base->setType(AstNodeType::BinaryOperator);
+        base->setData(astTransformData->getTokens()->front()->getData());
+
+        return base;
+      }));
+
   // TODO should be more specific with node type than just mapping the operator as data.
   AstTransformLookup::getInstance()->addAstTransform("multiply", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {

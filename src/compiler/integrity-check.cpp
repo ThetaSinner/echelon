@@ -36,23 +36,34 @@ void IntegrityCheck::StartupCheck() {
 #endif
 }
 
+void postLoadCheckInternal(TokenPattern* tokenPattern, std::set<std::string>& alreadyChecked);
+
 void IntegrityCheck::PostLoadCheck() {
 #ifdef ECHELON_DEBUG
+  std::set<std::string> alreadyChecked;
+
   // Check that an AST transform is defined for all pattern identifiers.
   for (auto i : *TokenPatternLookup::getInstance()->getTokenPatterns()) {
-    AstTransformLookup::getInstance()->getAstTransform(i->getId());
+    postLoadCheckInternal(i, alreadyChecked);
+  }
+#endif
+}
 
-    // TODO This isn't enough, patterns can be nested more than once (binary operator inside expression) but can also be circular...
-    // Unwind each pattern and check that any elements which will be matched with nested patterns has an AST transformer.
-    for (auto k : *i->getGroups()) {
-      for (auto t : *k->getElements()) {
+void postLoadCheckInternal(TokenPattern* tokenPattern, std::set<std::string>& alreadyChecked) {
+  AstTransformLookup::getInstance()->getAstTransform(tokenPattern->getId());
+
+  // Unwind each pattern and check that any elements which will be matched with nested patterns has an AST transformer.
+  for (auto k : *tokenPattern->getGroups()) {
+    for (auto t : *k->getElements()) {
+      if (alreadyChecked.find(t->getData()) == alreadyChecked.end()) {
+        alreadyChecked.insert(t->getData());
+
         if (NestedPatternLookup::getInstance()->isNest(t->getData())) {
           for (auto m : *NestedPatternLookup::getInstance()->getNested(t->getData())) {
-            AstTransformLookup::getInstance()->getAstTransform(m->getId());
+            postLoadCheckInternal(m, alreadyChecked);
           }
         }
       }
     }
   }
-#endif
 }

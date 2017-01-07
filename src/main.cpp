@@ -11,7 +11,7 @@ int main(int argc, char **args) {
   log->at(Level::Info) << "This is a release build.\n";
 #endif
 
-  LoggerSharedInstance::get()->setLevel(levelToInt(Level::Debug));
+  LoggerSharedInstance::get()->setLevel(levelToInt(Level::Info));
 
   EchelonCompiler compiler;
 
