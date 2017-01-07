@@ -4,10 +4,12 @@
 
 #include <echelon/parser/stage1/character-pattern-lookup.hpp>
 #include <echelon/util/logging/logger-shared-instance.hpp>
+#include <echelon/util/to-string.hpp>
 
-bool matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
+int matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
                      std::list<CharacterPatternGroup *>::iterator &group,
-                     std::string::iterator &ig);
+                     std::string::iterator &ig,
+                     std::string::iterator &input_end);
 
 bool matchSequenceGroup(std::list<CharacterPatternGroup *>::iterator &group,
                         std::string::iterator &ig);
@@ -15,7 +17,8 @@ bool matchSequenceGroup(std::list<CharacterPatternGroup *>::iterator &group,
 bool matchLookahead(std::list<CharacterPatternElement *>::iterator &element,
                     std::list<CharacterPatternGroup *>::iterator &group,
                     std::list<CharacterPatternGroup *> *groups,
-                    std::string::iterator &ig);
+                    std::string::iterator &ig,
+                    std::string::iterator &input_end);
 
 bool checkUpperBound(int val, int upperBound) {
   return upperBound == -1 || val < upperBound;
@@ -27,6 +30,7 @@ std::list<Token *> Tokenizer::tokenize(std::string input) {
   std::list<Token *> tokens;
 
   auto i = input.begin();
+  auto input_end = input.end();
 
   while (i != input.end()) {
     if (*i == ' ' || *i == '\n') {
@@ -38,20 +42,30 @@ std::list<Token *> Tokenizer::tokenize(std::string input) {
 
     auto patternList = CharacterPatternLookup::getInstance()->getCharacterPatternList();
     for (auto pattern : *patternList) {
+      log->at(Level::Debug) << to_string(pattern) << "\n";
+
       auto ip = i;
       bool patternMatches = true;
       auto groups = pattern->getGroups();
+      std::list<unsigned> groupMatchInfo;
       for (auto group = groups->begin(); group != groups->end(); group++) {
+        log->at(Level::Debug) << to_string(*group) << "\n";
 
         auto ig = ip;
-        bool groupMatches;
+        bool groupMatches = false;
         if ((*group)->getType() == CharacterPatternGroupType::Union) {
-          groupMatches = matchUnionGroup(groups, group, ig);
+          int elementMatchCount = matchUnionGroup(groups, group, ig, input_end);
+
+          if (elementMatchCount >= (*group)->getRepeatLowerBound()) {
+            groupMatches = true;
+          }
         } else {
           groupMatches = matchSequenceGroup(group, ig);
         }
 
         if (groupMatches) {
+          log->at(Level::Debug) << "Group consume: " << std::distance(ip, ig) << "\n";
+          groupMatchInfo.push_back(static_cast<unsigned>(std::distance(ip, ig)));
           std::advance(ip, ig - ip);
         } else {
           patternMatches = false;
@@ -60,16 +74,19 @@ std::list<Token *> Tokenizer::tokenize(std::string input) {
       }
 
       if (patternMatches) {
-        int beginOffset = 0;
+        unsigned long beginOffset = 0;
         if (pattern->getGroups()->front()->isDoNotConsumeConsume()) {
           beginOffset = 1 * (pattern->getGroups()->front()->getType() == CharacterPatternGroupType::Sequence
                              ? pattern->getGroups()->front()->getElements()->size() : 1);
         }
 
-        int endOffset = 0;
-        if (pattern->getGroups()->back()->isDoNotConsumeConsume()) {
-          endOffset = 1 * (pattern->getGroups()->back()->getType() == CharacterPatternGroupType::Sequence
-                           ? pattern->getGroups()->back()->getElements()->size() : 1);
+        unsigned long endOffset = 0;
+        // Only check the offset if the back group actually matched something.
+        if (groupMatchInfo.back() != 0) {
+          if (pattern->getGroups()->back()->isDoNotConsumeConsume()) {
+            endOffset = 1 * (pattern->getGroups()->back()->getType() == CharacterPatternGroupType::Sequence
+                             ? pattern->getGroups()->back()->getElements()->size() : 1);
+          }
         }
 
         std::string token_data = input.substr((i - input.begin()) + beginOffset, (ip - i) - beginOffset - endOffset);
@@ -87,6 +104,7 @@ std::list<Token *> Tokenizer::tokenize(std::string input) {
 
     if (i == i_progress_check) {
       int error_begin = (int) (i - input.begin());
+      // TODO std::min takes negative numbers, if the tokenizer fails then this may too.
       int error_chars = std::min((int) (input.size() - (i - input.begin())), 10);
       std::string failed_chars = input.substr((unsigned) error_begin, (unsigned) error_chars);
       std::string message = "Unrecognised character sequence [" + failed_chars + "]";
@@ -97,10 +115,10 @@ std::list<Token *> Tokenizer::tokenize(std::string input) {
   return tokens;
 }
 
-bool matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
+int matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
                      std::list<CharacterPatternGroup *>::iterator &group,
-                     std::string::iterator &ig) {
-  bool groupMatches = false;
+                     std::string::iterator &ig,
+                     std::string::iterator& input_end) {
 
   auto elements = (*group)->getElements();
   int elementMatchCount = 0;
@@ -108,17 +126,19 @@ bool matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
 
     bool noProgress = true;
     for (auto element = elements->begin(); element != elements->end(); element++) {
+      LoggerSharedInstance::get()->at(Level::Debug) << to_string(*element) << "\n";
       auto matcher = (*element)->getMatcher();
 
       if (checkUpperBound(elementMatchCount, (*group)->getRepeatUpperBound()) &&
           matcher(*ig) &&
-          !matchLookahead(element, group, groups, ig)) {
+          !matchLookahead(element, group, groups, ig, input_end)) {
         ig++;
         elementMatchCount++;
 
-        while (checkUpperBound(elementMatchCount, (*group)->getRepeatUpperBound()) &&
+        while (ig != input_end &&
+               checkUpperBound(elementMatchCount, (*group)->getRepeatUpperBound()) &&
                matcher(*ig) &&
-               !matchLookahead(element, group, groups, ig)) {
+               !matchLookahead(element, group, groups, ig, input_end)) {
           ig++;
           elementMatchCount++;
         }
@@ -131,26 +151,31 @@ bool matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
     if (noProgress) {
       break;
     }
+
+    if (ig == input_end) {
+      break;
+    }
   }
 
-  if (elementMatchCount >= (*group)->getRepeatLowerBound()) {
-    groupMatches = true;
-  }
-
-  return groupMatches;
+  return elementMatchCount;
 }
 
 bool matchLookahead(std::list<CharacterPatternElement *>::iterator &element,
                     std::list<CharacterPatternGroup *>::iterator &group,
                     std::list<CharacterPatternGroup *> *groups,
-                    std::string::iterator &ig) {
+                    std::string::iterator &ig,
+                    std::string::iterator &input_end) {
 
   bool nextGroupMatches = false;
   if ((*element)->isUseLookahead()) {
     auto next_group = std::next(group, 1);
     std::string::iterator ig_copy = ig;
     if ((*next_group)->getType() == CharacterPatternGroupType::Union) {
-      nextGroupMatches = matchUnionGroup(groups, next_group, ig_copy);
+      int groupMatchCount = matchUnionGroup(groups, next_group, ig_copy, input_end);
+
+      if (groupMatchCount > 0) {
+        nextGroupMatches = true;
+      }
     } else {
       nextGroupMatches = matchSequenceGroup(next_group, ig_copy);
     }

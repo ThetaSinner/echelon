@@ -7,6 +7,7 @@
 #include <echelon/ast/transform-stage/enhanced-ast-node-sub-type-enum.hpp>
 
 #include <stdexcept>
+#include <echelon/parser/stage1/character-pattern-group-type-enum.hpp>
 
 EchelonLookup *EchelonLookup::self = nullptr;
 
@@ -34,6 +35,18 @@ void EchelonLookup::addKeyword(std::string keyword) {
 
 bool EchelonLookup::isKeyword(std::string str) {
   return keywordSet.find(str) != keywordSet.end();
+}
+
+template<>
+std::string EchelonLookup::toString(CharacterPatternGroupType cpgt) {
+  switch (cpgt) {
+    case CharacterPatternGroupType::Sequence:
+      return "sequence";
+    case CharacterPatternGroupType::Union:
+      return "union";
+  }
+
+  throw std::runtime_error("Missing to string case for character pattern group type.");
 }
 
 template<>

@@ -26,6 +26,10 @@ std::string to_string(const std::list<Token *> *tokens);
 std::string to_string(EnhancedToken *enhancedToken);
 std::string to_string(std::list<EnhancedToken *> *enhancedToken);
 
+std::string to_string(CharacterPattern* characterPattern);
+std::string to_string(CharacterPatternGroup* characterPatternGroup);
+std::string to_string(CharacterPatternElement* characterPatternElement);
+
 std::string to_string(TokenPattern *characterPattern);
 
 std::string to_string(TokenPatternGroup *tokenPatternGroup);

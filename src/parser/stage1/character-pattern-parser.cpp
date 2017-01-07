@@ -108,6 +108,12 @@ CharacterPattern *parseCharacterPattern(std::string pattern) {
         subStrPos++;
       }
 
+      if (pattern[subStrPos] == '?') {
+        cpg->setRepeatLowerBound(0);
+        cpg->setRepeatUpperBound(1);
+        subStrPos++;
+      }
+
       if (pattern[subStrPos] == '`') {
         cpg->setDoNotConsumeConsume(true);
         subStrPos++;

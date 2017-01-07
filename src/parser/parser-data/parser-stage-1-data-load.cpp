@@ -131,7 +131,7 @@ void loadCharacterPatterns() {
   stringCharacterPattern->setTokenType(TokenType::String);
   CharacterPatternLookup::getInstance()->addCharacterPattern(stringCharacterPattern);
 
-  std::string commentPattern = "[forward_slash forward_slash]` any* end_of_line`";
+  std::string commentPattern = "[forward_slash forward_slash]` any* end_of_line?`";
   auto singleLineCommentCharacterPattern = parseCharacterPattern(commentPattern);
   singleLineCommentCharacterPattern->setTokenType(TokenType::SingleLineComment);
   CharacterPatternLookup::getInstance()->addCharacterPattern(singleLineCommentCharacterPattern);

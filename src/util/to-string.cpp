@@ -68,6 +68,37 @@ std::string to_string(EnhancedToken *enhancedToken) {
   return ss.str();
 }
 
+std::string to_string(CharacterPattern* characterPattern) {
+  std::stringstream ss;
+  ss << EchelonLookup::toString(characterPattern->getTokenType()) << " : ";
+  for (auto g : *characterPattern->getGroups()) {
+    ss << to_string(g);
+  }
+  ss << "\n";
+  return ss.str();
+}
+
+std::string to_string(CharacterPatternGroup* characterPatternGroup) {
+  std::stringstream ss;
+  ss << "[";
+  ss << EchelonLookup::getInstance()->toString(characterPatternGroup->getType());
+  ss << ": ";
+  for (auto e : *characterPatternGroup->getElements()) {
+    ss << to_string(e);
+    ss << ", ";
+  }
+
+  ss << "]{" << characterPatternGroup->getRepeatLowerBound() << "," << characterPatternGroup->getRepeatUpperBound() << "} ";
+
+  return ss.str();
+}
+
+std::string to_string(CharacterPatternElement* characterPatternElement) {
+  std::stringstream ss;
+  ss << characterPatternElement->getData();
+  return ss.str();
+}
+
 std::string to_string_internal(AstNode *node, int to_string_level) {
   std::stringstream ss;
   ss << "Level " << to_string_level << "\n";

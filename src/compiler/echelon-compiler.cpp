@@ -17,14 +17,17 @@ O exception_wrapper(EchelonCompiler *instance, O (EchelonCompiler::*exec)(I), I 
   try {
     return ((*instance).*(exec))(in);
   }
+  catch (const std::runtime_error& e) {
+    log->at(Level::Fatal) << "Compile step: [" << e.what() << "]\n";
+  }
   catch (const std::out_of_range& e) {
-    log->at(Level::Fatal) << "Out of range while executing compile step.\n";
-    throw std::runtime_error("Failed to execute compile step.");
+    log->at(Level::Fatal) << "Compile step: [" << e.what() << "]\n";
   }
   catch (...) {
     log->at(Level::Fatal) << "Failed to execute compile step.\n";
-    throw std::runtime_error("Failed to execute compile step.");
   }
+
+  throw std::runtime_error("Failed to execute compile step.");
 }
 
 EchelonCompiler::EchelonCompiler() {
