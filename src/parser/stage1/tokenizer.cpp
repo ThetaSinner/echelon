@@ -73,6 +73,8 @@ std::list<Token *> Tokenizer::tokenize(std::string input) {
         }
       }
 
+      // TODO once a pattern has matched, we want to start from the top of the pattern list again.
+
       if (patternMatches) {
         unsigned long beginOffset = 0;
         if (pattern->getGroups()->front()->isDoNotConsumeConsume()) {
@@ -175,7 +177,7 @@ bool matchLookahead(std::list<CharacterPatternElement *>::iterator &element,
 
       // If the next group has a non-zero lower bound then the condition must be met.
       if ((*next_group)->getRepeatLowerBound() > 0) {
-        if (groupMatchCount > (*next_group)->getRepeatLowerBound()) {
+        if (groupMatchCount >= (*next_group)->getRepeatLowerBound()) {
           nextGroupMatches = true;
         }
       }
