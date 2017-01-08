@@ -11,6 +11,8 @@
 #include <echelon/parser/stage2/nested-pattern-lookup.hpp>
 
 #include <echelon/util/enum-class-iterator.hpp>
+#include <echelon/parser/stage2/matcher-lookup.hpp>
+#include <echelon/util/logging/logger-shared-instance.hpp>
 
 void IntegrityCheck::StartupCheck() {
 #ifdef ECHELON_DEBUG
@@ -36,31 +38,53 @@ void IntegrityCheck::StartupCheck() {
 #endif
 }
 
-void postLoadCheckInternal(TokenPattern* tokenPattern, std::set<std::string>& alreadyChecked);
+void postLoadCheckInternal(TokenPattern* tokenPattern, std::set<std::string>& patternElements);
+void findUnusedTokenMatchers(const std::set<std::string>& patternElements);
 
 void IntegrityCheck::PostLoadCheck() {
 #ifdef ECHELON_DEBUG
-  std::set<std::string> alreadyChecked;
+  std::set<std::string> patternElements;
 
   // Check that an AST transform is defined for all pattern identifiers.
   for (auto i : *TokenPatternLookup::getInstance()->getTokenPatterns()) {
-    postLoadCheckInternal(i, alreadyChecked);
+    postLoadCheckInternal(i, patternElements);
   }
+
+  // Find unused token matchers.
+  findUnusedTokenMatchers(patternElements);
+
 #endif
 }
 
-void postLoadCheckInternal(TokenPattern* tokenPattern, std::set<std::string>& alreadyChecked) {
+void findUnusedTokenMatchers(const std::set<std::string>& patternElements) {
+  static auto log = LoggerSharedInstance::get();
+
+  auto tokenMatchers = MatcherLookup::getInstance()->getMatchers();
+  auto tokenMatchersCopy = *tokenMatchers;
+  for (auto i : patternElements) {
+    auto iter = tokenMatchersCopy.find(i);
+    if (iter != tokenMatchersCopy.end()) {
+      tokenMatchersCopy.erase(iter);
+    }
+  }
+
+  for (auto& i : tokenMatchersCopy) {
+    log->at(StreamLoggerLevel::Warn) << "Unused token matcher [" << i.first << "]\n";
+  }
+}
+
+void postLoadCheckInternal(TokenPattern* tokenPattern, std::set<std::string>& patternElements) {
   AstTransformLookup::getInstance()->getAstTransform(tokenPattern->getId());
 
   // Unwind each pattern and check that any elements which will be matched with nested patterns has an AST transformer.
   for (auto k : *tokenPattern->getGroups()) {
     for (auto t : *k->getElements()) {
-      if (alreadyChecked.find(t->getData()) == alreadyChecked.end()) {
-        alreadyChecked.insert(t->getData());
+      if (patternElements.find(t->getData()) == patternElements.end()) {
+        patternElements.insert(t->getData());
 
         if (NestedPatternLookup::getInstance()->isNest(t->getData())) {
           for (auto m : *NestedPatternLookup::getInstance()->getNested(t->getData())) {
-            postLoadCheckInternal(m, alreadyChecked);
+            postLoadCheckInternal(m, patternElements);
           }
         }
       }

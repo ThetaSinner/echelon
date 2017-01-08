@@ -32,3 +32,7 @@ Matcher *MatcherLookup::getMatcher(std::string key) {
 
   return matcherHash.at(key);
 }
+
+std::map<std::string, Matcher*>* MatcherLookup::getMatchers() {
+  return &matcherHash;
+};

@@ -22,6 +22,7 @@ public:
   void addMatcher(std::string key, Matcher *matcher);
 
   Matcher *getMatcher(std::string key);
+  std::map<std::string, Matcher*>* getMatchers();
 };
 
 

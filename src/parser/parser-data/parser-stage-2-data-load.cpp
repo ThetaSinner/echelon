@@ -27,7 +27,6 @@ void loadMatchers() {
   MatcherLookup::getInstance()->addMatcher("multi_line_comment", Matcher::forTokenType(TokenType::MultiLineComment));
 
   MatcherLookup::getInstance()->addMatcher("kwd_package", Matcher::forKeyword(Keyword::Package));
-  MatcherLookup::getInstance()->addMatcher("kwd_for", Matcher::forKeyword(Keyword::For));
   MatcherLookup::getInstance()->addMatcher("kwd_module", Matcher::forKeyword(Keyword::Module));
   MatcherLookup::getInstance()->addMatcher("kwd_enum", Matcher::forKeyword(Keyword::Enum));
   MatcherLookup::getInstance()->addMatcher("kwd_until", Matcher::forKeyword(Keyword::Until));

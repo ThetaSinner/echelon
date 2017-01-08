@@ -1,3 +1,6 @@
+#ifndef ENUM_CLASS_ITERATOR_HPP_INCLUDED
+#define ENUM_CLASS_ITERATOR_HPP_INCLUDED
+
 template<typename T>
 class Enum {
 public:
@@ -31,3 +34,5 @@ template<typename T>
 typename Enum<T>::Iterator end(Enum<T>) {
   return typename Enum<T>::Iterator(((int) T::Last) + 1);
 }
+
+#endif
