@@ -17,12 +17,11 @@ int main(int argc, char **args) {
 
   // TODO allow comments inside patterns. e.g. multi line comment inside function call which has been broken over lines.
 
-  // TODO a function in a behaviour block without the function keyword will cause an infinite loop. This is a class of problems with nested processing.
-
   try {
-    auto out = compiler.enhance("integer x = 5; x = 2");
+    // TODO Need private variables to try to implement anything here.. so it's context time.
+    //auto out = compiler.enhance("behaviour ToString {\n  function toString() -> string\n}\n\ntype BigInteger {\n}");
 
-    //auto ast = compiler.parse("type MyType {\n  // comment\n}");
+    auto out = compiler.parse("type MyType {\n  toString() -> string\n}");
     log->at(Level::Info) << to_string(out) << "\n";
   }
   catch (const std::runtime_error &e) {

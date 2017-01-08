@@ -1072,6 +1072,12 @@ void loadNested() {
  * Or by adding a scope list to the top level lookup, otherwise the nested behaviour becomes insanely complex.
  */
 void loadPatterns() {
+  // TODO testing
+  TokenPatternLookup::getInstance()->addTokenPattern(
+      "type",
+      "kwd_type identifier block_delimiter_open [block] block_delimiter_close"
+  );
+
   TokenPatternLookup::getInstance()->addTokenPattern(
       "function",
       "kwd_function identifier parenthesis_open [parameter_definitions] parenthesis_close [forward_arrow_operator type_name] block_delimiter_open [block] block_delimiter_close");
@@ -1143,10 +1149,7 @@ void loadPatterns() {
       "kwd_behaviour identifier block_delimiter_open [block] block_delimiter_close"
   );
 
-  TokenPatternLookup::getInstance()->addTokenPattern(
-      "type",
-      "kwd_type identifier block_delimiter_open [block] block_delimiter_close"
-  );
+
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "each",

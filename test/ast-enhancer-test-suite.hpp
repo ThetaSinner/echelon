@@ -15,6 +15,7 @@ public:
     LoggerSharedInstance::get()->setLevel(levelToInt(Level::Off));
   }
 
+  // TODO create test for declare without assign.
   void testVariableDeclareAndAssign(void) {
     auto enhanced = compiler.enhance("integer x = 2\nx = 3");
 

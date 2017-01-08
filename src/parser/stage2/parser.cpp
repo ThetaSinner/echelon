@@ -9,6 +9,18 @@
 // TODO report which pattern was the closest match and which token failed to match.
 // TODO e.g. a function call which is passed a float but expr doesn't allow floats.
 
+void exitForFailure(const std::list<Token*>::iterator& i) {
+  static auto log = LoggerSharedInstance::get();
+
+  log->at(StreamLoggerLevel::Fatal) << "Unhandled tokens\n";
+  for (int k = 0; k < 5; k++) {
+    // TODO handle running off the end of i.
+    log->at(StreamLoggerLevel::Fatal) << to_string(*next(i, k)) << "]\n";
+  }
+  throw std::runtime_error("Unhandled token [" + (*i)->getData() + ", " +
+                      EchelonLookup::getInstance()->toString((*i)->getTokenType()) + "]");
+}
+
 // patternMatches, it, tokens.end(), patternMatchInfo, *p, g
 bool Parser2::isTerminateForEndOfProgram(bool &patternMatches, std::list<Token *>::iterator current_token,
                                          std::list<Token *>::iterator tokens_end,
@@ -201,23 +213,26 @@ ParserInternalOutput Parser2::_parse(ParserInternalInput &parserInternalInput) {
 
       // This is the case where a sub-process has been requested, check if we can safely return control to the caller.
       if (parserInternalInput.getSubProcessFinishGroup() != nullptr) {
+
         std::list<Token *> subList(i, tokens.end());
         if (simpleGroupMatch(subList, parserInternalInput.getSubProcessFinishGroup())) {
-          //log -> at(Level::Debug) << "Level above should handle this token and further tokens.\n";
+          // The next token to be processed doesn't match any patterns but does match the next group in the parent pattern.
           break;
         }
-      } else if (parserInternalInput.isUseNestedPatterns()) {
+        else {
+          // No patterns match and the next token to be processed won't be handled by the parent pattern.
+          // This must be an error in the source code.
+          exitForFailure(i);
+        }
+      }
+      else if (parserInternalInput.isUseNestedPatterns()) {
         // TODO Infinite loops are possible here, but I don't know how to fix it right now..
+        // TODO infinite loop problem solved for sub process might have solved this. However, this block either needs to do something or be removed?
         log->at(Level::Debug) << "Failed but we were using nested patterns so never mind?\n";
         break;
-      } else {
-        log->at(Level::Fatal) << "Unhandled tokens\n";
-        for (int k = 0; k < 5; k++) {
-          // TODO handle running off the end of i.
-          log->at(Level::Fatal) << to_string(*std::next(i, k)) << "]\n";
-        }
-        throw std::runtime_error("Unhandled token [" + (*i)->getData() + ", " +
-                                 EchelonLookup::getInstance()->toString((*i)->getTokenType()) + "]");
+      }
+      else {
+        exitForFailure(i);
       }
     }
     else {
