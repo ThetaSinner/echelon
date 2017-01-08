@@ -855,4 +855,20 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::Integer, group_integer_right->getType());
     TS_ASSERT_EQUALS(0, group_integer_right->getChildCount());
   }
+
+  void testDeclareType() {
+    auto ast = compiler.parse("type MyType {\n  // comment\n}");
+
+    auto type = ast->getChild(0);
+    TS_ASSERT_EQUALS("MyType", type->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Type, type->getType());
+    TS_ASSERT_EQUALS(1, type->getChildCount());
+
+    auto block = type->getChild(0);
+    TS_ASSERT_EQUALS("", block->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Block, block->getType());
+    TS_ASSERT_EQUALS(1, block->getChildCount());
+
+    // don't care about block contents.
+  }
 };

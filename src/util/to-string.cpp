@@ -1,7 +1,5 @@
 #include <echelon/util/to-string.hpp>
 
-auto log = LoggerSharedInstance::get();
-
 std::string to_string(const Token *t) {
   std::stringstream ss;
   // clion code analysis bug.
