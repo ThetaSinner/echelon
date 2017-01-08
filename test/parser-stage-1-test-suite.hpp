@@ -85,7 +85,7 @@ public:
 
     TS_ASSERT_EQUALS(1, res.size());
     TS_ASSERT_EQUALS("+", res.front()->getData());
-    TS_ASSERT_EQUALS(TokenType::OperatorAdd, res.front()->getTokenType());
+    TS_ASSERT_EQUALS(TokenType::AddOperator, res.front()->getTokenType());
   }
 
   void testEqualityAndAssignmentOperators(void) {

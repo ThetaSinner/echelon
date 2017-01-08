@@ -11,6 +11,7 @@
 #include <echelon/ast/ast-node-type-enum.hpp>
 #include <echelon/parser/stage1/tokenizer.hpp>
 #include <echelon/compiler/echelon-compiler.hpp>
+#include <echelon/util/to-string.hpp>
 
 class ParserStage2TestSuite : public CxxTest::TestSuite {
 private:
@@ -76,12 +77,12 @@ public:
     std::list<Token *> program;
     program.push_back(new Token("module", TokenType::Identifier));
     program.push_back(new Token("name", TokenType::Identifier));
-    program.push_back(new Token("{", TokenType::BlockDelimO));
+    program.push_back(new Token("{", TokenType::BlockDelimiterOpen));
     program.push_back(new Token("module", TokenType::Identifier));
     program.push_back(new Token("nested", TokenType::Identifier));
-    program.push_back(new Token("{", TokenType::BlockDelimO));
-    program.push_back(new Token("}", TokenType::BlockDelimC));
-    program.push_back(new Token("}", TokenType::BlockDelimC));
+    program.push_back(new Token("{", TokenType::BlockDelimiterOpen));
+    program.push_back(new Token("}", TokenType::BlockDelimiterClose));
+    program.push_back(new Token("}", TokenType::BlockDelimiterClose));
 
     auto ast = parser.parse(program);
 
@@ -103,16 +104,16 @@ public:
 
     program.push_back(new Token("module", TokenType::Identifier));
     program.push_back(new Token("name", TokenType::Identifier));
-    program.push_back(new Token("{", TokenType::BlockDelimO));
+    program.push_back(new Token("{", TokenType::BlockDelimiterOpen));
     program.push_back(new Token("module", TokenType::Identifier));
     program.push_back(new Token("nested1", TokenType::Identifier));
-    program.push_back(new Token("{", TokenType::BlockDelimO));
-    program.push_back(new Token("}", TokenType::BlockDelimC));
+    program.push_back(new Token("{", TokenType::BlockDelimiterOpen));
+    program.push_back(new Token("}", TokenType::BlockDelimiterClose));
     program.push_back(new Token("module", TokenType::Identifier));
     program.push_back(new Token("nested2", TokenType::Identifier));
-    program.push_back(new Token("{", TokenType::BlockDelimO));
-    program.push_back(new Token("}", TokenType::BlockDelimC));
-    program.push_back(new Token("}", TokenType::BlockDelimC));
+    program.push_back(new Token("{", TokenType::BlockDelimiterOpen));
+    program.push_back(new Token("}", TokenType::BlockDelimiterClose));
+    program.push_back(new Token("}", TokenType::BlockDelimiterClose));
 
     auto ast = parser.parse(program);
 
@@ -136,14 +137,14 @@ public:
   void testVariableDeclaration(void) {
     std::list<Token *> program;
     program.push_back(new Token("my_val", TokenType::Identifier));
-    program.push_back(new Token("=", TokenType::Assign));
+    program.push_back(new Token("=", TokenType::Assignment));
     program.push_back(new Token("helloWorld", TokenType::Identifier));
-    program.push_back(new Token("(", TokenType::ParenO));
-    program.push_back(new Token(")", TokenType::ParenC));
-    program.push_back(new Token("+", TokenType::OperatorAdd));
+    program.push_back(new Token("(", TokenType::ParenthesisOpen));
+    program.push_back(new Token(")", TokenType::ParenthesisClose));
+    program.push_back(new Token("+", TokenType::AddOperator));
     program.push_back(new Token("byeWorld", TokenType::Identifier));
-    program.push_back(new Token("(", TokenType::ParenO));
-    program.push_back(new Token(")", TokenType::ParenC));
+    program.push_back(new Token("(", TokenType::ParenthesisOpen));
+    program.push_back(new Token(")", TokenType::ParenthesisClose));
 
     auto ast = parser.parse(program);
 
@@ -173,14 +174,14 @@ public:
     std::list<Token *> program;
     program.push_back(new Token("integer", TokenType::Identifier));
     program.push_back(new Token("my_val", TokenType::Identifier));
-    program.push_back(new Token("=", TokenType::Assign));
+    program.push_back(new Token("=", TokenType::Assignment));
     program.push_back(new Token("helloWorld", TokenType::Identifier));
-    program.push_back(new Token("(", TokenType::ParenO));
-    program.push_back(new Token(")", TokenType::ParenC));
-    program.push_back(new Token("+", TokenType::OperatorAdd));
+    program.push_back(new Token("(", TokenType::ParenthesisOpen));
+    program.push_back(new Token(")", TokenType::ParenthesisClose));
+    program.push_back(new Token("+", TokenType::AddOperator));
     program.push_back(new Token("byeWorld", TokenType::Identifier));
-    program.push_back(new Token("(", TokenType::ParenO));
-    program.push_back(new Token(")", TokenType::ParenC));
+    program.push_back(new Token("(", TokenType::ParenthesisOpen));
+    program.push_back(new Token(")", TokenType::ParenthesisClose));
 
     auto ast = parser.parse(program);
 
@@ -213,9 +214,9 @@ public:
     std::list<Token *> program;
     program.push_back(new Token("string", TokenType::Identifier));
     program.push_back(new Token("my_val", TokenType::Identifier));
-    program.push_back(new Token("=", TokenType::Assign));
+    program.push_back(new Token("=", TokenType::Assignment));
     program.push_back(new Token("my string data ", TokenType::String));
-    program.push_back(new Token("+", TokenType::OperatorAdd));
+    program.push_back(new Token("+", TokenType::AddOperator));
     program.push_back(new Token("other string data", TokenType::String));
 
     auto ast = parser.parse(program);
@@ -245,15 +246,16 @@ public:
     TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(1)->getChild(1)->getChildCount());
   }
 
+  // TODO use the parse on the compiler
   void testAddThreeStringsAndAssignToVariable(void) {
     std::list<Token *> program;
     program.push_back(new Token("string", TokenType::Identifier));
     program.push_back(new Token("my_val", TokenType::Identifier));
-    program.push_back(new Token("=", TokenType::Assign));
+    program.push_back(new Token("=", TokenType::Assignment));
     program.push_back(new Token("my string data ", TokenType::String));
-    program.push_back(new Token("+", TokenType::OperatorAdd));
+    program.push_back(new Token("+", TokenType::AddOperator));
     program.push_back(new Token("other string data", TokenType::String));
-    program.push_back(new Token("+", TokenType::OperatorAdd));
+    program.push_back(new Token("+", TokenType::AddOperator));
     program.push_back(new Token("third string data", TokenType::String));
 
     auto ast = parser.parse(program);
@@ -294,13 +296,13 @@ public:
   void testIfStatementWithEmptyBlock(void) {
     std::list<Token *> program;
     program.push_back(new Token("if", TokenType::Identifier));
-    program.push_back(new Token("(", TokenType::ParenO));
+    program.push_back(new Token("(", TokenType::ParenthesisOpen));
     program.push_back(new Token("1", TokenType::Integer));
-    program.push_back(new Token("==", TokenType::Equality));
+    program.push_back(new Token("==", TokenType::LogicalEquality));
     program.push_back(new Token("2", TokenType::Integer));
-    program.push_back(new Token(")", TokenType::ParenC));
-    program.push_back(new Token("{", TokenType::BlockDelimO));
-    program.push_back(new Token("}", TokenType::BlockDelimC));
+    program.push_back(new Token(")", TokenType::ParenthesisClose));
+    program.push_back(new Token("{", TokenType::BlockDelimiterOpen));
+    program.push_back(new Token("}", TokenType::BlockDelimiterClose));
 
     auto ast = parser.parse(program);
 
@@ -334,17 +336,17 @@ public:
   void testIfStatement(void) {
     std::list<Token *> program;
     program.push_back(new Token("if", TokenType::Identifier));
-    program.push_back(new Token("(", TokenType::ParenO));
+    program.push_back(new Token("(", TokenType::ParenthesisOpen));
     program.push_back(new Token("1", TokenType::Integer));
-    program.push_back(new Token("==", TokenType::Equality));
+    program.push_back(new Token("==", TokenType::LogicalEquality));
     program.push_back(new Token("2", TokenType::Integer));
-    program.push_back(new Token(")", TokenType::ParenC));
-    program.push_back(new Token("{", TokenType::BlockDelimO));
+    program.push_back(new Token(")", TokenType::ParenthesisClose));
+    program.push_back(new Token("{", TokenType::BlockDelimiterOpen));
     program.push_back(new Token("string", TokenType::Identifier));
     program.push_back(new Token("cond_var", TokenType::Identifier));
-    program.push_back(new Token("=", TokenType::Assign));
+    program.push_back(new Token("=", TokenType::Assignment));
     program.push_back(new Token("this string will only be assigned if 1 and 2 are equal", TokenType::String));
-    program.push_back(new Token("}", TokenType::BlockDelimC));
+    program.push_back(new Token("}", TokenType::BlockDelimiterClose));
 
     auto ast = parser.parse(program);
 

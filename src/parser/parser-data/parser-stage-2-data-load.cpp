@@ -23,34 +23,8 @@ void loadKeywords() {
 }
 
 void loadMatchers() {
-  MatcherLookup::getInstance()->addMatcher("type", new Matcher([](Matcher *self) -> bool {
-    if (self->getEnhancedToken()->getTokenType() != TokenType::Identifier) {
-      return false;
-    }
-
-    return EchelonLookup::getInstance()->isDataTypeKeyword(self->getEnhancedToken()->getData());
-  }));
-
-  // TODO remove this...
-  MatcherLookup::getInstance()->addMatcher("keyword", new Matcher([](Matcher *self) -> bool {
-    if (self->getEnhancedToken()->getTokenType() != TokenType::Identifier) {
-      return false;
-    }
-
-    return EchelonLookup::getInstance()->isKeyword(self->getEnhancedToken()->getData());
-  }));
-
   MatcherLookup::getInstance()->addMatcher("comment", Matcher::forTokenType(TokenType::SingleLineComment));
   MatcherLookup::getInstance()->addMatcher("multi_line_comment", Matcher::forTokenType(TokenType::MultiLineComment));
-
-  MatcherLookup::getInstance()->addMatcher("identifier", new Matcher([](Matcher *self) -> bool {
-    if (self->getEnhancedToken()->getTokenType() != TokenType::Identifier) {
-      return false;
-    }
-
-    // TODO this is an error in the source code. Needs to be reported.
-    return !EchelonLookup::getInstance()->isKeyword(self->getEnhancedToken()->getData());
-  }));
 
   MatcherLookup::getInstance()->addMatcher("kwd_package", Matcher::forKeyword(Keyword::Package));
   MatcherLookup::getInstance()->addMatcher("kwd_for", Matcher::forKeyword(Keyword::For));
@@ -66,25 +40,48 @@ void loadMatchers() {
   MatcherLookup::getInstance()->addMatcher("kwd_in", Matcher::forKeyword(Keyword::In));
   MatcherLookup::getInstance()->addMatcher("kwd_type", Matcher::forKeyword(Keyword::Type));
 
-  MatcherLookup::getInstance()->addMatcher("op_structure", Matcher::forTokenType(TokenType::StructureOperator));
-  MatcherLookup::getInstance()->addMatcher("op_assign", Matcher::forTokenType(TokenType::Assign));
-  MatcherLookup::getInstance()->addMatcher("block_delim_o", Matcher::forTokenType(TokenType::BlockDelimO));
-  MatcherLookup::getInstance()->addMatcher("block_delim_c", Matcher::forTokenType(TokenType::BlockDelimC));
-  MatcherLookup::getInstance()->addMatcher("paren_open", Matcher::forTokenType(TokenType::ParenO));
-  MatcherLookup::getInstance()->addMatcher("paren_close", Matcher::forTokenType(TokenType::ParenC));
-  // TODO remove, see op_comma.
-  MatcherLookup::getInstance()->addMatcher("list_seperator", Matcher::forTokenType(TokenType::CommaOperator));
-  MatcherLookup::getInstance()->addMatcher("add_operator", Matcher::forTokenType(TokenType::OperatorAdd));
-  MatcherLookup::getInstance()->addMatcher("subtract_operator", Matcher::forTokenType(TokenType::OperatorSubtract));
-  MatcherLookup::getInstance()->addMatcher("op_comma", Matcher::forTokenType(TokenType::CommaOperator));
-  MatcherLookup::getInstance()->addMatcher("multiply_operator", Matcher::forTokenType(TokenType::OperatorMultiply));
-  MatcherLookup::getInstance()->addMatcher("divide_operator", Matcher::forTokenType(TokenType::OperatorDivide));
-  MatcherLookup::getInstance()->addMatcher("string", Matcher::forTokenType(TokenType::String));
+  MatcherLookup::getInstance()->addMatcher("block_delimiter_open", Matcher::forTokenType(TokenType::BlockDelimiterOpen));
+  MatcherLookup::getInstance()->addMatcher("block_delimiter_close", Matcher::forTokenType(TokenType::BlockDelimiterClose));
+
+  MatcherLookup::getInstance()->addMatcher("parenthesis_open", Matcher::forTokenType(TokenType::ParenthesisOpen));
+  MatcherLookup::getInstance()->addMatcher("parenthesis_close", Matcher::forTokenType(TokenType::ParenthesisClose));
+
+  MatcherLookup::getInstance()->addMatcher("add_operator", Matcher::forTokenType(TokenType::AddOperator));
+  MatcherLookup::getInstance()->addMatcher("subtract_operator", Matcher::forTokenType(TokenType::SubtractOperator));
+  MatcherLookup::getInstance()->addMatcher("multiply_operator", Matcher::forTokenType(TokenType::MultiplyOperator));
+  MatcherLookup::getInstance()->addMatcher("divide_operator", Matcher::forTokenType(TokenType::DivideOperator));
+
   MatcherLookup::getInstance()->addMatcher("integer", Matcher::forTokenType(TokenType::Integer));
-  MatcherLookup::getInstance()->addMatcher("float", Matcher::forTokenType(TokenType::Float));
-  MatcherLookup::getInstance()->addMatcher("op_forward_arrow", Matcher::forTokenType(TokenType::ForwardArrowOperator));
-  MatcherLookup::getInstance()->addMatcher("op_ellipsis", Matcher::forTokenType(TokenType::EllipsisOperator));
-  MatcherLookup::getInstance()->addMatcher("op_not", Matcher::forTokenType(TokenType::NotOperator));
+  MatcherLookup::getInstance()->addMatcher("string", Matcher::forTokenType(TokenType::String));
+  MatcherLookup::getInstance()->addMatcher("decimal", Matcher::forTokenType(TokenType::Decimal));
+
+  MatcherLookup::getInstance()->addMatcher("logical_negation", Matcher::forTokenType(TokenType::LogicalNegation));
+  MatcherLookup::getInstance()->addMatcher("logical_equality", Matcher::forTokenType(TokenType::LogicalEquality));
+  MatcherLookup::getInstance()->addMatcher("logical_conjunction", Matcher::forTokenType(TokenType::LogicalConjunction));
+  MatcherLookup::getInstance()->addMatcher("logical_disjunction", Matcher::forTokenType(TokenType::LogicalDisjunction));
+
+  MatcherLookup::getInstance()->addMatcher("structure_operator", Matcher::forTokenType(TokenType::StructureOperator));
+  MatcherLookup::getInstance()->addMatcher("assignment", Matcher::forTokenType(TokenType::Assignment));
+  MatcherLookup::getInstance()->addMatcher("comma", Matcher::forTokenType(TokenType::Comma));
+  MatcherLookup::getInstance()->addMatcher("forward_arrow_operator", Matcher::forTokenType(TokenType::ForwardArrowOperator));
+  MatcherLookup::getInstance()->addMatcher("ellipsis_operator", Matcher::forTokenType(TokenType::EllipsisOperator));
+
+  MatcherLookup::getInstance()->addMatcher("type_name", new Matcher([](Matcher *self) -> bool {
+    if (self->getEnhancedToken()->getTokenType() != TokenType::Identifier) {
+      return false;
+    }
+
+    return EchelonLookup::getInstance()->isDataTypeKeyword(self->getEnhancedToken()->getData());
+  }));
+
+  MatcherLookup::getInstance()->addMatcher("identifier", new Matcher([](Matcher *self) -> bool {
+    if (self->getEnhancedToken()->getTokenType() != TokenType::Identifier) {
+      return false;
+    }
+
+    // TODO this is an error in the source code. Needs to be reported.
+    return !EchelonLookup::getInstance()->isKeyword(self->getEnhancedToken()->getData());
+  }));
 
   MatcherLookup::getInstance()->addMatcher("boolean", new Matcher([](Matcher *self) -> bool {
     return
@@ -92,9 +89,6 @@ void loadMatchers() {
         self->getEnhancedToken()->getData() == EchelonLookup::toString(Keyword::False);
   }));
 
-  MatcherLookup::getInstance()->addMatcher("op_equality", Matcher::forTokenType(TokenType::Equality));
-  MatcherLookup::getInstance()->addMatcher("op_and", Matcher::forTokenType(TokenType::AndOperator));
-  MatcherLookup::getInstance()->addMatcher("op_or", Matcher::forTokenType(TokenType::OrOperator));
 
   // TODO this is untidy, do I really need this?
   MatcherLookup::getInstance()->addMatcher("block", new Matcher([](Matcher *self) -> bool {
@@ -150,7 +144,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("add", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("add_operator", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::BinaryOperator);
@@ -159,7 +153,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("subtract", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("subtract_operator", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::BinaryOperator);
@@ -168,7 +162,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("divide", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("divide_operator", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::BinaryOperator);
@@ -178,7 +172,7 @@ void loadTransformers() {
       }));
 
   // TODO should be more specific with node type than just mapping the operator as data.
-  AstTransformLookup::getInstance()->addAstTransform("multiply", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("multiply_operator", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::BinaryOperator);
@@ -187,7 +181,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("op_or", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("logical_disjunction", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::BooleanBinaryOperator);
@@ -199,7 +193,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("op_and", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("logical_conjunction", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::BooleanBinaryOperator);
@@ -251,7 +245,7 @@ void loadTransformers() {
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         std::list<EnhancedToken *> *tokens = astTransformData->getTokens();
-        if (tokens->front()->getTokenType() == TokenType::OperatorSubtract) {
+        if (tokens->front()->getTokenType() == TokenType::SubtractOperator) {
           base->setType(AstNodeType::UnaryMinus);
           tokens->pop_front();
 
@@ -283,7 +277,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("float", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("decimal", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::Float);
@@ -325,7 +319,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("expr_function_call", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("expression_function_call", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         // Start with the function call node.
         AstNode *base = new AstNode();
@@ -349,7 +343,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("op_equality", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("logical_equality", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::EqualityOperator);
@@ -358,11 +352,11 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("bool_expr_val", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("boolean_expression_value", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base;
 
-        if (astTransformData->getTokens()->front()->getTokenType() == TokenType::NotOperator) {
+        if (astTransformData->getTokens()->front()->getTokenType() == TokenType::LogicalNegation) {
           base = new AstNode();
           base->setType(AstNodeType::BooleanInvert);
           base->putChild(astTransformData->getNestedAstNodes()->front()->getChild(0));
@@ -375,7 +369,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("bool_expr_compare", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("boolean_expression_compare", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         auto left = astTransformData->getNestedAstNodes()->front();
         astTransformData->getNestedAstNodes()->pop();
@@ -385,7 +379,7 @@ void loadTransformers() {
         astTransformData->getNestedAstNodes()->pop();
 
         AstNode *base = new AstNode();
-        base->setType(AstNodeType::EqualityOperator);
+        base->setType(AstNodeType::EqualityOperator); // TODO this should map the operator not set it...
         base->setData(op->getChild(0)->getData()); // this is redundant
 
         base->putChild(left->getChild(0));
@@ -394,7 +388,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("bool_expr_logic", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("boolean_expression_logic", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         auto left = astTransformData->getNestedAstNodes()->front();
         astTransformData->getNestedAstNodes()->pop();
@@ -409,7 +403,7 @@ void loadTransformers() {
 
         LoggerSharedInstance::get()->at(Level::Debug) << to_string(astTransformData->getTokens()) << "\n";
 
-        if (astTransformData->getTokens()->front()->getTokenType() == TokenType::NotOperator) {
+        if (astTransformData->getTokens()->front()->getTokenType() == TokenType::LogicalNegation) {
           auto invert_left = new AstNode();
           invert_left->setType(AstNodeType::BooleanInvert);
           invert_left->putChild(left->getChild(0));
@@ -424,7 +418,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("if_stmt", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("if_statement", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::If);
@@ -448,7 +442,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("else_if_stmt", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("else_if_statement", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::ElseIf);
@@ -472,7 +466,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("else_stmt", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("else_statement", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::Else);
@@ -507,7 +501,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("assignment_expr", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("assignment_expression", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         auto tokenIterator = astTransformData->getTokens()->begin();
 
@@ -534,7 +528,8 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("var_decl", new AstTransform(
+
+  AstTransformLookup::getInstance()->addAstTransform("variable_declaration", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         auto tokenIterator = astTransformData->getTokens()->begin();
 
@@ -556,7 +551,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("signature_item_term", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("parameter_definition", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::FunctionParamDefinitions);
@@ -608,7 +603,7 @@ void loadTransformers() {
 
         while (!nestedAstNodes->empty()) {
           auto callParams = nestedAstNodes->front()->getChild(0);
-          for (int i = 0; i < callParams->getChildCount(); i++) {
+          for (unsigned i = 0; i < callParams->getChildCount(); i++) {
             base->putChild(callParams->getChild(i));
           }
           nestedAstNodes->pop();
@@ -635,7 +630,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("function_call_stmt", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("top_level_function_call", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         return astTransformData->getNestedAstNodes()->front()->getChild(0);
       }));
@@ -652,7 +647,7 @@ void loadTransformers() {
 
         while (iter != astTransformData->getTokens()->end() &&
                (*iter)->getTokenType() != TokenType::ForwardArrowOperator &&
-               (*iter)->getTokenType() != TokenType::BlockDelimO) {
+               (*iter)->getTokenType() != TokenType::BlockDelimiterOpen) {
           iter++;
         }
 
@@ -694,7 +689,7 @@ void loadTransformers() {
 
         while (iter != astTransformData->getTokens()->end() &&
                (*iter)->getTokenType() != TokenType::ForwardArrowOperator &&
-               (*iter)->getTokenType() != TokenType::BlockDelimO) {
+               (*iter)->getTokenType() != TokenType::BlockDelimiterOpen) {
           iter++;
         }
 
@@ -715,24 +710,24 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("expr_statement", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("top_level_expression", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         return astTransformData->getNestedAstNodes()->front()->getChild(0);
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("bool_expr_statement", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("top_level_boolean_expression", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         return astTransformData->getNestedAstNodes()->front()->getChild(0);
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("paren_expr", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("parenthesis_expression", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         auto nested = astTransformData->getNestedAstNodes();
 
         LoggerSharedInstance::get()->at(Level::Debug) << to_string(astTransformData->getTokens()) << "\n";
 
         auto base = new AstNode();
-        if (astTransformData->getTokens()->front()->getTokenType() == TokenType::OperatorSubtract) {
+        if (astTransformData->getTokens()->front()->getTokenType() == TokenType::SubtractOperator) {
           base->setType(AstNodeType::UnaryMinus);
 
           auto expr_group = new AstNode();
@@ -781,7 +776,7 @@ void loadTransformers() {
         base->putChild(enumConstants);
 
         // TODO if other things are allowed in an enum block then this isn't a good condition.
-        while ((*tokenIterator)->getTokenType() != TokenType::BlockDelimC) {
+        while ((*tokenIterator)->getTokenType() != TokenType::BlockDelimiterClose) {
           auto enumConst = new AstNode();
           enumConst->setType(AstNodeType::EnumConstant);
           enumConst->setData((*tokenIterator)->getData());
@@ -925,7 +920,7 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("paren_bool_expr", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("parenthesis_boolean_expression", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         auto base = new AstNode();
         base->setType(AstNodeType::ExprGroup);
@@ -933,7 +928,7 @@ void loadTransformers() {
         auto bool_expr = astTransformData->getNestedAstNodes()->front()->getChild(0);
         base->putChild(bool_expr);
 
-        if (astTransformData->getTokens()->front()->getTokenType() == TokenType::NotOperator) {
+        if (astTransformData->getTokens()->front()->getTokenType() == TokenType::LogicalNegation) {
           auto invert = new AstNode();
           invert->setType(AstNodeType::BooleanInvert);
           invert->putChild(base);
@@ -949,119 +944,118 @@ void loadNested() {
   std::string binaryOperator = "binary_operator";
   NestedPatternLookup::getInstance()->registerNested(
       binaryOperator,
-      "add",
+      "add_operator",
       "add_operator");
   NestedPatternLookup::getInstance()->registerNested(
       binaryOperator,
-      "subtract",
+      "subtract_operator",
       "subtract_operator");
   NestedPatternLookup::getInstance()->registerNested(
       binaryOperator,
-      "multiply",
+      "multiply_operator",
       "multiply_operator");
   NestedPatternLookup::getInstance()->registerNested(
       binaryOperator,
-      "divide",
+      "divide_operator",
       "divide_operator");
 
   NestedPatternLookup::getInstance()->forwardDeclareNested("function_call");
-  std::string expr = "expr";
+  std::string expression = "expression";
   NestedPatternLookup::getInstance()->registerNested(
-      expr,
-      "paren_expr",
-      "[subtract_operator] paren_open expr paren_close [binary_operator expr]");
+      expression,
+      "parenthesis_expression",
+      "[subtract_operator] parenthesis_open expression parenthesis_close [binary_operator expression]");
   NestedPatternLookup::getInstance()->registerNested(
-      expr,
-      "expr_function_call",
-      "function_call [binary_operator expr]");
+      expression,
+      "expression_function_call",
+      "function_call [binary_operator expression]");
   NestedPatternLookup::getInstance()->registerNested(
-      expr,
+      expression,
       "string",
-      "string [binary_operator expr]");
+      "string [binary_operator expression]");
   NestedPatternLookup::getInstance()->registerNested(
-      expr,
+      expression,
       "integer",
-      "[subtract_operator] integer [binary_operator expr]");
+      "[subtract_operator] integer [binary_operator expression]");
   NestedPatternLookup::getInstance()->registerNested(
-      expr,
-      "float",
-      "float [binary_operator expr]");
+      expression,
+      "decimal",
+      "decimal [binary_operator expression]");
   NestedPatternLookup::getInstance()->registerNested(
-      expr,
+      expression,
       "boolean",
-      "boolean [binary_operator expr]");
+      "boolean [binary_operator expression]");
 
-  std::string any_compare_op = "any_compare_op";
+  std::string any_comparison_operator = "any_comparison_operator";
   NestedPatternLookup::getInstance()->registerNested(
-      any_compare_op,
-      "op_equality",
-      "op_equality");
+      any_comparison_operator,
+      "logical_equality",
+      "logical_equality");
 
-  std::string any_logic_op = "any_logic_op";
+  std::string any_logical_operator = "any_logical_operator";
   NestedPatternLookup::getInstance()->registerNested(
-      any_logic_op,
-      "op_and",
-      "op_and");
+      any_logical_operator,
+      "logical_conjunction",
+      "logical_conjunction");
   NestedPatternLookup::getInstance()->registerNested(
-      any_logic_op,
-      "op_or",
-      "op_or");
+      any_logical_operator,
+      "logical_disjunction",
+      "logical_disjunction");
 
-  std::string bool_expr = "bool_expr";
+  std::string boolean_expression = "boolean_expression";
   NestedPatternLookup::getInstance()->registerNested(
-      bool_expr,
-      "paren_bool_expr",
-      "[op_not] paren_open bool_expr paren_close");
+      boolean_expression,
+      "parenthesis_boolean_expression",
+      "[logical_negation] parenthesis_open boolean_expression parenthesis_close");
   NestedPatternLookup::getInstance()->registerNested(
-      bool_expr,
-      "bool_expr_compare",
-      "expr any_compare_op bool_expr");
+      boolean_expression,
+      "boolean_expression_compare",
+      "expression any_comparison_operator boolean_expression");
   NestedPatternLookup::getInstance()->registerNested(
-      bool_expr,
-      "bool_expr_logic",
-      "[op_not] expr any_logic_op bool_expr");
+      boolean_expression,
+      "boolean_expression_logic",
+      "[logical_negation] expression any_logical_operator boolean_expression");
   // Important this is loaded last
   NestedPatternLookup::getInstance()->registerNested(
-      bool_expr,
-      "bool_expr_val",
-      "[op_not] expr");
+      boolean_expression,
+      "boolean_expression_value",
+      "[logical_negation] expression");
 
   NestedPatternLookup::getInstance()->registerNested(
-      "if_stmt",
-      "if_stmt",
-      "kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c");
+      "if_statement",
+      "if_statement",
+      "kwd_if parenthesis_open boolean_expression parenthesis_close block_delimiter_open [block] block_delimiter_close");
 
   NestedPatternLookup::getInstance()->registerNested(
-      "else_if_stmt",
-      "else_if_stmt",
-      "kwd_else kwd_if paren_open bool_expr paren_close block_delim_o [block] block_delim_c");
+      "else_if_statement",
+      "else_if_statement",
+      "kwd_else kwd_if parenthesis_open boolean_expression parenthesis_close block_delimiter_open [block] block_delimiter_close");
 
   NestedPatternLookup::getInstance()->registerNested(
-      "else_stmt",
-      "else_stmt",
-      "kwd_else block_delim_o [block] block_delim_c");
+      "else_statement",
+      "else_statement",
+      "kwd_else block_delimiter_open [block] block_delimiter_close");
 
   NestedPatternLookup::getInstance()->registerNested(
-      "signature_item",
-      "signature_item_term",
-      "[type] identifier [op_comma signature_item]");
+      "parameter_definitions",
+      "parameter_definition",
+      "[type_name] identifier [comma parameter_definitions]");
 
   NestedPatternLookup::getInstance()->registerNested(
       "function_call_params",
       "function_call_params",
-      "expr [op_comma function_call_params]"
+      "expression [comma function_call_params]"
   );
   NestedPatternLookup::getInstance()->registerNested(
       "function_call",
       "function_call",
-      "identifier paren_open [function_call_params] paren_close"
+      "identifier parenthesis_open [function_call_params] parenthesis_close"
   );
 
-  std::string iterable = "iterable";
   NestedPatternLookup::getInstance()->registerNested(
-      iterable,
+      "iterable",
       "expression_range",
-      "expr op_ellipsis expr" // TODO the expressions need to evaluate to something which can be stepped through. e.g. integers.
+      "expression ellipsis_operator expression" // TODO the expressions need to evaluate to something which can be stepped through. e.g. integers.
   );
 }
 
@@ -1073,38 +1067,36 @@ void loadNested() {
 void loadPatterns() {
   TokenPatternLookup::getInstance()->addTokenPattern(
       "function",
-      "kwd_function identifier paren_open [signature_item] paren_close [op_forward_arrow type] block_delim_o [block] block_delim_c");
+      "kwd_function identifier parenthesis_open [parameter_definitions] parenthesis_close [forward_arrow_operator type_name] block_delimiter_open [block] block_delimiter_close");
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "function_prototype",
-      "kwd_function identifier paren_open [signature_item] paren_close [op_forward_arrow type]");
+      "kwd_function identifier parenthesis_open [parameter_definitions] parenthesis_close [forward_arrow_operator type_name]");
 
   TokenPatternLookup::getInstance()->addTokenPattern(
-      "function_call_stmt",
+      "top_level_function_call",
       "function_call"
   );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
-      "assignment_expr",
-      "[type] identifier op_assign expr");
+      "assignment_expression",
+      "[type_name] identifier assignment expression");
 
   TokenPatternLookup::getInstance()->addTokenPattern(
-      "var_decl",
-      "type identifier");
-
-  std::string for_loop = "kwd_for [type] identifier op_assign expr; bool_expr; expr block_delim_o [block] block_delim_c";
+      "variable_declaration",
+      "type_name identifier");
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "package",
-      "kwd_package [identifier op_structure]* identifier");
+      "kwd_package [identifier structure_operator]* identifier");
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "module",
-      "kwd_module identifier block_delim_o [block] block_delim_c");
+      "kwd_module identifier block_delimiter_open [block] block_delimiter_close");
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "if",
-      "if_stmt [else_if_stmt]* [else_stmt]");
+      "if_statement [else_if_statement]* [else_statement]");
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "comment",
@@ -1115,43 +1107,43 @@ void loadPatterns() {
       "multi_line_comment");
 
   TokenPatternLookup::getInstance()->addTokenPattern(
-      "expr_statement",
-      "expr"
+      "top_level_expression",
+      "expression"
   );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
-      "bool_expr_statement",
-      "bool_expr"
+      "top_level_boolean_expression",
+      "boolean_expression"
   );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "enum",
-      "kwd_enum identifier block_delim_o [identifier]* block_delim_c"
+      "kwd_enum identifier block_delimiter_open [identifier]* block_delimiter_close"
   );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "until",
-      "kwd_until paren_open bool_expr paren_close block_delim_o [block] block_delim_c"
+      "kwd_until parenthesis_open boolean_expression parenthesis_close block_delimiter_open [block] block_delimiter_close"
   );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "while",
-      "kwd_while paren_open bool_expr paren_close block_delim_o [block] block_delim_c"
+      "kwd_while parenthesis_open boolean_expression parenthesis_close block_delimiter_open [block] block_delimiter_close"
   );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "behaviour",
-      "kwd_behaviour identifier block_delim_o [block] block_delim_c"
+      "kwd_behaviour identifier block_delimiter_open [block] block_delimiter_close"
   );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "type",
-      "kwd_type identifier block_delim_o [block] block_delim_c"
+      "kwd_type identifier block_delimiter_open [block] block_delimiter_close"
   );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "each",
-      "kwd_each identifier kwd_in iterable block_delim_o [block] block_delim_c"
+      "kwd_each identifier kwd_in iterable block_delimiter_open [block] block_delimiter_close"
   );
 }
 

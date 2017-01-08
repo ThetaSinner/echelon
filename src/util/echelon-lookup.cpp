@@ -52,56 +52,53 @@ std::string EchelonLookup::toString(CharacterPatternGroupType cpgt) {
 template<>
 std::string EchelonLookup::toString(TokenType t) {
   switch (t) {
-    case TokenType::String:
-      return "string";
     case TokenType::Identifier:
       return "identifier";
+    case TokenType::Decimal:
+      return "decimal";
     case TokenType::Integer:
       return "integer";
-    case TokenType::Float:
-      return "float";
-    case TokenType::BlockDelimO:
-      return "block delim open";
-    case TokenType::BlockDelimC:
-      return "block delim close";
-    case TokenType::Paren:
-      return "paren";
-    case TokenType::ParenO:
-      return "paren open";
-    case TokenType::ParenC:
-      return "paren close";
-    case TokenType::OperatorAdd:
-      return "add operator";
-    case TokenType::OperatorSubtract:
-      return "subtract operator";
-    case TokenType::OperatorMultiply:
-      return "multiply operator";
-    case TokenType::OperatorDivide:
-      return "divide operator";
-    case TokenType::SqBracket:
-      return "square bracket";
-    case TokenType::Assign:
-      return "assign";
-    case TokenType::Equality:
-      return "equality";
+    case TokenType::String:
+      return "string";
     case TokenType::SingleLineComment:
       return "single line comment";
     case TokenType::MultiLineComment:
       return "multi line comment";
+    case TokenType::LogicalConjunction:
+      return "logical conjunction";
+    case TokenType::LogicalDisjunction:
+      return "logical disjunction";
+    case TokenType::LogicalNegation:
+      return "logical negation";
+    case TokenType::LogicalEquality:
+      return "logical equality";
+    case TokenType::BlockDelimiterOpen:
+      return "block delimiter open";
+    case TokenType::BlockDelimiterClose:
+      return "block delimiter close";
+    case TokenType::ParenthesisOpen:
+      return "parenthesis open";
+    case TokenType::ParenthesisClose:
+      return "parenthesis close";
+    case TokenType::Assignment:
+      return "assignment";
+    case TokenType::AddOperator:
+      return "add operator";
+    case TokenType::SubtractOperator:
+      return "subtract operator";
+    case TokenType::MultiplyOperator:
+      return "multiply operator";
+    case TokenType::DivideOperator:
+      return "divide operator";
+    case TokenType::Comma:
+      return "comma operator";
     case TokenType::StructureOperator:
       return "structure operator";
-    case TokenType::CommaOperator:
-      return "comma operator";
-    case TokenType::AndOperator:
-      return "and operator";
-    case TokenType::OrOperator:
-      return "or operator";
     case TokenType::ForwardArrowOperator:
       return "forward arrow operator";
     case TokenType::EllipsisOperator:
       return "ellipsis operator";
-    case TokenType::NotOperator:
-      return "not operator";
+
   }
 
   throw std::runtime_error("Missing to string case for token type enum.");

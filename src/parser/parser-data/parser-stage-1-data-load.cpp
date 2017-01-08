@@ -45,7 +45,7 @@ void loadCharacterMatchers() {
     return c == '/';
   });
 
-  CharacterMatcherLookup::getInstance()->addCharacterMatcher("end_of_line", [](char c) -> bool {
+  CharacterMatcherLookup::getInstance()->addCharacterMatcher("new_line", [](char c) -> bool {
     return c == '\n';
   });
 
@@ -110,114 +110,44 @@ void loadCharacterMatchers() {
   });
 }
 
+void addCharacterPatternToLookup(TokenType tokenType, std::string pattern) {
+  auto parsedPattern = parseCharacterPattern(pattern);
+  parsedPattern->setTokenType(tokenType);
+  CharacterPatternLookup::getInstance()->addCharacterPattern(parsedPattern);
+}
+
 void loadCharacterPatterns() {
-  std::string floatPattern = "number+ full_stop number+";
-  auto floatCharacterPattern = parseCharacterPattern(floatPattern);
-  floatCharacterPattern->setTokenType(TokenType::Float);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(floatCharacterPattern);
+  addCharacterPatternToLookup(TokenType::Identifier, "(letter underscore)+");
 
-  std::string numberPattern = "number+";
-  auto numberCharacterPattern = parseCharacterPattern(numberPattern);
-  numberCharacterPattern->setTokenType(TokenType::Integer);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(numberCharacterPattern);
+  addCharacterPatternToLookup(TokenType::Decimal, "number+ full_stop number+");
+  addCharacterPatternToLookup(TokenType::Integer, "number+");
+  addCharacterPatternToLookup(TokenType::String, "double_quote` any* double_quote`");
 
-  std::string identifierPattern = "(letter underscore)+";
-  auto identifierCharacterPattern = parseCharacterPattern(identifierPattern);
-  identifierCharacterPattern->setTokenType(TokenType::Identifier);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(identifierCharacterPattern);
+  addCharacterPatternToLookup(TokenType::ForwardArrowOperator, "[hyphen greater_chevron]");
+  addCharacterPatternToLookup(TokenType::StructureOperator, "[colon colon]");
+  addCharacterPatternToLookup(TokenType::EllipsisOperator, "[full_stop full_stop full_stop]");
 
-  std::string stringPattern = "double_quote` any* double_quote`";
-  auto stringCharacterPattern = parseCharacterPattern(stringPattern);
-  stringCharacterPattern->setTokenType(TokenType::String);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(stringCharacterPattern);
+  addCharacterPatternToLookup(TokenType::SingleLineComment, "[forward_slash forward_slash]` any* new_line?`");
+  addCharacterPatternToLookup(TokenType::MultiLineComment, "[forward_slash star]` any* [star forward_slash]`");
 
-  std::string commentPattern = "[forward_slash forward_slash]` any* end_of_line?`";
-  auto singleLineCommentCharacterPattern = parseCharacterPattern(commentPattern);
-  singleLineCommentCharacterPattern->setTokenType(TokenType::SingleLineComment);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(singleLineCommentCharacterPattern);
+  addCharacterPatternToLookup(TokenType::LogicalConjunction, "[ampersand ampersand]");
+  addCharacterPatternToLookup(TokenType::LogicalDisjunction,  "[pipe pipe]");
+  addCharacterPatternToLookup(TokenType::LogicalNegation, "exclamation");
 
-  std::string multiLineCommentPattern = "[forward_slash star]` any* [star forward_slash]`";
-  auto multiLineCommentCharacterPattern = parseCharacterPattern(multiLineCommentPattern);
-  multiLineCommentCharacterPattern->setTokenType(TokenType::MultiLineComment);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(multiLineCommentCharacterPattern);
+  addCharacterPatternToLookup(TokenType::LogicalEquality, "[equals equals]");
 
-  std::string andOperator = "[ampersand ampersand]";
-  auto andOperatorCharacterPattern = parseCharacterPattern(andOperator);
-  andOperatorCharacterPattern->setTokenType(TokenType::AndOperator);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(andOperatorCharacterPattern);
+  addCharacterPatternToLookup(TokenType::BlockDelimiterOpen, "open_brace");
+  addCharacterPatternToLookup(TokenType::BlockDelimiterClose, "close_brace");
 
-  std::string orOperator = "[pipe pipe]";
-  auto orOperatorCharacterPattern = parseCharacterPattern(orOperator);
-  orOperatorCharacterPattern->setTokenType(TokenType::OrOperator);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(orOperatorCharacterPattern);
+  addCharacterPatternToLookup(TokenType::ParenthesisOpen, "open_paren");
+  addCharacterPatternToLookup(TokenType::ParenthesisClose, "close_paren");
 
-  std::string openBrace = "open_brace";
-  auto blockDelimOpenCharacterPattern = parseCharacterPattern(openBrace);
-  blockDelimOpenCharacterPattern->setTokenType(TokenType::BlockDelimO);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(blockDelimOpenCharacterPattern);
+  addCharacterPatternToLookup(TokenType::Assignment, "equals");
 
-  std::string closeBrace = "close_brace";
-  auto blockDelimCloseCharacterPattern = parseCharacterPattern(closeBrace);
-  blockDelimCloseCharacterPattern->setTokenType(TokenType::BlockDelimC);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(blockDelimCloseCharacterPattern);
+  addCharacterPatternToLookup(TokenType::AddOperator, "plus");
+  addCharacterPatternToLookup(TokenType::SubtractOperator, "hyphen");
+  addCharacterPatternToLookup(TokenType::MultiplyOperator, "star");
+  addCharacterPatternToLookup(TokenType::DivideOperator, "forward_slash");
 
-  std::string openParen = "open_paren";
-  auto parenOpenCharacterPattern = parseCharacterPattern(openParen);
-  parenOpenCharacterPattern->setTokenType(TokenType::ParenO);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(parenOpenCharacterPattern);
-
-  std::string closeParen = "close_paren";
-  auto parenCloseCharacterPattern = parseCharacterPattern(closeParen);
-  parenCloseCharacterPattern->setTokenType(TokenType::ParenC);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(parenCloseCharacterPattern);
-
-  std::string equality = "[equals equals]";
-  auto equalityCharacterPattern = parseCharacterPattern(equality);
-  equalityCharacterPattern->setTokenType(TokenType::Equality);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(equalityCharacterPattern);
-
-  std::string equals = "equals";
-  auto assignCharacterPattern = parseCharacterPattern(equals);
-  assignCharacterPattern->setTokenType(TokenType::Assign);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(assignCharacterPattern);
-
-  std::string comma = "comma";
-  auto commaCharacterPattern = parseCharacterPattern(comma);
-  commaCharacterPattern->setTokenType(TokenType::CommaOperator);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(commaCharacterPattern);
-
-  std::string addOperator = "plus";
-  auto addOperatorCharacterPattern = parseCharacterPattern(addOperator);
-  addOperatorCharacterPattern->setTokenType(TokenType::OperatorAdd);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(addOperatorCharacterPattern);
-
-  std::string multiplyOperator = "star";
-  auto multiplyOperatorPattern = parseCharacterPattern(multiplyOperator);
-  multiplyOperatorPattern->setTokenType(TokenType::OperatorMultiply);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(multiplyOperatorPattern);
-
-  std::string structureOperator = "[colon colon]";
-  auto structureOperatorPattern = parseCharacterPattern(structureOperator);
-  structureOperatorPattern->setTokenType(TokenType::StructureOperator);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(structureOperatorPattern);
-
-  std::string forwardArrowOperator = "[hyphen greater_chevron]";
-  auto forwardArrowOperatorPattern = parseCharacterPattern(forwardArrowOperator);
-  forwardArrowOperatorPattern->setTokenType(TokenType::ForwardArrowOperator);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(forwardArrowOperatorPattern);
-
-  std::string subtractOperator = "hyphen";
-  auto subtractOperatorPattern = parseCharacterPattern(subtractOperator);
-  subtractOperatorPattern->setTokenType(TokenType::OperatorSubtract);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(subtractOperatorPattern);
-
-  std::string ellipsisOperator = "[full_stop full_stop full_stop]";
-  auto ellipsisOperatorPattern = parseCharacterPattern(ellipsisOperator);
-  ellipsisOperatorPattern->setTokenType(TokenType::EllipsisOperator);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(ellipsisOperatorPattern);
-
-  std::string notOperator = "exclamation";
-  auto notOperatorPattern = parseCharacterPattern(notOperator);
-  notOperatorPattern->setTokenType(TokenType::NotOperator);
-  CharacterPatternLookup::getInstance()->addCharacterPattern(notOperatorPattern);
+  addCharacterPatternToLookup(TokenType::Comma, "comma");
 }

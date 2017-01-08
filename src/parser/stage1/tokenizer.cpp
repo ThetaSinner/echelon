@@ -97,6 +97,8 @@ std::list<Token *> Tokenizer::tokenize(std::string input) {
 #endif
         tokens.push_back(new Token(token_data, pattern->getTokenType()));
         std::advance(i, ip - i);
+        // Always break after a pattern match so that we restart matching from the top of the pattern list.
+        break;
       }
 
       if (i == input.end()) {
