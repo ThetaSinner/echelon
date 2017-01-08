@@ -55,6 +55,9 @@ void loadMatchers() {
   MatcherLookup::getInstance()->addMatcher("string", Matcher::forTokenType(TokenType::String));
   MatcherLookup::getInstance()->addMatcher("decimal", Matcher::forTokenType(TokenType::Decimal));
 
+  MatcherLookup::getInstance()->addMatcher("boolean_value_false", Matcher::forKeyword(Keyword::False));
+  MatcherLookup::getInstance()->addMatcher("boolean_value_true", Matcher::forKeyword(Keyword::True));
+
   MatcherLookup::getInstance()->addMatcher("logical_negation", Matcher::forTokenType(TokenType::LogicalNegation));
   MatcherLookup::getInstance()->addMatcher("logical_equality", Matcher::forTokenType(TokenType::LogicalEquality));
   MatcherLookup::getInstance()->addMatcher("logical_conjunction", Matcher::forTokenType(TokenType::LogicalConjunction));
@@ -79,16 +82,9 @@ void loadMatchers() {
       return false;
     }
 
-    // TODO this is an error in the source code. Needs to be reported.
+    // TODO this is an error in the source code. Needs to be reported. Unfortunatly it's not that simple, the matcher may be called during a pattern match which ultimately fails.
     return !EchelonLookup::getInstance()->isKeyword(self->getEnhancedToken()->getData());
   }));
-
-  MatcherLookup::getInstance()->addMatcher("boolean", new Matcher([](Matcher *self) -> bool {
-    return
-        self->getEnhancedToken()->getData() == EchelonLookup::toString(Keyword::True) ||
-        self->getEnhancedToken()->getData() == EchelonLookup::toString(Keyword::False);
-  }));
-
 
   // TODO this is untidy, do I really need this?
   MatcherLookup::getInstance()->addMatcher("block", new Matcher([](Matcher *self) -> bool {
@@ -147,7 +143,7 @@ void loadTransformers() {
   AstTransformLookup::getInstance()->addAstTransform("add_operator", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
-        base->setType(AstNodeType::BinaryOperator);
+        base->setType(AstNodeType::BinaryOperatorAdd);
         base->setData(astTransformData->getTokens()->front()->getData());
 
         return base;
@@ -156,7 +152,16 @@ void loadTransformers() {
   AstTransformLookup::getInstance()->addAstTransform("subtract_operator", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
-        base->setType(AstNodeType::BinaryOperator);
+        base->setType(AstNodeType::BinaryOperatorSubtract);
+        base->setData(astTransformData->getTokens()->front()->getData());
+
+        return base;
+      }));
+
+  AstTransformLookup::getInstance()->addAstTransform("multiply_operator", new AstTransform(
+      [](AstTransformData *astTransformData) -> AstNode * {
+        AstNode *base = new AstNode();
+        base->setType(AstNodeType::BinaryOperatorMultiply);
         base->setData(astTransformData->getTokens()->front()->getData());
 
         return base;
@@ -165,17 +170,7 @@ void loadTransformers() {
   AstTransformLookup::getInstance()->addAstTransform("divide_operator", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
-        base->setType(AstNodeType::BinaryOperator);
-        base->setData(astTransformData->getTokens()->front()->getData());
-
-        return base;
-      }));
-
-  // TODO should be more specific with node type than just mapping the operator as data.
-  AstTransformLookup::getInstance()->addAstTransform("multiply_operator", new AstTransform(
-      [](AstTransformData *astTransformData) -> AstNode * {
-        AstNode *base = new AstNode();
-        base->setType(AstNodeType::BinaryOperator);
+        base->setType(AstNodeType::BinaryOperatorDivide);
         base->setData(astTransformData->getTokens()->front()->getData());
 
         return base;
@@ -184,11 +179,8 @@ void loadTransformers() {
   AstTransformLookup::getInstance()->addAstTransform("logical_disjunction", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
-        base->setType(AstNodeType::BooleanBinaryOperator);
-        // TODO Map sub type.
-        base->setData(astTransformData->getTokens()->front()->getData());
-
-        // TODO astTransformData -> getNestedAstNodes();
+        base->setType(AstNodeType::LogicalDisjunction);
+        base->setData(astTransformData->getTokens()->front()->getData()); // redundant.
 
         return base;
       }));
@@ -196,11 +188,8 @@ void loadTransformers() {
   AstTransformLookup::getInstance()->addAstTransform("logical_conjunction", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
-        base->setType(AstNodeType::BooleanBinaryOperator);
-        // TODO Map sub type.
+        base->setType(AstNodeType::LogicalConjunction);
         base->setData(astTransformData->getTokens()->front()->getData());
-
-        // TODO astTransformData -> getNestedAstNodes();
 
         return base;
       }));
@@ -209,7 +198,7 @@ void loadTransformers() {
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::FunctionCall);
-        base->setData((*(astTransformData->getTokens()->begin()))->getData());
+        base->setData(astTransformData->getTokens()->front()->getData()); // function name to call.
 
         auto nested = astTransformData->getNestedAstNodes();
         if (nested != nullptr && nested->size()) {
@@ -224,8 +213,9 @@ void loadTransformers() {
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::String);
-        base->setData((*(astTransformData->getTokens()->begin()))->getData());
+        base->setData(astTransformData->getTokens()->front()->getData()); // string data.
 
+        // TODO extract expression builder code.
         auto nested = astTransformData->getNestedAstNodes();
         if (nested != nullptr && nested->size() == 2) {
           auto oper = nested->front();
@@ -280,7 +270,7 @@ void loadTransformers() {
   AstTransformLookup::getInstance()->addAstTransform("decimal", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
-        base->setType(AstNodeType::Float);
+        base->setType(AstNodeType::Decimal);
         base->setData(astTransformData->getTokens()->front()->getData());
 
         auto nested = astTransformData->getNestedAstNodes();
@@ -298,11 +288,32 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("boolean", new AstTransform(
+  AstTransformLookup::getInstance()->addAstTransform("boolean_value_true", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
-        base->setType(AstNodeType::Boolean);
-        base->setData((*(astTransformData->getTokens()->begin()))->getData());
+        base->setType(AstNodeType::BooleanTrue);
+        base->setData(astTransformData->getTokens()->front()->getData()); // redundant
+
+        auto nested = astTransformData->getNestedAstNodes();
+        if (nested != nullptr && nested->size() == 2) {
+          auto oper = nested->front();
+          nested->pop();
+          auto nextExpr = nested->front();
+          nested->pop();
+
+          oper->getChild(0)->putChild(base);
+          oper->getChild(0)->putChild(nextExpr->getChild(0));
+          base = oper;
+        }
+
+        return base;
+      }));
+
+  AstTransformLookup::getInstance()->addAstTransform("boolean_value_false", new AstTransform(
+      [](AstTransformData *astTransformData) -> AstNode * {
+        AstNode *base = new AstNode();
+        base->setType(AstNodeType::BooleanFalse);
+        base->setData(astTransformData->getTokens()->front()->getData()); // redundant
 
         auto nested = astTransformData->getNestedAstNodes();
         if (nested != nullptr && nested->size() == 2) {
@@ -347,7 +358,7 @@ void loadTransformers() {
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::EqualityOperator);
-        base->setData((*(astTransformData->getTokens()->begin()))->getData());
+        base->setData(astTransformData->getTokens()->front()->getData());
 
         return base;
       }));
@@ -358,7 +369,7 @@ void loadTransformers() {
 
         if (astTransformData->getTokens()->front()->getTokenType() == TokenType::LogicalNegation) {
           base = new AstNode();
-          base->setType(AstNodeType::BooleanInvert);
+          base->setType(AstNodeType::LogicalNegation);
           base->putChild(astTransformData->getNestedAstNodes()->front()->getChild(0));
         } else {
           base = astTransformData->getNestedAstNodes()->front()->getChild(0);
@@ -378,10 +389,7 @@ void loadTransformers() {
         auto right = astTransformData->getNestedAstNodes()->front();
         astTransformData->getNestedAstNodes()->pop();
 
-        AstNode *base = new AstNode();
-        base->setType(AstNodeType::EqualityOperator); // TODO this should map the operator not set it...
-        base->setData(op->getChild(0)->getData()); // this is redundant
-
+        AstNode *base = op->getChild(0);
         base->putChild(left->getChild(0));
         base->putChild(right->getChild(0));
 
@@ -397,15 +405,11 @@ void loadTransformers() {
         auto right = astTransformData->getNestedAstNodes()->front();
         astTransformData->getNestedAstNodes()->pop();
 
-        AstNode *base = new AstNode();
-        base->setType(AstNodeType::BooleanBinaryOperator);
-        base->setData(op->getChild(0)->getData()); // this is redundant
-
-        LoggerSharedInstance::get()->at(Level::Debug) << to_string(astTransformData->getTokens()) << "\n";
+        AstNode *base = op->getChild(0);
 
         if (astTransformData->getTokens()->front()->getTokenType() == TokenType::LogicalNegation) {
           auto invert_left = new AstNode();
-          invert_left->setType(AstNodeType::BooleanInvert);
+          invert_left->setType(AstNodeType::LogicalNegation);
           invert_left->putChild(left->getChild(0));
 
           base->putChild(invert_left);
@@ -512,7 +516,7 @@ void loadTransformers() {
           base->setData((*tokenIterator)->getData());
         } else {
           AstNode *type = new AstNode();
-          type->setType(AstNodeType::Type);
+          type->setType(AstNodeType::TypeName);
           type->setData((*tokenIterator)->getData());
           base->putChild(type);
 
@@ -540,7 +544,7 @@ void loadTransformers() {
           base->setData((*tokenIterator)->getData());
         } else {
           AstNode *type = new AstNode();
-          type->setType(AstNodeType::Type);
+          type->setType(AstNodeType::TypeName);
           type->setData((*tokenIterator)->getData());
           base->putChild(type);
 
@@ -565,7 +569,7 @@ void loadTransformers() {
             auto iter = astTransformData->getTokens()->begin();
 
             auto typeNode = new AstNode();
-            typeNode->setType(AstNodeType::Type);
+            typeNode->setType(AstNodeType::TypeName);
             typeNode->setData((*iter)->getData());
             paramDef->putChild(typeNode);
 
@@ -655,7 +659,7 @@ void loadTransformers() {
         // TODO check that iter actually points at a return type. This involves allowing and recognising more complicated return types though.
         // Map the return type.
         auto typeNode = new AstNode();
-        typeNode->setType(AstNodeType::Type);
+        typeNode->setType(AstNodeType::TypeName);
         typeNode->setData((*iter)->getData());
         base->putChild(typeNode);
 
@@ -697,7 +701,7 @@ void loadTransformers() {
         // TODO check that iter actually points at a return type. This involves allowing and recognising more complicated return types though.
         // Map the return type.
         auto typeNode = new AstNode();
-        typeNode->setType(AstNodeType::Type);
+        typeNode->setType(AstNodeType::TypeName);
         typeNode->setData((*iter)->getData());
         base->putChild(typeNode);
 
@@ -853,7 +857,7 @@ void loadTransformers() {
   AstTransformLookup::getInstance()->addAstTransform("type", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         auto base = new AstNode();
-        base->setType(AstNodeType::Type); // TODO conflict.
+        base->setType(AstNodeType::Type);
 
         auto iter = astTransformData->getTokens()->begin();
         iter++;
@@ -930,7 +934,7 @@ void loadTransformers() {
 
         if (astTransformData->getTokens()->front()->getTokenType() == TokenType::LogicalNegation) {
           auto invert = new AstNode();
-          invert->setType(AstNodeType::BooleanInvert);
+          invert->setType(AstNodeType::LogicalNegation);
           invert->putChild(base);
 
           base = invert;
@@ -983,8 +987,12 @@ void loadNested() {
       "decimal [binary_operator expression]");
   NestedPatternLookup::getInstance()->registerNested(
       expression,
-      "boolean",
-      "boolean [binary_operator expression]");
+      "boolean_value_false",
+      "boolean_value_false [binary_operator expression]");
+  NestedPatternLookup::getInstance()->registerNested(
+      expression,
+      "boolean_value_true",
+      "boolean_value_true [binary_operator expression]");
 
   std::string any_comparison_operator = "any_comparison_operator";
   NestedPatternLookup::getInstance()->registerNested(

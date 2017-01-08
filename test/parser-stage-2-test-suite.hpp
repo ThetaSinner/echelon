@@ -158,7 +158,7 @@ public:
     TS_ASSERT_EQUALS(1, var_node->getChildCount());
 
     TS_ASSERT_EQUALS("+", var_node->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, var_node->getChild(0)->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, var_node->getChild(0)->getType());
     TS_ASSERT_EQUALS(2, var_node->getChild(0)->getChildCount());
 
     TS_ASSERT_EQUALS("helloWorld", var_node->getChild(0)->getChild(0)->getData());
@@ -194,11 +194,11 @@ public:
     TS_ASSERT_EQUALS(2, ast->getChild(0)->getChildCount());
 
     TS_ASSERT_EQUALS("integer", ast->getChild(0)->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Type, ast->getChild(0)->getChild(0)->getType());
+    TS_ASSERT_EQUALS(AstNodeType::TypeName, ast->getChild(0)->getChild(0)->getType());
     TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(0)->getChildCount());
 
     TS_ASSERT_EQUALS("+", ast->getChild(0)->getChild(1)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, ast->getChild(0)->getChild(1)->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, ast->getChild(0)->getChild(1)->getType());
     TS_ASSERT_EQUALS(2, ast->getChild(0)->getChild(1)->getChildCount());
 
     TS_ASSERT_EQUALS("helloWorld", ast->getChild(0)->getChild(1)->getChild(0)->getData());
@@ -230,11 +230,11 @@ public:
     TS_ASSERT_EQUALS(2, ast->getChild(0)->getChildCount());
 
     TS_ASSERT_EQUALS("string", ast->getChild(0)->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Type, ast->getChild(0)->getChild(0)->getType());
+    TS_ASSERT_EQUALS(AstNodeType::TypeName, ast->getChild(0)->getChild(0)->getType());
     TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(0)->getChildCount());
 
     TS_ASSERT_EQUALS("+", ast->getChild(0)->getChild(1)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, ast->getChild(0)->getChild(1)->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, ast->getChild(0)->getChild(1)->getType());
     TS_ASSERT_EQUALS(2, ast->getChild(0)->getChild(1)->getChildCount());
 
     TS_ASSERT_EQUALS("my string data ", ast->getChild(0)->getChild(1)->getChild(0)->getData());
@@ -269,11 +269,11 @@ public:
     TS_ASSERT_EQUALS(2, ast->getChild(0)->getChildCount());
 
     TS_ASSERT_EQUALS("string", ast->getChild(0)->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Type, ast->getChild(0)->getChild(0)->getType());
+    TS_ASSERT_EQUALS(AstNodeType::TypeName, ast->getChild(0)->getChild(0)->getType());
     TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(0)->getChildCount());
 
     TS_ASSERT_EQUALS("+", ast->getChild(0)->getChild(1)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, ast->getChild(0)->getChild(1)->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, ast->getChild(0)->getChild(1)->getType());
     TS_ASSERT_EQUALS(2, ast->getChild(0)->getChild(1)->getChildCount());
 
     TS_ASSERT_EQUALS("my string data ", ast->getChild(0)->getChild(1)->getChild(0)->getData());
@@ -281,7 +281,7 @@ public:
     TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(1)->getChild(0)->getChildCount());
 
     TS_ASSERT_EQUALS("+", ast->getChild(0)->getChild(1)->getChild(1)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, ast->getChild(0)->getChild(1)->getChild(1)->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, ast->getChild(0)->getChild(1)->getChild(1)->getType());
     TS_ASSERT_EQUALS(2, ast->getChild(0)->getChild(1)->getChild(1)->getChildCount());
 
     TS_ASSERT_EQUALS("other string data", ast->getChild(0)->getChild(1)->getChild(1)->getChild(0)->getData());
@@ -383,7 +383,7 @@ public:
 
     auto cond_var_type = cond_var->getChild(0);
     TS_ASSERT_EQUALS("string", cond_var_type->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Type, cond_var_type->getType());
+    TS_ASSERT_EQUALS(AstNodeType::TypeName, cond_var_type->getType());
     TS_ASSERT_EQUALS(0, cond_var_type->getChildCount());
 
     auto cond_var_data = cond_var->getChild(1);
@@ -406,7 +406,7 @@ public:
 
     auto return_type = function->getChild(0);
     TS_ASSERT_EQUALS("integer", return_type->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Type, return_type->getType());
+    TS_ASSERT_EQUALS(AstNodeType::TypeName, return_type->getType());
     TS_ASSERT_EQUALS(0, return_type->getChildCount());
 
     auto param_definitions = function->getChild(1);
@@ -420,7 +420,7 @@ public:
     TS_ASSERT_EQUALS(1, typed_param_definition->getChildCount());
 
     TS_ASSERT_EQUALS("string", typed_param_definition->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Type, typed_param_definition->getChild(0)->getType());
+    TS_ASSERT_EQUALS(AstNodeType::TypeName, typed_param_definition->getChild(0)->getType());
     TS_ASSERT_EQUALS(0, typed_param_definition->getChild(0)->getChildCount());
 
     auto untyped_param_definition = param_definitions->getChild(1);
@@ -483,7 +483,7 @@ public:
 
     auto call_param_two_val = call_param_two->getChild(0);
     TS_ASSERT_EQUALS("0.5", call_param_two_val->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Float, call_param_two_val->getType());
+    TS_ASSERT_EQUALS(AstNodeType::Decimal, call_param_two_val->getType());
     TS_ASSERT_EQUALS(0, call_param_two_val->getChildCount());
   }
 
@@ -496,7 +496,7 @@ public:
 
     auto plus = ast->getChild(0);
     TS_ASSERT_EQUALS("+", plus->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, plus->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, plus->getType());
     TS_ASSERT_EQUALS(2, plus->getChildCount());
 
     auto integer = plus->getChild(0);
@@ -651,7 +651,7 @@ public:
 
     auto top_plus = ast->getChild(0);
     TS_ASSERT_EQUALS("+", top_plus->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, top_plus->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, top_plus->getType());
     TS_ASSERT_EQUALS(2, top_plus->getChildCount());
 
     auto one = top_plus->getChild(0);
@@ -661,7 +661,7 @@ public:
 
     auto plus = top_plus->getChild(1);
     TS_ASSERT_EQUALS("+", plus->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, plus->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, plus->getType());
     TS_ASSERT_EQUALS(2, plus->getChildCount());
 
     auto expr_group = plus->getChild(0);
@@ -671,7 +671,7 @@ public:
 
     auto times = expr_group->getChild(0);
     TS_ASSERT_EQUALS("*", times->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, times->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorMultiply, times->getType());
     TS_ASSERT_EQUALS(2, times->getChildCount());
 
     auto two = times->getChild(0);
@@ -695,27 +695,27 @@ public:
 
     auto or_operator = ast->getChild(0);
     TS_ASSERT_EQUALS("||", or_operator->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BooleanBinaryOperator, or_operator->getType());
+    TS_ASSERT_EQUALS(AstNodeType::LogicalDisjunction, or_operator->getType());
     TS_ASSERT_EQUALS(2, or_operator->getChildCount());
 
     auto left_not = or_operator->getChild(0);
     TS_ASSERT_EQUALS("", left_not->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BooleanInvert, left_not->getType());
+    TS_ASSERT_EQUALS(AstNodeType::LogicalNegation, left_not->getType());
     TS_ASSERT_EQUALS(1, left_not->getChildCount());
 
     auto left_bool = left_not->getChild(0);
     TS_ASSERT_EQUALS("true", left_bool->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Boolean, left_bool->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BooleanTrue, left_bool->getType());
     TS_ASSERT_EQUALS(0, left_bool->getChildCount());
 
     auto right_not = or_operator->getChild(1);
     TS_ASSERT_EQUALS("", right_not->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BooleanInvert, right_not->getType());
+    TS_ASSERT_EQUALS(AstNodeType::LogicalNegation, right_not->getType());
     TS_ASSERT_EQUALS(1, right_not->getChildCount());
 
     auto right_bool = right_not->getChild(0);
     TS_ASSERT_EQUALS("false", right_bool->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Boolean, right_bool->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BooleanFalse, right_bool->getType());
     TS_ASSERT_EQUALS(0, right_bool->getChildCount());
   }
 
@@ -724,22 +724,22 @@ public:
 
     auto or_operator = ast->getChild(0);
     TS_ASSERT_EQUALS("||", or_operator->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BooleanBinaryOperator, or_operator->getType());
+    TS_ASSERT_EQUALS(AstNodeType::LogicalDisjunction, or_operator->getType());
     TS_ASSERT_EQUALS(2, or_operator->getChildCount());
 
     auto left_not = or_operator->getChild(0);
     TS_ASSERT_EQUALS("", left_not->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BooleanInvert, left_not->getType());
+    TS_ASSERT_EQUALS(AstNodeType::LogicalNegation, left_not->getType());
     TS_ASSERT_EQUALS(1, left_not->getChildCount());
 
     auto left_bool = left_not->getChild(0);
     TS_ASSERT_EQUALS("false", left_bool->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Boolean, left_bool->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BooleanFalse, left_bool->getType());
     TS_ASSERT_EQUALS(0, left_bool->getChildCount());
 
     auto right_not = or_operator->getChild(1);
     TS_ASSERT_EQUALS("", right_not->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BooleanInvert, right_not->getType());
+    TS_ASSERT_EQUALS(AstNodeType::LogicalNegation, right_not->getType());
     TS_ASSERT_EQUALS(1, right_not->getChildCount());
 
     auto expr_group = right_not->getChild(0);
@@ -749,22 +749,22 @@ public:
 
     auto and_operator = expr_group->getChild(0);
     TS_ASSERT_EQUALS("&&", and_operator->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BooleanBinaryOperator, and_operator->getType());
+    TS_ASSERT_EQUALS(AstNodeType::LogicalConjunction, and_operator->getType());
     TS_ASSERT_EQUALS(2, and_operator->getChildCount());
 
     auto and_operator_left = and_operator->getChild(0);
     TS_ASSERT_EQUALS("true", and_operator_left->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Boolean, and_operator_left->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BooleanTrue, and_operator_left->getType());
     TS_ASSERT_EQUALS(0, and_operator_left->getChildCount());
 
     auto and_operator_right_not = and_operator->getChild(1);
     TS_ASSERT_EQUALS("", and_operator_right_not->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BooleanInvert, and_operator_right_not->getType());
+    TS_ASSERT_EQUALS(AstNodeType::LogicalNegation, and_operator_right_not->getType());
     TS_ASSERT_EQUALS(1, and_operator_right_not->getChildCount());
 
     auto and_operator_right_bool = and_operator_right_not->getChild(0);
     TS_ASSERT_EQUALS("false", and_operator_right_bool->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Boolean, and_operator_right_bool->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BooleanFalse, and_operator_right_bool->getType());
     TS_ASSERT_EQUALS(0, and_operator_right_bool->getChildCount());
   }
 
@@ -773,7 +773,7 @@ public:
 
     auto minus = ast->getChild(0);
     TS_ASSERT_EQUALS("-", minus->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, minus->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorSubtract, minus->getType());
     TS_ASSERT_EQUALS(2, minus->getChildCount());
 
     auto minus_left_unary_minus = minus->getChild(0);
@@ -793,7 +793,7 @@ public:
 
     auto multiply = expr_group->getChild(0);
     TS_ASSERT_EQUALS("*", multiply->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, multiply->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorMultiply, multiply->getType());
     TS_ASSERT_EQUALS(2, multiply->getChildCount());
 
     auto multiply_left = multiply->getChild(0);
@@ -817,7 +817,7 @@ public:
 
     auto multiply = ast->getChild(0);
     TS_ASSERT_EQUALS("*", multiply->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, multiply->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorMultiply, multiply->getType());
     TS_ASSERT_EQUALS(2, multiply->getChildCount());
 
     auto multiply_left = multiply->getChild(0);
@@ -837,7 +837,7 @@ public:
 
     auto group_multiply = expr_group->getChild(0);
     TS_ASSERT_EQUALS("*", group_multiply->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperator, group_multiply->getType());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorMultiply, group_multiply->getType());
     TS_ASSERT_EQUALS(2, group_multiply->getChildCount());
 
     auto group_multiply_left = group_multiply->getChild(0);

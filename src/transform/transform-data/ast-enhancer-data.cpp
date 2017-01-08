@@ -13,6 +13,7 @@ void loadAstEnhancerData() {
   }
 }
 
+// TODO integrity check.
 void loadAstEnhancerDataInternal() {
   NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::Integer,
                                                      [](AstNode *node, Scope scope) -> EnhancedAstNode * {
@@ -25,10 +26,10 @@ void loadAstEnhancerDataInternal() {
                                                        return base;
                                                      });
 
-  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::Type,
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::TypeName,
                                                      [](AstNode *node, Scope scope) -> EnhancedAstNode * {
                                                        auto base = new EnhancedAstNode();
-                                                       base->setNodeType(EnhancedAstNodeType::Type);
+                                                       base->setNodeType(EnhancedAstNodeType::TypeName);
                                                        // TODO check that the type is valid before mapping. Maybe extract type mapping functions.
                                                        base->setData(node->getData());
 

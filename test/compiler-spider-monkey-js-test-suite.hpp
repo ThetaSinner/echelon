@@ -23,7 +23,6 @@ public:
   void testConditionallyAssignedVariable(void) {
     auto result = compiler.compile("string x\nif (true || false) {\n  x = \"bildo\"\n}\nelse {\n  x = \"winki\"\n}\n");
 
-    // TODO clearly the compiler needs to understand which variables are being declared and which are being assigned.
     TS_ASSERT_EQUALS("var x;if (true || false) {var x = \"bildo\";}else {var x = \"winki\";}", result);
   }
 };

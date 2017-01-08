@@ -11,7 +11,7 @@ void loadGenerators() {
   if (!loaded) {
     Generator *programGenerator = new Generator([](AstNode *astNode) -> std::string {
       std::stringstream ss;
-      for (int i = 0; i < astNode->getChildCount(); i++) {
+      for (unsigned i = 0; i < astNode->getChildCount(); i++) {
         ss << GeneratorLookup::getInstance()->getGenerator(astNode->getChild(i)->getType())->generate(
             astNode->getChild(i));
       }
@@ -25,7 +25,7 @@ void loadGenerators() {
       ss << "var ";
       ss << astNode->getData();
 
-      if (astNode->getChildCount() == 1 && astNode->getChild(0)->getType() != AstNodeType::Type) {
+      if (astNode->getChildCount() == 1 && astNode->getChild(0)->getType() != AstNodeType::TypeName) {
         ss << " = ";
         ss << GeneratorLookup::getInstance()->getGenerator(astNode->getChild(0)->getType())->generate(
             astNode->getChild(0));
@@ -44,19 +44,24 @@ void loadGenerators() {
 
     Generator *stringGenerator = new Generator([](AstNode *astNode) -> std::string {
       std::stringstream ss;
-      ss << "\"" << astNode->getData() << "\"";
+      ss << "\"";
+      ss << astNode->getData() << "\"";
       return ss.str();
     });
 
     GeneratorLookup::getInstance()->addGenerator(AstNodeType::String, stringGenerator);
 
-    Generator *booleanGenerator = new Generator([](AstNode *astNode) -> std::string {
-      std::stringstream ss;
-      ss << astNode->getData(); // TODO map properly
-      return ss.str();
+    Generator *booleanTrueGenerator = new Generator([](AstNode *astNode) -> std::string {
+      return "true";
     });
 
-    GeneratorLookup::getInstance()->addGenerator(AstNodeType::Boolean, booleanGenerator);
+    GeneratorLookup::getInstance()->addGenerator(AstNodeType::BooleanTrue, booleanTrueGenerator);
+
+    Generator *booleanFalseGenerator = new Generator([](AstNode *astNode) -> std::string {
+      return "false";
+    });
+
+    GeneratorLookup::getInstance()->addGenerator(AstNodeType::BooleanFalse, booleanFalseGenerator);
 
     Generator *blockGenerator = new Generator([](AstNode *astNode) -> std::string {
       return GeneratorLookup::getInstance()->getGenerator(astNode->getChild(0)->getType())->generate(
@@ -70,11 +75,11 @@ void loadGenerators() {
       return "";
     });
 
-    GeneratorLookup::getInstance()->addGenerator(AstNodeType::Type, typeGenerator);
+    GeneratorLookup::getInstance()->addGenerator(AstNodeType::TypeName, typeGenerator);
 
     Generator *branchesGenerator = new Generator([](AstNode *astNode) -> std::string {
       std::stringstream ss;
-      for (int i = 0; i < astNode->getChildCount(); i++) {
+      for (unsigned i = 0; i < astNode->getChildCount(); i++) {
         ss << GeneratorLookup::getInstance()->getGenerator(astNode->getChild(i)->getType())->generate(
             astNode->getChild(i));
       }
@@ -109,18 +114,31 @@ void loadGenerators() {
 
     GeneratorLookup::getInstance()->addGenerator(AstNodeType::Else, elseGenerator);
 
-    Generator *booleanBinaryOperatorGenerator = new Generator([](AstNode *astNode) -> std::string {
+    Generator *logicalConjunctionGenerator = new Generator([](AstNode *astNode) -> std::string {
       std::stringstream ss;
       ss << GeneratorLookup::getInstance()->getGenerator(astNode->getChild(0)->getType())->generate(
           astNode->getChild(0));
-      ss << " " << astNode->getData() << " "; // TODO map properly with operator types.
+      ss << " && ";
       ss << GeneratorLookup::getInstance()->getGenerator(astNode->getChild(1)->getType())->generate(
           astNode->getChild(1));
 
       return ss.str();
     });
 
-    GeneratorLookup::getInstance()->addGenerator(AstNodeType::BooleanBinaryOperator, booleanBinaryOperatorGenerator);
+    GeneratorLookup::getInstance()->addGenerator(AstNodeType::LogicalConjunction, logicalConjunctionGenerator);
+
+    Generator *logicalDisjunctionGenerator = new Generator([](AstNode *astNode) -> std::string {
+      std::stringstream ss;
+      ss << GeneratorLookup::getInstance()->getGenerator(astNode->getChild(0)->getType())->generate(
+          astNode->getChild(0));
+      ss << " || ";
+      ss << GeneratorLookup::getInstance()->getGenerator(astNode->getChild(1)->getType())->generate(
+          astNode->getChild(1));
+
+      return ss.str();
+    });
+
+    GeneratorLookup::getInstance()->addGenerator(AstNodeType::LogicalDisjunction, logicalDisjunctionGenerator);
   }
 
   loaded = true;

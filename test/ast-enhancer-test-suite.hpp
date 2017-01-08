@@ -30,7 +30,7 @@ public:
 
     auto var_declare_type = var_declare->getChild(0);
     TS_ASSERT_EQUALS("integer", var_declare_type->getData());
-    TS_ASSERT_EQUALS(EnhancedAstNodeType::Type, var_declare_type->getNodeType());
+    TS_ASSERT_EQUALS(EnhancedAstNodeType::TypeName, var_declare_type->getNodeType());
     TS_ASSERT_EQUALS(0, var_declare_type->getChildCount());
 
     auto var_declare_value = var_declare->getChild(1);

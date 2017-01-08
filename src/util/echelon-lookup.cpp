@@ -130,10 +130,16 @@ std::string EchelonLookup::toString(AstNodeType t) {
       return "enum constants";
     case AstNodeType::Module:
       return "module";
-    case AstNodeType::BinaryOperator:
-      return "binary_operator";
-    case AstNodeType::BooleanBinaryOperator:
-      return "boolean_binary_operator";
+    case AstNodeType::BinaryOperatorAdd:
+      return "binary operator add";
+    case AstNodeType::BinaryOperatorSubtract:
+      return "binary operator subtract";
+    case AstNodeType::BinaryOperatorMultiply:
+      return "binary operator multiply";
+    case AstNodeType::BinaryOperatorDivide:
+      return "binary operator divide";
+    case AstNodeType::LogicalDisjunction:
+      return "logical disjunction";
     case AstNodeType::FunctionCall:
       return "function_call";
     case AstNodeType::FunctionCallParams:
@@ -152,10 +158,12 @@ std::string EchelonLookup::toString(AstNodeType t) {
       return "string";
     case AstNodeType::Integer:
       return "integer";
-    case AstNodeType::Float:
-      return "float";
-    case AstNodeType::Boolean:
-      return "boolean";
+    case AstNodeType::Decimal:
+      return "decimal";
+    case AstNodeType::BooleanTrue:
+      return "boolean true";
+    case AstNodeType::BooleanFalse:
+      return "boolean false";
     case AstNodeType::EqualityOperator:
       return "equality_operator";
     case AstNodeType::If:
@@ -190,10 +198,14 @@ std::string EchelonLookup::toString(AstNodeType t) {
       return "iterator";
     case AstNodeType::ExprGroup:
       return "expr group";
-    case AstNodeType::BooleanInvert:
-      return "boolean invert";
+    case AstNodeType::LogicalNegation:
+      return "logical negation";
     case AstNodeType::UnaryMinus:
       return "unary minus";
+    case AstNodeType::TypeName:
+      return "type name";
+    case AstNodeType::LogicalConjunction:
+      return "logical conjunction";
   }
 
   throw std::runtime_error("Mising to string case for ast node type.");
@@ -248,7 +260,7 @@ std::string EchelonLookup::toString(EnhancedAstNodeType t) {
       return "none";
     case EnhancedAstNodeType::Program:
       return "program";
-    case EnhancedAstNodeType::Type:
+    case EnhancedAstNodeType::TypeName:
       return "type";
     case EnhancedAstNodeType::Variable:
       return "variable";

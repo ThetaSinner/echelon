@@ -7,7 +7,7 @@ enum class EnhancedAstNodeType {
   Program,
   Variable,
   PrimitiveValue,
-  Type,
+  TypeName,
 
   Function,
   FunctionParamDefinition,
