@@ -395,23 +395,16 @@ public:
   void testFunctionDeclaration(void) {
     auto ast = parser.parse(tokenizer.tokenize("function my_func(string t, x) -> integer {// test comment\n}"));
 
-    TS_ASSERT_EQUALS("root", ast->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
-    TS_ASSERT_EQUALS(1, ast->getChildCount());
-
-    auto function = ast->getChild(0);
+    TS_ASSERT(ast->hasChild(AstNodeType::Function));
+    auto function = ast->getChild(AstNodeType::Function);
     TS_ASSERT_EQUALS("my_func", function->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Function, function->getType());
     TS_ASSERT_EQUALS(3, function->getChildCount());
 
-    auto return_type = function->getChild(0);
+    auto return_type = function->getChild(AstNodeType::TypeName);
     TS_ASSERT_EQUALS("integer", return_type->getData());
-    TS_ASSERT_EQUALS(AstNodeType::TypeName, return_type->getType());
     TS_ASSERT_EQUALS(0, return_type->getChildCount());
 
-    auto param_definitions = function->getChild(1);
-    TS_ASSERT_EQUALS("", param_definitions->getData());
-    TS_ASSERT_EQUALS(AstNodeType::FunctionParamDefinitions, param_definitions->getType());
+    auto param_definitions = function->getChild(AstNodeType::FunctionParamDefinitions);
     TS_ASSERT_EQUALS(2, param_definitions->getChildCount());
 
     auto typed_param_definition = param_definitions->getChild(0);
@@ -428,9 +421,7 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::FunctionParamDefinition, untyped_param_definition->getType());
     TS_ASSERT_EQUALS(0, untyped_param_definition->getChildCount());
 
-    auto block = function->getChild(2);
-    TS_ASSERT_EQUALS("", block->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Block, block->getType());
+    auto block = function->getChild(AstNodeType::Block);
     TS_ASSERT_EQUALS(1, block->getChildCount());
 
     // don't care about the block contents.
@@ -885,5 +876,22 @@ public:
 
     TS_ASSERT(func->hasChild(AstNodeType::AccessSpecification));
     TS_ASSERT(func->getChild(AstNodeType::AccessSpecification)->hasChild(AstNodeType::AccessSpecifierPublic));
+  }
+
+  void testFunctionWithNameStructure() {
+    auto ast = compiler.parse("function MyModule::MyType::toString(integer t) {\n// do something\n}");
+
+    auto func = ast->getChild(0);
+    TS_ASSERT_EQUALS("toString", func->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Function, func->getType());
+
+    TS_ASSERT(func->hasChild(AstNodeType::FunctionParamDefinitions));
+
+    TS_ASSERT(func->hasChild(AstNodeType::NameStructure));
+    auto module_name_structure = func->getChild(AstNodeType::NameStructure);
+    TS_ASSERT(module_name_structure->hasChild(AstNodeType::NameStructure));
+    TS_ASSERT_EQUALS("MyModule", module_name_structure->getData());
+    auto type_name_structure = module_name_structure->getChild(AstNodeType::NameStructure);
+    TS_ASSERT_EQUALS("MyType", type_name_structure->getData());
   }
 };
