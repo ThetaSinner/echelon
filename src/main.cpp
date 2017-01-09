@@ -17,11 +17,13 @@ int main(int argc, char **args) {
 
   // TODO allow comments inside patterns. e.g. multi line comment inside function call which has been broken over lines.
 
+  // TODO can actually detect this error and report it. "Did you forget the function keyword?"
+  // auto out = compiler.parse("type MyType {\n  toString(integer t) -> string\n}");
+
   try {
     // TODO Need private variables to try to implement anything here.. so it's context time.
     //auto out = compiler.enhance("behaviour ToString {\n  function toString() -> string\n}\n\ntype BigInteger {\n}");
 
-    // TODO can actually detect this error and report it. "Did you forget the function keyword?"
     auto out = compiler.parse("type MyType {\n  public function toString(integer t) -> string\n}");
     log->at(Level::Info) << to_string(out) << "\n";
   }

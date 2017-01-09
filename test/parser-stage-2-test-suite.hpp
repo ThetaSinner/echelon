@@ -871,4 +871,19 @@ public:
 
     // don't care about block contents.
   }
+
+  void testPublicFunctionPrototype() {
+    auto ast = compiler.parse("public function toString() -> string");
+
+    auto func = ast->getChild(0);
+    TS_ASSERT_EQUALS("toString", func->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Function, func->getType());
+    TS_ASSERT_EQUALS(2, func->getChildCount());
+
+    TS_ASSERT(func->hasChild(AstNodeType::TypeName));
+    TS_ASSERT_EQUALS("string", func->getChild(AstNodeType::TypeName)->getData());
+
+    TS_ASSERT(func->hasChild(AstNodeType::AccessSpecification));
+    TS_ASSERT(func->getChild(AstNodeType::AccessSpecification)->hasChild(AstNodeType::AccessSpecifierPublic));
+  }
 };

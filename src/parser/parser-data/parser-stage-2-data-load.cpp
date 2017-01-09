@@ -686,8 +686,23 @@ void loadTransformers() {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::Function);
 
+        auto nested = astTransformData->getNestedAstNodes();
+        // Map the access specifier.
+        bool hasAccessSpecifier = false;
+        if (!nested->empty() && nested->front()->getChild(0)->getType() == AstNodeType::AccessSpecification) {
+          hasAccessSpecifier = true;
+          base->putChild(nested->front()->getChild(0));
+          nested->pop();
+        }
+        // Map the parameter definitions.
+        if (!nested->empty()) {
+          base->putChild(nested->back()->getChild(0));
+          nested->pop();
+        }
+
         // Map the function name.
         auto iter = astTransformData->getTokens()->begin();
+        if (hasAccessSpecifier) iter++; // skip the access specifier.
         iter++; // skip the function keyword.
         base->setData((*iter)->getData());
 
@@ -704,17 +719,6 @@ void loadTransformers() {
         typeNode->setType(AstNodeType::TypeName);
         typeNode->setData((*iter)->getData());
         base->putChild(typeNode);
-
-        // Map the parameter definitions.
-        auto nested = astTransformData->getNestedAstNodes();
-        if (!nested->empty() && nested->front()->getChild(0)->getType() == AstNodeType::AccessSpecification) {
-          base->putChild(nested->front()->getChild(0));
-          nested->pop();
-        }
-        if (!nested->empty()) {
-          base->putChild(nested->back()->getChild(0));
-          nested->pop();
-        }
 
         return base;
       }));
@@ -1099,7 +1103,7 @@ void loadNested() {
 void loadPatterns() {
   TokenPatternLookup::getInstance()->addTokenPattern(
       "function",
-      "[access_specifier] kwd_function identifier parenthesis_open [parameter_definitions] parenthesis_close [forward_arrow_operator type_name] block_delimiter_open [block] block_delimiter_close");
+      "kwd_function identifier parenthesis_open [parameter_definitions] parenthesis_close [forward_arrow_operator type_name] block_delimiter_open [block] block_delimiter_close");
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "function_prototype",
