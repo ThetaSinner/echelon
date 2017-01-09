@@ -38,6 +38,7 @@ void loadMatchers() {
   MatcherLookup::getInstance()->addMatcher("kwd_each", Matcher::forKeyword(Keyword::Each));
   MatcherLookup::getInstance()->addMatcher("kwd_in", Matcher::forKeyword(Keyword::In));
   MatcherLookup::getInstance()->addMatcher("kwd_type", Matcher::forKeyword(Keyword::Type));
+  MatcherLookup::getInstance()->addMatcher("kwd_public", Matcher::forKeyword(Keyword::Public));
 
   MatcherLookup::getInstance()->addMatcher("block_delimiter_open", Matcher::forTokenType(TokenType::BlockDelimiterOpen));
   MatcherLookup::getInstance()->addMatcher("block_delimiter_close", Matcher::forTokenType(TokenType::BlockDelimiterClose));
@@ -705,9 +706,14 @@ void loadTransformers() {
         base->putChild(typeNode);
 
         // Map the parameter definitions.
-        if (!astTransformData->getNestedAstNodes()->empty()) {
-          base->putChild(astTransformData->getNestedAstNodes()->back()->getChild(0));
-          astTransformData->getNestedAstNodes()->pop();
+        auto nested = astTransformData->getNestedAstNodes();
+        if (!nested->empty() && nested->front()->getChild(0)->getType() == AstNodeType::AccessSpecification) {
+          base->putChild(nested->front()->getChild(0));
+          nested->pop();
+        }
+        if (!nested->empty()) {
+          base->putChild(nested->back()->getChild(0));
+          nested->pop();
         }
 
         return base;
@@ -941,6 +947,18 @@ void loadTransformers() {
 
         return base;
       }));
+
+  AstTransformLookup::getInstance()->addAstTransform("access_specifier_public", new AstTransform(
+      [](AstTransformData *astTransformData) -> AstNode * {
+        auto base = new AstNode();
+        base->setType(AstNodeType::AccessSpecification);
+
+        auto _public = new AstNode();
+        _public->setType(AstNodeType::AccessSpecifierPublic);
+        base->putChild(_public);
+
+        return base;
+      }));
 }
 
 void loadNested() {
@@ -1064,6 +1082,13 @@ void loadNested() {
       "expression_range",
       "expression ellipsis_operator expression" // TODO the expressions need to evaluate to something which can be stepped through. e.g. integers.
   );
+
+  auto access_specifier = "access_specifier";
+  NestedPatternLookup::getInstance()->registerNested(
+      access_specifier,
+      "access_specifier_public",
+      "kwd_public"
+  );
 }
 
 /* TODO use nested for everything and default the parser to using the "default" group at top level.
@@ -1072,19 +1097,13 @@ void loadNested() {
  * Or by adding a scope list to the top level lookup, otherwise the nested behaviour becomes insanely complex.
  */
 void loadPatterns() {
-  // TODO testing
-  TokenPatternLookup::getInstance()->addTokenPattern(
-      "type",
-      "kwd_type identifier block_delimiter_open [block] block_delimiter_close"
-  );
-
   TokenPatternLookup::getInstance()->addTokenPattern(
       "function",
-      "kwd_function identifier parenthesis_open [parameter_definitions] parenthesis_close [forward_arrow_operator type_name] block_delimiter_open [block] block_delimiter_close");
+      "[access_specifier] kwd_function identifier parenthesis_open [parameter_definitions] parenthesis_close [forward_arrow_operator type_name] block_delimiter_open [block] block_delimiter_close");
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "function_prototype",
-      "kwd_function identifier parenthesis_open [parameter_definitions] parenthesis_close [forward_arrow_operator type_name]");
+      "[access_specifier] kwd_function identifier parenthesis_open [parameter_definitions] parenthesis_close [forward_arrow_operator type_name]");
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "top_level_function_call",
@@ -1149,7 +1168,10 @@ void loadPatterns() {
       "kwd_behaviour identifier block_delimiter_open [block] block_delimiter_close"
   );
 
-
+  TokenPatternLookup::getInstance()->addTokenPattern(
+      "type",
+      "kwd_type identifier block_delimiter_open [block] block_delimiter_close"
+  );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "each",

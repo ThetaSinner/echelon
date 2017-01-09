@@ -206,9 +206,13 @@ std::string EchelonLookup::toString(AstNodeType t) {
       return "type name";
     case AstNodeType::LogicalConjunction:
       return "logical conjunction";
+    case AstNodeType::AccessSpecification:
+      return "access spec";
+    case AstNodeType::AccessSpecifierPublic:
+      return "access specifier public";
   }
 
-  throw std::runtime_error("Mising to string case for ast node type.");
+  throw std::runtime_error("Missing to string case for ast node type.");
 }
 
 template<>
@@ -248,6 +252,8 @@ std::string EchelonLookup::toString(Keyword t) {
       return "in";
     case Keyword::Type:
       return "type";
+    case Keyword::Public:
+      return "public";
   }
 
   throw std::runtime_error("Missing to string case for keyword.");

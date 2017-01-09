@@ -29,6 +29,7 @@ std::string to_string(std::list<EnhancedToken *> *enhancedToken) {
 
 std::string to_string(TokenPattern *characterPattern) {
   std::stringstream ss;
+  ss << characterPattern->getId() << ": ";
   for (auto g : *characterPattern->getGroups()) {
     for (auto e : *g->getElements()) {
       ss << e->getData() << " ";

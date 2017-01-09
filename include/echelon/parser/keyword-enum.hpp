@@ -20,10 +20,11 @@ enum class Keyword {
   Function,
   In,
   Type,
+  Public,
 
 #ifdef ECHELON_DEBUG
   First = Package,
-  Last = In,
+  Last = Public,
 #endif
 };
 

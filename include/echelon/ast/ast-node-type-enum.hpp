@@ -49,10 +49,12 @@ enum class AstNodeType {
   ExprGroup,
   LogicalNegation,
   UnaryMinus,
+  AccessSpecification,
+  AccessSpecifierPublic,
 
 #ifdef ECHELON_DEBUG
   First = Program,
-  Last = UnaryMinus,
+  Last = AccessSpecification,
 #endif
 };
 
