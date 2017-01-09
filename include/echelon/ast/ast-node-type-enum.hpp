@@ -51,6 +51,7 @@ enum class AstNodeType {
   UnaryMinus,
   AccessSpecification,
   AccessSpecifierPublic,
+  NameStructure,
 
 #ifdef ECHELON_DEBUG
   First = Program,

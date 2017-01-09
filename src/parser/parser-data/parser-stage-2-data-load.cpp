@@ -644,9 +644,30 @@ void loadTransformers() {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::Function);
 
+        auto nested = astTransformData->getNestedAstNodes();
+        // Map the name structure.
+        int nameStructureDepth = 0;
+        if (!nested->empty() && nested->front()->getChild(0)->getType() == AstNodeType::NameStructure) {
+          auto nameStructure = nested->front()->getChild(0);
+          base->putChild(nameStructure);
+
+          auto nsRecurse = nameStructure;
+          nameStructureDepth++;
+          while (nsRecurse->hasChild(AstNodeType::NameStructure)) {
+            nsRecurse = nsRecurse->getChild(AstNodeType::NameStructure);
+            nameStructureDepth++;
+          }
+        }
+        // Map the parameter definitions.
+        if (!nested->empty()) {
+          base->putChild(nested->back()->getChild(0));
+          nested->pop();
+        }
+        
         // Map the function name.
         auto iter = astTransformData->getTokens()->begin();
         iter++; // skip the function keyword.
+        for (int i = 0; i < nameStructureDepth; i++) { iter++; iter++; } // skip the name structure
         base->setData((*iter)->getData());
 
         while (iter != astTransformData->getTokens()->end() &&
@@ -655,18 +676,15 @@ void loadTransformers() {
           iter++;
         }
 
-        iter++;
-        // TODO check that iter actually points at a return type. This involves allowing and recognising more complicated return types though.
-        // Map the return type.
-        auto typeNode = new AstNode();
-        typeNode->setType(AstNodeType::TypeName);
-        typeNode->setData((*iter)->getData());
-        base->putChild(typeNode);
+        // This isn't the best condition. But if we aren't pointing at a block open, then assume we're looking at a return type.
+        if ((*iter)->getTokenType() != TokenType::BlockDelimiterOpen) {
+          iter++;
 
-        // Map the parameter definitions.
-        if (!astTransformData->getNestedAstNodes()->empty()) {
-          base->putChild(astTransformData->getNestedAstNodes()->back()->getChild(0));
-          astTransformData->getNestedAstNodes()->pop();
+          // Map the return type.
+          auto typeNode = new AstNode();
+          typeNode->setType(AstNodeType::TypeName);
+          typeNode->setData((*iter)->getData());
+          base->putChild(typeNode);
         }
 
         // map the code block.
@@ -963,6 +981,21 @@ void loadTransformers() {
 
         return base;
       }));
+
+  AstTransformLookup::getInstance()->addAstTransform("name_structure", new AstTransform(
+      [](AstTransformData *astTransformData) -> AstNode * {
+        auto base = new AstNode();
+        base->setType(AstNodeType::NameStructure);
+        LoggerSharedInstance::get()->at(Level::Info) << to_string(astTransformData->getTokens()) << "\n";
+        base->setData(astTransformData->getTokens()->front()->getData());
+
+        auto nested = astTransformData->getNestedAstNodes();
+        if (nested->size()) {
+          base->putChild(nested->front()->getChild(0));
+        }
+
+        return base;
+      }));
 }
 
 void loadNested() {
@@ -970,105 +1003,127 @@ void loadNested() {
   NestedPatternLookup::getInstance()->registerNested(
       binaryOperator,
       "add_operator",
-      "add_operator");
+      "add_operator"
+  );
   NestedPatternLookup::getInstance()->registerNested(
       binaryOperator,
       "subtract_operator",
-      "subtract_operator");
+      "subtract_operator"
+  );
   NestedPatternLookup::getInstance()->registerNested(
       binaryOperator,
       "multiply_operator",
-      "multiply_operator");
+      "multiply_operator"
+  );
   NestedPatternLookup::getInstance()->registerNested(
       binaryOperator,
       "divide_operator",
-      "divide_operator");
+      "divide_operator"
+  );
 
   NestedPatternLookup::getInstance()->forwardDeclareNested("function_call");
   std::string expression = "expression";
   NestedPatternLookup::getInstance()->registerNested(
       expression,
       "parenthesis_expression",
-      "[subtract_operator] parenthesis_open expression parenthesis_close [binary_operator expression]");
+      "[subtract_operator] parenthesis_open expression parenthesis_close [binary_operator expression]"
+  );
   NestedPatternLookup::getInstance()->registerNested(
       expression,
       "expression_function_call",
-      "function_call [binary_operator expression]");
+      "function_call [binary_operator expression]"
+  );
   NestedPatternLookup::getInstance()->registerNested(
       expression,
       "string",
-      "string [binary_operator expression]");
+      "string [binary_operator expression]"
+  );
   NestedPatternLookup::getInstance()->registerNested(
       expression,
       "integer",
-      "[subtract_operator] integer [binary_operator expression]");
+      "[subtract_operator] integer [binary_operator expression]"
+  );
   NestedPatternLookup::getInstance()->registerNested(
       expression,
       "decimal",
-      "decimal [binary_operator expression]");
+      "decimal [binary_operator expression]"
+  );
   NestedPatternLookup::getInstance()->registerNested(
       expression,
       "boolean_value_false",
-      "boolean_value_false [binary_operator expression]");
+      "boolean_value_false [binary_operator expression]"
+  );
   NestedPatternLookup::getInstance()->registerNested(
       expression,
       "boolean_value_true",
-      "boolean_value_true [binary_operator expression]");
+      "boolean_value_true [binary_operator expression]"
+  );
 
   std::string any_comparison_operator = "any_comparison_operator";
   NestedPatternLookup::getInstance()->registerNested(
       any_comparison_operator,
       "logical_equality",
-      "logical_equality");
+      "logical_equality"
+  );
 
   std::string any_logical_operator = "any_logical_operator";
   NestedPatternLookup::getInstance()->registerNested(
       any_logical_operator,
       "logical_conjunction",
-      "logical_conjunction");
+      "logical_conjunction"
+  );
   NestedPatternLookup::getInstance()->registerNested(
       any_logical_operator,
       "logical_disjunction",
-      "logical_disjunction");
+      "logical_disjunction"
+  );
 
   std::string boolean_expression = "boolean_expression";
   NestedPatternLookup::getInstance()->registerNested(
       boolean_expression,
       "parenthesis_boolean_expression",
-      "[logical_negation] parenthesis_open boolean_expression parenthesis_close");
+      "[logical_negation] parenthesis_open boolean_expression parenthesis_close"
+  );
   NestedPatternLookup::getInstance()->registerNested(
       boolean_expression,
       "boolean_expression_compare",
-      "expression any_comparison_operator boolean_expression");
+      "expression any_comparison_operator boolean_expression"
+  );
   NestedPatternLookup::getInstance()->registerNested(
       boolean_expression,
       "boolean_expression_logic",
-      "[logical_negation] expression any_logical_operator boolean_expression");
+      "[logical_negation] expression any_logical_operator boolean_expression"
+  );
   // Important this is loaded last
   NestedPatternLookup::getInstance()->registerNested(
       boolean_expression,
       "boolean_expression_value",
-      "[logical_negation] expression");
+      "[logical_negation] expression"
+  );
 
   NestedPatternLookup::getInstance()->registerNested(
       "if_statement",
       "if_statement",
-      "kwd_if parenthesis_open boolean_expression parenthesis_close block_delimiter_open [block] block_delimiter_close");
+      "kwd_if parenthesis_open boolean_expression parenthesis_close block_delimiter_open [block] block_delimiter_close"
+  );
 
   NestedPatternLookup::getInstance()->registerNested(
       "else_if_statement",
       "else_if_statement",
-      "kwd_else kwd_if parenthesis_open boolean_expression parenthesis_close block_delimiter_open [block] block_delimiter_close");
+      "kwd_else kwd_if parenthesis_open boolean_expression parenthesis_close block_delimiter_open [block] block_delimiter_close"
+  );
 
   NestedPatternLookup::getInstance()->registerNested(
       "else_statement",
       "else_statement",
-      "kwd_else block_delimiter_open [block] block_delimiter_close");
+      "kwd_else block_delimiter_open [block] block_delimiter_close"
+  );
 
   NestedPatternLookup::getInstance()->registerNested(
       "parameter_definitions",
       "parameter_definition",
-      "[type_name] identifier [comma parameter_definitions]");
+      "[type_name] identifier [comma parameter_definitions]"
+  );
 
   NestedPatternLookup::getInstance()->registerNested(
       "function_call_params",
@@ -1093,6 +1148,12 @@ void loadNested() {
       "access_specifier_public",
       "kwd_public"
   );
+
+  NestedPatternLookup::getInstance()->registerNested(
+      "name_structure",
+      "name_structure",
+      "identifier structure_operator [name_structure]"
+  );
 }
 
 /* TODO use nested for everything and default the parser to using the "default" group at top level.
@@ -1103,11 +1164,13 @@ void loadNested() {
 void loadPatterns() {
   TokenPatternLookup::getInstance()->addTokenPattern(
       "function",
-      "kwd_function identifier parenthesis_open [parameter_definitions] parenthesis_close [forward_arrow_operator type_name] block_delimiter_open [block] block_delimiter_close");
+      "kwd_function [name_structure] identifier parenthesis_open [parameter_definitions] parenthesis_close [forward_arrow_operator type_name] block_delimiter_open [block] block_delimiter_close"
+  );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "function_prototype",
-      "[access_specifier] kwd_function identifier parenthesis_open [parameter_definitions] parenthesis_close [forward_arrow_operator type_name]");
+      "[access_specifier] kwd_function identifier parenthesis_open [parameter_definitions] parenthesis_close [forward_arrow_operator type_name]"
+  );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "top_level_function_call",
@@ -1116,31 +1179,38 @@ void loadPatterns() {
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "assignment_expression",
-      "[type_name] identifier assignment expression");
+      "[type_name] identifier assignment expression"
+  );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "variable_declaration",
-      "type_name identifier");
+      "type_name identifier"
+  );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "package",
-      "kwd_package [identifier structure_operator]* identifier");
+      "kwd_package [identifier structure_operator]* identifier"
+  );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "module",
-      "kwd_module identifier block_delimiter_open [block] block_delimiter_close");
+      "kwd_module identifier block_delimiter_open [block] block_delimiter_close"
+  );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "if",
-      "if_statement [else_if_statement]* [else_statement]");
+      "if_statement [else_if_statement]* [else_statement]"
+  );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "comment",
-      "comment");
+      "comment"
+  );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "multi_line_comment",
-      "multi_line_comment");
+      "multi_line_comment"
+  );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
       "top_level_expression",

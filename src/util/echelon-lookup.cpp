@@ -210,6 +210,8 @@ std::string EchelonLookup::toString(AstNodeType t) {
       return "access spec";
     case AstNodeType::AccessSpecifierPublic:
       return "access specifier public";
+    case AstNodeType::NameStructure:
+      return "name structure";
   }
 
   throw std::runtime_error("Missing to string case for ast node type.");
