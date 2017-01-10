@@ -667,6 +667,7 @@ void loadTransformers() {
         // Map the function name.
         auto iter = astTransformData->getTokens()->begin();
         iter++; // skip the function keyword.
+        // TODO this is the first time this has been necessary, but it's nasty. Would be better if tokens matched by nested patterns weren't passed forward to here.
         for (int i = 0; i < nameStructureDepth; i++) { iter++; iter++; } // skip the name structure
         base->setData((*iter)->getData());
 

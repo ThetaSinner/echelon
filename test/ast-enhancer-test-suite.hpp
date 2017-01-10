@@ -52,6 +52,29 @@ public:
     TS_ASSERT_EQUALS(0, var_assign_value->getChildCount());
   }
 
+  void testEnhancePackage() {
+    auto ast = compiler.enhance("package Test::Package::Name\ninteger x = 5");
+
+    // Notice that we need something else working so we can check the rest of the program is attached at the bottom of the
+    // package structure.
+
+    TS_ASSERT(ast->hasChild(EnhancedAstNodeType::Package));
+    auto test_package = ast->getChild(EnhancedAstNodeType::Package);
+    TS_ASSERT_EQUALS("Test", test_package->getData());
+
+    TS_ASSERT(test_package->hasChild(EnhancedAstNodeType::Package));
+    auto package_package = test_package->getChild(EnhancedAstNodeType::Package);
+    TS_ASSERT_EQUALS("Package", package_package->getData());
+
+    TS_ASSERT(package_package->hasChild(EnhancedAstNodeType::Package));
+    auto name_package = package_package->getChild(EnhancedAstNodeType::Package);
+    TS_ASSERT_EQUALS("Name", name_package->getData());
+
+    TS_ASSERT(name_package->hasChild(EnhancedAstNodeType::Variable));
+
+    // don't care about the variable. Just that it exists.
+  }
+
   // TODO this isn't ready yet. Need to be able to map the block and type or determine the type from the block.
   /*
     // example of overloaded functions.
