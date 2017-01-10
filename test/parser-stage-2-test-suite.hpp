@@ -21,7 +21,8 @@ private:
 
 public:
   ParserStage2TestSuite() {
-    LoggerSharedInstance::get()->setLevel(levelToInt(Level::Off));
+    // Log fatal errors only.
+    LoggerSharedInstance::get()->setLevel(levelToInt(Level::Fatal));
 
     loadParserStage1Data();
     loadParserStage2Data();

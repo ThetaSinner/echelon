@@ -11,7 +11,8 @@
 class AstTestSuite : public CxxTest::TestSuite {
 public:
   AstTestSuite() {
-    LoggerSharedInstance::get()->setLevel(levelToInt(Level::Off));
+    // Log fatal errors only.
+    LoggerSharedInstance::get()->setLevel(levelToInt(Level::Fatal));
     IntegrityCheck::StartupCheck();
   }
 

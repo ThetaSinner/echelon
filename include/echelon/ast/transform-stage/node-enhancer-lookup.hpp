@@ -6,6 +6,8 @@
 #include <echelon/ast/ast-node.hpp>
 #include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
 #include <echelon/ast/transform-stage/scope.hpp>
+#include <echelon/transform/ast-node-enhancer-input-data.hpp>
+#include <echelon/transform/ast-node-enhancer-output-data.hpp>
 
 #ifdef ECHELON_DEBUG
 
@@ -14,7 +16,7 @@
 
 #endif
 
-typedef std::function<EnhancedAstNode *(AstNode *, Scope)> NodeEnhancer;
+typedef std::function<AstNodeEnhancerOutputData(AstNodeEnhancerInputData&)> NodeEnhancer;
 
 class NodeEnhancerLookup {
   static NodeEnhancerLookup *instance;

@@ -18,6 +18,8 @@ NodeEnhancerLookup *NodeEnhancerLookup::getInstance() {
 }
 
 void NodeEnhancerLookup::addNodeEnhancer(AstNodeType type, NodeEnhancer nodeEnhancer) {
+  // TODO assert no overwrite
+
   nodeEnhancers.insert({type, nodeEnhancer});
 }
 

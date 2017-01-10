@@ -9,7 +9,8 @@ class CompilerSpiderMonkeyJSTestSuite : public CxxTest::TestSuite {
   EchelonCompiler compiler;
 public:
   CompilerSpiderMonkeyJSTestSuite() {
-    LoggerSharedInstance::get()->setLevel(levelToInt(Level::Off));
+    // Log fatal errors only.
+    LoggerSharedInstance::get()->setLevel(levelToInt(Level::Fatal));
 
     compiler.setCodeGenerator(new SpiderMonkeyJSCodeGenerator());
   }

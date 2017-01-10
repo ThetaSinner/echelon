@@ -7,14 +7,9 @@
 
 #include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/ast/transform-stage/scope.hpp>
+#include <echelon/transform/ast-node-enhancer-input-data.hpp>
+#include <echelon/transform/ast-node-enhancer-output-data.hpp>
 #include <echelon/ast/transform-stage/node-enhancer-lookup.hpp>
-
-void mapSubNodes(AstNode *source, EnhancedAstNode *target, Scope &scope) {
-  for (unsigned i = 0; i < source->getChildCount(); i++) {
-    target->putChild(
-        NodeEnhancerLookup::getInstance()->getNodeEnhancer(source->getChild(i)->getType())(source->getChild(i), scope));
-  }
-}
 
 bool doFunctionSignaturesMatch(EnhancedAstNode *left, EnhancedAstNode *right) {
 #ifdef ECHELON_DEBUG
@@ -69,9 +64,22 @@ bool doFunctionSignaturesMatch(EnhancedAstNode *left, EnhancedAstNode *right) {
 }
 
 void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope scope) {
-  for (unsigned i = 0; i < node->getChildCount(); i++) {
-    auto enhancedNode = new EnhancedAstNode();
+  auto working_target = target;
 
+  for (unsigned i = 0; i < node->getChildCount(); i++) {
+    NodeEnhancer& nodeEnhancer = NodeEnhancerLookup::getInstance()->getNodeEnhancer(node->getChild(i)->getType());
+
+    AstNodeEnhancerInputData input;
+    input.setSourceNode(node);
+    input.setNodeToMap(node->getChild(i));
+    input.setTargetNode(working_target);
+    input.setScope(&scope);
+
+    auto output = nodeEnhancer(input);
+
+    // jump to the new working nodes. This allows the enhancer to modify the ast structure.
+    working_target = output.getTargetNode();
+/*
     if (node->getChild(i)->getType() == AstNodeType::Variable) {
       auto data = node->getChild(i)->getData();
       enhancedNode->setNodeType(EnhancedAstNodeType::Variable);
@@ -81,7 +89,8 @@ void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope scope) {
       if (!scope.hasVariable(data)) {
         enhancedNode->setNodeSubType(EnhancedAstNodeSubType::Declaration);
         scope.addVariable(data, node->getChild(i));
-      } else {
+      }
+      else {
         // The variable has been seen before. Check that there is no type declaration.
         if (node->getChild(i)->getChild(0)->getType() == AstNodeType::Type) {
           std::string message = "Error, redeclaration of variable [" + data + "].";
@@ -93,12 +102,12 @@ void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope scope) {
 
       // TODO map variable name and type?
 
-      mapSubNodes(node->getChild(i), enhancedNode, scope);
-    } else if (node->getChild(i)->getType() == AstNodeType::Function) {
+      // TODO this has been removed and should be implemented in the enhancers. mapSubNodes(node->getChild(i), enhancedNode, scope);
+    }
+    else if (node->getChild(i)->getType() == AstNodeType::Function) {
       // map function and store on scope.
       std::string data = node->getChild(i)->getData();
-      enhancedNode = NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::Function)(node->getChild(i),
-                                                                                               scope);
+      // TODO extract to enhancer. enhancedNode = NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::Function)(node->getChild(i), scope);
 
       if (scope.hasFunction(data)) {
         auto functions = scope.getFunctions(data);
@@ -116,15 +125,15 @@ void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope scope) {
       scope.addFunction(data, enhancedNode);
     } else {
       // This is not new data being declared, so map it and ensure that all references to variables and functions are valid.
-      target->putChild(
-          NodeEnhancerLookup::getInstance()->getNodeEnhancer(node->getChild(i)->getType())(node->getChild(i), scope));
+      // TODO extract to enhancer. target->putChild(NodeEnhancerLookup::getInstance()->getNodeEnhancer(node->getChild(i)->getType())(node->getChild(i), scope));
     }
 
     target->putChild(enhancedNode);
+    */
   }
 }
 
-void enhanceInternalRoot(AstNode *node, EnhancedAstNode *target, Scope scope) {
+/*void enhanceInternalRoot(AstNode *node, EnhancedAstNode *target, Scope scope) {
   static auto log = LoggerSharedInstance::get();
   
   AstNode *packageNode = nullptr;
@@ -157,7 +166,7 @@ void enhanceInternalRoot(AstNode *node, EnhancedAstNode *target, Scope scope) {
   }
 
   enhanceInternal(new_node, new_target, scope);
-}
+}*/
 
 EnhancedAstNode *AstEnhancer::enhance(AstNode *node) {
   EnhancedAstNode *root = new EnhancedAstNode();
@@ -165,7 +174,7 @@ EnhancedAstNode *AstEnhancer::enhance(AstNode *node) {
   root->setData(node->getData());
 
   Scope scope;
-  enhanceInternalRoot(node, root, scope);
+  enhanceInternal(node, root, scope);
 
   return root;
 }

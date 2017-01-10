@@ -11,8 +11,8 @@ private:
 
 public:
   AstEnhancerTestSuite() {
-    // Turn off logging.
-    LoggerSharedInstance::get()->setLevel(levelToInt(Level::Off));
+    // Log fatal errors only.
+    LoggerSharedInstance::get()->setLevel(levelToInt(Level::Fatal));
   }
 
   // TODO create test for declare without assign.

@@ -9,7 +9,8 @@ class ParserTestSuite : public CxxTest::TestSuite {
 
 public:
   ParserTestSuite() {
-    LoggerSharedInstance::get()->setLevel(levelToInt(Level::Off));
+    // Log fatal errors only.
+    LoggerSharedInstance::get()->setLevel(levelToInt(Level::Fatal));
 
     loadParserStage1Data();
   }
