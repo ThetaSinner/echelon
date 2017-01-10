@@ -79,7 +79,7 @@ EnhancedAstNode *EchelonCompiler::enhanceInternal(std::string input) {
 }
 
 EnhancedAstNode *EchelonCompiler::enhance(std::string input) {
-  return exception_wrapper(this, EchelonCompiler::enhanceInternal, input);
+  return exception_wrapper(this, &EchelonCompiler::enhanceInternal, input);
 }
 
 std::string EchelonCompiler::compile(std::string input) {
