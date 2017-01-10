@@ -124,13 +124,48 @@ void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope scope) {
   }
 }
 
+void enhanceInternalRoot(AstNode *node, EnhancedAstNode *target, Scope scope) {
+  static auto log = LoggerSharedInstance::get();
+  
+  AstNode *packageNode = nullptr;
+  if (node->getChild(0)->getType() == AstNodeType::Package) {
+    packageNode = node->getChild(0);
+  }
+  else if (node->hasChild(AstNodeType::Package)) {
+    log->at(Level::Warn) << "Package declaration should be the first statement.";
+    packageNode = node->getChild(AstNodeType::Package);
+  }
+
+  auto new_node = node;
+  auto new_target = target;
+  if (packageNode != nullptr) {
+    auto& packageEnhancer = NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::Package);
+    // Build the package structure on the target.
+    target->putChild(packageEnhancer(packageNode, scope));
+
+    while (new_target->getChildCount()) {
+      new_target = new_target->getChild(EnhancedAstNodeType::Package);
+    }
+
+    // Create a new node rather than modifying the exiting node.
+    new_node = new AstNode();
+    for (unsigned i = 0; i < node->getChildCount(); i++) {
+      if (node->getChild(i)->getType() != AstNodeType::Package) {
+        new_node->putChild(node->getChild(i));
+      }
+    }
+  }
+
+  enhanceInternal(new_node, new_target, scope);
+}
+
 EnhancedAstNode *AstEnhancer::enhance(AstNode *node) {
   EnhancedAstNode *root = new EnhancedAstNode();
   root->setNodeType(EnhancedAstNodeType::Program);
   root->setData(node->getData());
 
   Scope scope;
-  enhanceInternal(node, root, scope);
+  enhanceInternalRoot(node, root, scope);
 
   return root;
 }

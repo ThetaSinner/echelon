@@ -4,6 +4,8 @@
 enum class EnhancedAstNodeType {
   None,
 
+  Package,
+
   Program,
   Variable,
   PrimitiveValue,

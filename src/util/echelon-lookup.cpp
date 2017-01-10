@@ -266,6 +266,8 @@ std::string EchelonLookup::toString(EnhancedAstNodeType t) {
   switch (t) {
     case EnhancedAstNodeType::None:
       return "none";
+    case EnhancedAstNodeType::Package:
+      return "package";
     case EnhancedAstNodeType::Program:
       return "program";
     case EnhancedAstNodeType::TypeName:

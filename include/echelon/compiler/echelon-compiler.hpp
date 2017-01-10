@@ -17,6 +17,7 @@ class EchelonCompiler {
   CodeGenerator *codeGenerator;
 
   std::list<Token *> tokenizeInternal(std::string input);
+  EnhancedAstNode *enhanceInternal(std::string input);
 public:
   EchelonCompiler();
 

@@ -74,8 +74,12 @@ EnhancedAstNode *EchelonCompiler::enhance(AstNode *input) {
   return astEnhancer.enhance(input);
 }
 
-EnhancedAstNode *EchelonCompiler::enhance(std::string input) {
+EnhancedAstNode *EchelonCompiler::enhanceInternal(std::string input) {
   return enhance(parse(tokenize(input)));
+}
+
+EnhancedAstNode *EchelonCompiler::enhance(std::string input) {
+  return exception_wrapper(this, EchelonCompiler::enhanceInternal, input);
 }
 
 std::string EchelonCompiler::compile(std::string input) {

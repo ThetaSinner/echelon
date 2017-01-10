@@ -90,4 +90,17 @@ void loadAstEnhancerDataInternal() {
 
                                                        return base;
                                                      });
+
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::Package, [](AstNode *node, Scope scope) -> EnhancedAstNode * {
+    auto base = new EnhancedAstNode();
+    base->setNodeType(EnhancedAstNodeType::Package);
+    base->setData(node->getData());
+
+    if (node->getChildCount() > 0) {
+      auto& packageEnhancer = NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::Package);
+      base->putChild(packageEnhancer(node->getChild(0), scope));
+    }
+
+    return base;
+  });
 }

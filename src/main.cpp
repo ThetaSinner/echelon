@@ -24,7 +24,7 @@ int main(int argc, char **args) {
     // TODO Need private variables to try to implement anything here.. so it's context time.
     //auto out = compiler.enhance("behaviour ToString {\n  function toString() -> string\n}\n\ntype BigInteger {\n}");
 
-    auto out = compiler.parse("function MyModule::MyType::toString(integer t) {\n// do something\n}");
+    auto out = compiler.enhance("package Test::Package::Name\ninteger x = 5");
     log->at(Level::Info) << to_string(out) << "\n";
   }
   catch (const std::runtime_error &e) {
