@@ -130,9 +130,13 @@ void loadTransformers() {
 
         // think I'm creating an extra level that I don't need.
         if (!astTransformData->getSubProcessAstNodes()->empty()) {
+          auto block = new AstNode();
+          block->setType(AstNodeType::Block);
+          base->putChild(block);
+
           // Map all children of the sub process node as children of "base".
           for (unsigned i = 0; i < astTransformData->getSubProcessAstNodes()->front()->getChildCount(); i++) {
-            base->putChild(astTransformData->getSubProcessAstNodes()->front()->getChild(i));
+            block->putChild(astTransformData->getSubProcessAstNodes()->front()->getChild(i));
           }
           astTransformData->getSubProcessAstNodes()->pop();
         }

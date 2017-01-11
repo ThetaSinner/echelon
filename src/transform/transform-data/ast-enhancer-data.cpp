@@ -3,6 +3,7 @@
 #include <echelon/transform/ast-node-enhancer-input-data.hpp>
 #include <echelon/transform/ast-node-enhancer-output-data.hpp>
 #include <echelon/ast/transform-stage/node-enhancer-lookup.hpp>
+#include <echelon/ast/transform-stage/enhanced-ast-block-node.hpp>
 
 void loadAstEnhancerDataInternal();
 
@@ -169,6 +170,72 @@ void loadAstEnhancerDataInternal() {
 
       NodeEnhancerLookup::getInstance()->getNodeEnhancer(nodeToMap->getChild(i)->getType())(subInput);
     }
+
+    outputData.getTargetNode()->putChild(base);
+    return outputData;
+  });
+
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::Module, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
+    AstNodeEnhancerOutputData outputData(input);
+
+    auto nodeToMap = input.getNodeToMap();
+
+    auto data = nodeToMap->getData();
+    auto base = new EnhancedAstNode();
+    base->setNodeType(EnhancedAstNodeType::Module);
+    base->setData(data);
+
+    if (!input.getScope()->hasModule(data)) {
+      input.getScope()->addModule(data, base);
+    }
+    else {
+      throw std::runtime_error("Error, module " + data + "] already exists.");
+    }
+
+    if (nodeToMap->hasChild(AstNodeType::Block)) {
+      AstNodeEnhancerInputData subInput = input;
+      subInput.setTargetNode(base);
+      subInput.setNodeToMap(nodeToMap->getChild(AstNodeType::Block));
+
+      NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::Block)(subInput);
+    }
+
+    outputData.getTargetNode()->putChild(base);
+    return outputData;
+  });
+
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::Block, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
+    AstNodeEnhancerOutputData outputData(input);
+
+    auto nodeToMap = input.getNodeToMap();
+
+    auto base = new EnhancedAstBlockNode();
+    base->setNodeType(EnhancedAstNodeType::Block);
+
+    Scope* blockScope = new Scope(*input.getScope());
+    base->setScope(blockScope);
+
+    AstNodeEnhancerInputData subInput = input;
+    subInput.setTargetNode(base);
+    subInput.setScope(blockScope);
+    for (unsigned i = 0; i < nodeToMap->getChildCount(); i++) {
+      subInput.setNodeToMap(nodeToMap->getChild(i));
+
+      NodeEnhancerLookup::getInstance()->getNodeEnhancer(nodeToMap->getChild(i)->getType())(subInput);
+    }
+
+    outputData.getTargetNode()->putChild(base);
+    return outputData;
+  });
+
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::SingleLineComment, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
+    AstNodeEnhancerOutputData outputData(input);
+
+    auto nodeToMap = input.getNodeToMap();
+
+    auto base = new EnhancedAstNode();
+    base->setNodeType(EnhancedAstNodeType::SingleLineComment);
+    base->setData(nodeToMap->getData());
 
     outputData.getTargetNode()->putChild(base);
     return outputData;

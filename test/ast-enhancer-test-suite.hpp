@@ -4,6 +4,7 @@
 #include <echelon/parser/parser-data/parser-stage-1-data-load.hpp>
 #include <echelon/parser/parser-data/parser-stage-2-data-load.hpp>
 #include <echelon/compiler/echelon-compiler.hpp>
+#include <echelon/ast/transform-stage/enhanced-ast-block-node.hpp>
 
 class AstEnhancerTestSuite : public CxxTest::TestSuite {
 private:
@@ -73,6 +74,34 @@ public:
     TS_ASSERT(name_package->hasChild(EnhancedAstNodeType::Variable));
 
     // don't care about the variable. Just that it exists.
+  }
+
+  void testBlockScope() {
+    auto ast = compiler.enhance("package PackageName\ninteger u\nmodule TestModule {\ninteger v = 12\ninteger w = 15\n}");
+
+    auto scope = ((EnhancedAstBlockNode*) ast)->getScope();
+    TS_ASSERT(scope != nullptr);
+    TS_ASSERT(scope->hasVariable("u"));
+    TS_ASSERT(scope->hasModule("TestModule"));
+    TS_ASSERT(!scope->hasVariable("v"));
+    TS_ASSERT(!scope->hasVariable("w"));
+
+    TS_ASSERT(ast->hasChild(EnhancedAstNodeType::Package));
+    auto package = ast->getChild(EnhancedAstNodeType::Package);
+
+    TS_ASSERT(package->hasChild(EnhancedAstNodeType::Module));
+    auto module = package->getChild(EnhancedAstNodeType::Module);
+    TS_ASSERT_EQUALS("TestModule", module->getData());
+
+    TS_ASSERT(module->hasChild(EnhancedAstNodeType::Block));
+    auto block = module->getChild(EnhancedAstNodeType::Block);
+
+    auto blockScope = ((EnhancedAstBlockNode*) block)->getScope();
+    TS_ASSERT(blockScope != nullptr);
+    TS_ASSERT(blockScope->hasVariable("u"));
+    TS_ASSERT(blockScope->hasModule("TestModule"));
+    TS_ASSERT(blockScope->hasVariable("v"));
+    TS_ASSERT(blockScope->hasVariable("w"));
   }
 
   // TODO this isn't ready yet. Need to be able to map the block and type or determine the type from the block.

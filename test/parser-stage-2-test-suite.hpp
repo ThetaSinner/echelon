@@ -75,29 +75,24 @@ public:
   }
 
   void test_nestedModule(void) {
-    std::list<Token *> program;
-    program.push_back(new Token("module", TokenType::Identifier));
-    program.push_back(new Token("name", TokenType::Identifier));
-    program.push_back(new Token("{", TokenType::BlockDelimiterOpen));
-    program.push_back(new Token("module", TokenType::Identifier));
-    program.push_back(new Token("nested", TokenType::Identifier));
-    program.push_back(new Token("{", TokenType::BlockDelimiterOpen));
-    program.push_back(new Token("}", TokenType::BlockDelimiterClose));
-    program.push_back(new Token("}", TokenType::BlockDelimiterClose));
-
-    auto ast = parser.parse(program);
+    auto ast = compiler.parse("module name {module nested {}}");
 
     TS_ASSERT_EQUALS("root", ast->getData());
     TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
     TS_ASSERT_EQUALS(1, ast->getChildCount());
 
-    TS_ASSERT_EQUALS(AstNodeType::Module, ast->getChild(0)->getType());
-    TS_ASSERT_EQUALS("name", ast->getChild(0)->getData());
-    TS_ASSERT_EQUALS(1, ast->getChild(0)->getChildCount());
+    TS_ASSERT(ast->hasChild(AstNodeType::Module));
+    auto module = ast->getChild(AstNodeType::Module);
+    TS_ASSERT_EQUALS("name", module->getData());
+    TS_ASSERT_EQUALS(1, module->getChildCount());
 
-    TS_ASSERT_EQUALS(AstNodeType::Module, ast->getChild(0)->getChild(0)->getType());
-    TS_ASSERT_EQUALS("nested", ast->getChild(0)->getChild(0)->getData());
-    TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(0)->getChildCount());
+    TS_ASSERT(module->hasChild(AstNodeType::Block));
+    auto block = module->getChild(AstNodeType::Block);
+
+    TS_ASSERT(block->hasChild(AstNodeType::Module));
+    auto nestedModule = block->getChild(AstNodeType::Module);
+    TS_ASSERT_EQUALS("nested", nestedModule->getData());
+    TS_ASSERT_EQUALS(0, nestedModule->getChildCount());
   }
 
   void test_SiblingModules() {
@@ -122,17 +117,21 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
     TS_ASSERT_EQUALS(1, ast->getChildCount());
 
-    TS_ASSERT_EQUALS(AstNodeType::Module, ast->getChild(0)->getType());
-    TS_ASSERT_EQUALS("name", ast->getChild(0)->getData());
-    TS_ASSERT_EQUALS(2, ast->getChild(0)->getChildCount());
+    TS_ASSERT(ast->hasChild(AstNodeType::Module));
+    auto module = ast->getChild(AstNodeType::Module);
+    TS_ASSERT_EQUALS("name", module->getData());
 
-    TS_ASSERT_EQUALS(AstNodeType::Module, ast->getChild(0)->getChild(0)->getType());
-    TS_ASSERT_EQUALS("nested1", ast->getChild(0)->getChild(0)->getData());
-    TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(0)->getChildCount());
+    TS_ASSERT(module->hasChild(AstNodeType::Block));
+    auto block = module->getChild(AstNodeType::Block);
+    TS_ASSERT_EQUALS(2, block->getChildCount());
 
-    TS_ASSERT_EQUALS(AstNodeType::Module, ast->getChild(0)->getChild(1)->getType());
-    TS_ASSERT_EQUALS("nested2", ast->getChild(0)->getChild(1)->getData());
-    TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(1)->getChildCount());
+    TS_ASSERT_EQUALS(AstNodeType::Module, block->getChild(0)->getType());
+    TS_ASSERT_EQUALS("nested1", block->getChild(0)->getData());
+    TS_ASSERT_EQUALS(0, block->getChild(0)->getChildCount());
+
+    TS_ASSERT_EQUALS(AstNodeType::Module, block->getChild(1)->getType());
+    TS_ASSERT_EQUALS("nested2", block->getChild(1)->getData());
+    TS_ASSERT_EQUALS(0, block->getChild(1)->getChildCount());
   }
 
   void testVariableDeclaration(void) {

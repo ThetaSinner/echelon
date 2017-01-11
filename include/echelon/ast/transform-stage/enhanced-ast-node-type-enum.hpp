@@ -5,6 +5,9 @@ enum class EnhancedAstNodeType {
   None,
 
   Package,
+  Module,
+
+  Block,
 
   Program,
   Variable,
@@ -15,9 +18,11 @@ enum class EnhancedAstNodeType {
   FunctionParamDefinition,
   FunctionParamDefinitions,
 
+  SingleLineComment,
+
 #ifdef ECHELON_DEBUG
   First = None,
-  Last = FunctionParamDefinitions,
+  Last = SingleLineComment,
 #endif
 };
 

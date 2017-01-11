@@ -9,6 +9,7 @@
 
 class Scope {
   std::map<std::string, EnhancedAstNode*> variables;
+  std::map<std::string, EnhancedAstNode*> modules;
   std::map<std::string, std::list<EnhancedAstNode*>> functions;
 public:
   void addVariable(std::string name, EnhancedAstNode *enhancedAstNode) {
@@ -29,6 +30,14 @@ public:
 
   std::list<EnhancedAstNode*>& getFunctions(std::string name) {
     return functions.at(name);
+  }
+
+  void addModule(std::string name, EnhancedAstNode* enhancedAstNode) {
+    modules.insert({name, enhancedAstNode});
+  }
+
+  bool hasModule(std::string name) {
+    return modules.find(name) != modules.end();
   }
 };
 

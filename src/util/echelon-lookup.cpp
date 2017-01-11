@@ -268,6 +268,10 @@ std::string EchelonLookup::toString(EnhancedAstNodeType t) {
       return "none";
     case EnhancedAstNodeType::Package:
       return "package";
+    case EnhancedAstNodeType::Module:
+      return "module";
+    case EnhancedAstNodeType::Block:
+      return "block";
     case EnhancedAstNodeType::Program:
       return "program";
     case EnhancedAstNodeType::TypeName:
@@ -282,6 +286,8 @@ std::string EchelonLookup::toString(EnhancedAstNodeType t) {
       return "function param definition";
     case EnhancedAstNodeType::FunctionParamDefinitions:
       return "function param definitions";
+    case EnhancedAstNodeType::SingleLineComment:
+      return "single line comment";
   }
 
   throw std::runtime_error("Missing to string case for enhanced ast node type.");

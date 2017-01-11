@@ -10,6 +10,7 @@
 #include <echelon/transform/ast-node-enhancer-input-data.hpp>
 #include <echelon/transform/ast-node-enhancer-output-data.hpp>
 #include <echelon/ast/transform-stage/node-enhancer-lookup.hpp>
+#include <echelon/ast/transform-stage/enhanced-ast-block-node.hpp>
 
 bool doFunctionSignaturesMatch(EnhancedAstNode *left, EnhancedAstNode *right) {
 #ifdef ECHELON_DEBUG
@@ -63,7 +64,7 @@ bool doFunctionSignaturesMatch(EnhancedAstNode *left, EnhancedAstNode *right) {
   return match;
 }
 
-void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope scope) {
+void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope* scope) {
   auto working_target = target;
 
   for (unsigned i = 0; i < node->getChildCount(); i++) {
@@ -73,7 +74,7 @@ void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope scope) {
     input.setSourceNode(node);
     input.setNodeToMap(node->getChild(i));
     input.setTargetNode(working_target);
-    input.setScope(&scope);
+    input.setScope(scope);
 
     auto output = nodeEnhancer(input);
 
@@ -169,11 +170,13 @@ void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope scope) {
 }*/
 
 EnhancedAstNode *AstEnhancer::enhance(AstNode *node) {
-  EnhancedAstNode *root = new EnhancedAstNode();
+  auto root = new EnhancedAstBlockNode(); // TODO is this okay?
   root->setNodeType(EnhancedAstNodeType::Program);
   root->setData(node->getData());
 
-  Scope scope;
+  Scope* scope = new Scope();
+  root->setScope(scope);
+
   enhanceInternal(node, root, scope);
 
   return root;

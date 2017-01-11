@@ -1,7 +1,7 @@
 #ifndef ENHANCED_AST_NODE_HPP_INCLUDED
 #define ENHANCED_AST_NODE_HPP_INCLUDED
 
-#include <list>
+#include <vector>
 #include <string>
 
 #include <echelon/ast/transform-stage/enhanced-ast-node-type-enum.hpp>
