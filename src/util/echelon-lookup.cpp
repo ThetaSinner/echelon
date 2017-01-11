@@ -118,6 +118,8 @@ std::string EchelonLookup::toString(AstNodeType t) {
       return "block";
     case AstNodeType::Variable:
       return "variable";
+    case AstNodeType::VariableValue:
+      return "variable value";
     case AstNodeType::ExplicitType:
       return "explicit type";
     case AstNodeType::Package:

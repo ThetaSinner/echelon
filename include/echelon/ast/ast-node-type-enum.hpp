@@ -5,6 +5,7 @@ enum class AstNodeType {
   Program,
   Block,
   Variable,
+  VariableValue,
   TypeName,
   ExplicitType,
   Package,

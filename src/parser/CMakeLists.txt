@@ -30,7 +30,7 @@ add_library(${parser_lib_name}
   stage2/token-pattern-lookup.cpp
   stage2/nested-pattern-lookup.cpp
   stage2/ast-transform-data.cpp
-  )
+  parser-data/parser-stage-2-helper.cpp)
 
 target_link_libraries(${parser_lib_name}
   ${util_lib_name}

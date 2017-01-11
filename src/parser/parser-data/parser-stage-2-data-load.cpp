@@ -10,6 +10,7 @@
 
 #include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/util/to-string.hpp>
+#include <echelon/parser/parser-data/parser-stage-2-helper.hpp>
 
 void loadDataTypeKeywords() {
   EchelonLookup::getInstance()->addDataTypeKeyword("integer");
@@ -220,6 +221,43 @@ void loadTransformers() {
         base->setData(astTransformData->getTokens()->front()->getData()); // string data.
 
         // TODO extract expression builder code.
+        auto nested = astTransformData->getNestedAstNodes();
+        if (nested != nullptr && nested->size() == 2) {
+          auto oper = nested->front();
+          nested->pop();
+          auto nextExpr = nested->front();
+          nested->pop();
+
+          oper->getChild(0)->putChild(base);
+          oper->getChild(0)->putChild(nextExpr->getChild(0));
+          base = oper;
+        }
+
+        return base;
+      }));
+
+  AstTransformLookup::getInstance()->addAstTransform("expression_variable", new AstTransform(
+      [](AstTransformData *astTransformData) -> AstNode * {
+        AstNode *base = new AstNode();
+
+        auto tokens = astTransformData->getTokens();
+        if (tokens->front()->getTokenType() == TokenType::SubtractOperator) {
+          base->setType(AstNodeType::UnaryMinus);
+          tokens->pop_front();
+
+          auto variable = new AstNode();
+          variable->setType(AstNodeType::VariableValue);
+          variable->setData(tokens->front()->getData());
+          tokens->pop_front();
+
+          base->putChild(variable);
+        }
+        else {
+          base->setType(AstNodeType::VariableValue);
+          base->setData(tokens->front()->getData());
+          tokens->pop_front();
+        }
+
         auto nested = astTransformData->getNestedAstNodes();
         if (nested != nullptr && nested->size() == 2) {
           auto oper = nested->front();
@@ -833,13 +871,7 @@ void loadTransformers() {
         condition->putChild(astTransformData->getNestedAstNodes()->front()->getChild(0));
         base->putChild(condition);
 
-        auto nested = astTransformData->getSubProcessAstNodes();
-        if (!nested->empty() && nested->front()->getChildCount() > 0) {
-          auto block = new AstNode();
-          block->setType(AstNodeType::Block);
-          block->putChild(nested->front()->getChild(0));
-          base->putChild(block);
-        }
+        ParserStage2Helper::mapSubProcessAsBlock(astTransformData, base);
 
         return base;
       }));
@@ -854,14 +886,7 @@ void loadTransformers() {
         condition->putChild(astTransformData->getNestedAstNodes()->front()->getChild(0));
         base->putChild(condition);
 
-        // TODO rename variable.
-        auto nested = astTransformData->getSubProcessAstNodes();
-        if (!nested->empty() && nested->front()->getChildCount() > 0) {
-          auto block = new AstNode();
-          block->setType(AstNodeType::Block);
-          block->putChild(nested->front()->getChild(0));
-          base->putChild(block);
-        }
+        ParserStage2Helper::mapSubProcessAsBlock(astTransformData, base);
 
         return base;
       }));
@@ -875,13 +900,7 @@ void loadTransformers() {
         iter++;
         base->setData((*iter)->getData());
 
-        auto subProcess = astTransformData->getSubProcessAstNodes();
-        if (!subProcess->empty()) {
-          auto block = new AstNode();
-          block->setType(AstNodeType::Block);
-          block->putChild(subProcess->front()->getChild(0));
-          base->putChild(block);
-        }
+        ParserStage2Helper::mapSubProcessAsBlock(astTransformData, base);
 
         return base;
       }));
@@ -895,13 +914,7 @@ void loadTransformers() {
         iter++;
         base->setData((*iter)->getData());
 
-        auto subProcess = astTransformData->getSubProcessAstNodes();
-        if (!subProcess->empty()) {
-          auto block = new AstNode();
-          block->setType(AstNodeType::Block);
-          block->putChild(subProcess->front()->getChild(0));
-          base->putChild(block);
-        }
+        ParserStage2Helper::mapSubProcessAsBlock(astTransformData, base);
 
         return base;
       }));
@@ -924,10 +937,7 @@ void loadTransformers() {
         // Map the expression_range
         iterator->putChild(astTransformData->getNestedAstNodes()->front()->getChild(0));
 
-        auto block = new AstNode();
-        block->setType(AstNodeType::Block);
-        block->putChild(astTransformData->getSubProcessAstNodes()->front()->getChild(0));
-        base->putChild(block);
+        ParserStage2Helper::mapSubProcessAsBlock(astTransformData, base);
 
         return base;
       }));
@@ -1037,6 +1047,11 @@ void loadNested() {
       expression,
       "expression_function_call",
       "function_call [binary_operator expression]"
+  );
+  NestedPatternLookup::getInstance()->registerNested(
+      expression,
+      "expression_variable",
+      "[subtract_operator] identifier [binary_operator expression]"
   );
   NestedPatternLookup::getInstance()->registerNested(
       expression,
@@ -1218,16 +1233,6 @@ void loadPatterns() {
   );
 
   TokenPatternLookup::getInstance()->addTokenPattern(
-      "top_level_expression",
-      "expression"
-  );
-
-  TokenPatternLookup::getInstance()->addTokenPattern(
-      "top_level_boolean_expression",
-      "boolean_expression"
-  );
-
-  TokenPatternLookup::getInstance()->addTokenPattern(
       "enum",
       "kwd_enum identifier block_delimiter_open [identifier]* block_delimiter_close"
   );
@@ -1255,6 +1260,16 @@ void loadPatterns() {
   TokenPatternLookup::getInstance()->addTokenPattern(
       "each",
       "kwd_each identifier kwd_in iterable block_delimiter_open [block] block_delimiter_close"
+  );
+
+  TokenPatternLookup::getInstance()->addTokenPattern(
+      "top_level_expression",
+      "expression"
+  );
+
+  TokenPatternLookup::getInstance()->addTokenPattern(
+      "top_level_boolean_expression",
+      "boolean_expression"
   );
 }
 
