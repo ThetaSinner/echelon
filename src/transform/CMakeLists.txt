@@ -4,7 +4,7 @@ add_library(${transform_lib_name}
   type-deduction-engine.cpp
   ast-enhancer.cpp
   transform-data/ast-enhancer-data.cpp
-  ast-node-enhancer-input-input-data.cpp ast-node-enhancer-input-output-data.cpp)
+  ast-node-enhancer-input-input-data.cpp ast-node-enhancer-input-output-data.cpp transform-data/ast-enhancer-helper.cpp)
 
 target_link_libraries(${transform_lib_name}
   ${ast_lib_name}

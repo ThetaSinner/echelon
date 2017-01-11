@@ -7,6 +7,8 @@ enum class EnhancedAstNodeType {
   Package,
   Module,
 
+  CustomType,
+
   Block,
 
   Program,

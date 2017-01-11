@@ -22,10 +22,12 @@ enum class Keyword {
   Type,
   Public,
 
-#ifdef ECHELON_DEBUG
+  /*
+   * These allow the enum to be iterated.
+   * Would ideally prefer this only to be present in debug but it's needed in the stage 2 data.
+   */
   First = Package,
   Last = Public,
-#endif
 };
 
 #endif

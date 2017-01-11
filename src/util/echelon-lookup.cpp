@@ -270,6 +270,8 @@ std::string EchelonLookup::toString(EnhancedAstNodeType t) {
       return "package";
     case EnhancedAstNodeType::Module:
       return "module";
+    case EnhancedAstNodeType::CustomType:
+      return "custom type";
     case EnhancedAstNodeType::Block:
       return "block";
     case EnhancedAstNodeType::Program:

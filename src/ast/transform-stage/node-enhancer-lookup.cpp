@@ -18,7 +18,12 @@ NodeEnhancerLookup *NodeEnhancerLookup::getInstance() {
 }
 
 void NodeEnhancerLookup::addNodeEnhancer(AstNodeType type, NodeEnhancer nodeEnhancer) {
-  // TODO assert no overwrite
+#ifdef ECHELON_DEBUG
+  if (nodeEnhancers.find(type) != nodeEnhancers.end()) {
+    LoggerSharedInstance::get()->at(Level::Fatal) << "Overwriting node enhancer [" << EchelonLookup::getInstance()->toString(type) << "]\n";
+    throw std::runtime_error("Overwriting node enhancer {" + EchelonLookup::getInstance()->toString(type) + "]");
+  }
+#endif
 
   nodeEnhancers.insert({type, nodeEnhancer});
 }
