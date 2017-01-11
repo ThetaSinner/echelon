@@ -1050,11 +1050,6 @@ void loadNested() {
   );
   NestedPatternLookup::getInstance()->registerNested(
       expression,
-      "expression_variable",
-      "[subtract_operator] identifier [binary_operator expression]"
-  );
-  NestedPatternLookup::getInstance()->registerNested(
-      expression,
       "string",
       "string [binary_operator expression]"
   );
@@ -1077,6 +1072,12 @@ void loadNested() {
       expression,
       "boolean_value_true",
       "boolean_value_true [binary_operator expression]"
+  );
+  // TODO this should be moved up but true and false are recognised as identifiers.. see keyword todo above.
+  NestedPatternLookup::getInstance()->registerNested(
+      expression,
+      "expression_variable",
+      "[subtract_operator] identifier [binary_operator expression]"
   );
 
   std::string any_comparison_operator = "any_comparison_operator";
