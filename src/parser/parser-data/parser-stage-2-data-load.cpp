@@ -11,16 +11,23 @@
 #include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/util/to-string.hpp>
 #include <echelon/parser/parser-data/parser-stage-2-helper.hpp>
+#include <echelon/util/enum-class-iterator.hpp>
 
 void loadDataTypeKeywords() {
-  EchelonLookup::getInstance()->addDataTypeKeyword("integer");
-  EchelonLookup::getInstance()->addDataTypeKeyword("string");
+  /* TODO
+   * This has to be manually maintained.
+   *
+   * C++ Doesn't have the flexibility with enum classes for what is required here.
+   */
+
+  EchelonLookup::getInstance()->addDataTypeKeyword(EchelonLookup::getInstance()->toString(Keyword::Integer));
+  EchelonLookup::getInstance()->addDataTypeKeyword(EchelonLookup::getInstance()->toString(Keyword::String));
 }
 
-// TODO there's a problem here, in that these don't get updated automatically by adding a new keyword...
 void loadKeywords() {
-  EchelonLookup::getInstance()->addKeyword("package");
-  EchelonLookup::getInstance()->addKeyword("if");
+  for (auto i : Enum<Keyword>()) {
+    EchelonLookup::getInstance()->addKeyword(EchelonLookup::getInstance()->toString(i));
+  }
 }
 
 void loadMatchers() {
@@ -83,7 +90,7 @@ void loadMatchers() {
       return false;
     }
 
-    // TODO this is an error in the source code. Needs to be reported. Unfortunatly it's not that simple, the matcher may be called during a pattern match which ultimately fails.
+    // TODO this is an error in the source code. Needs to be reported. Unfortunately it's not that simple, the matcher may be called during a pattern match which ultimately fails.
     return !EchelonLookup::getInstance()->isKeyword(self->getEnhancedToken()->getData());
   }));
 

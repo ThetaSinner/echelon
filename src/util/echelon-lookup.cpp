@@ -21,8 +21,6 @@ EchelonLookup *EchelonLookup::getInstance() {
 
 void EchelonLookup::addDataTypeKeyword(std::string dataTypeKeyword) {
   dataTypeKeywordSet.insert(dataTypeKeyword);
-
-  keywordSet.insert(dataTypeKeyword);
 }
 
 bool EchelonLookup::isDataTypeKeyword(std::string str) {
