@@ -11,6 +11,7 @@ class Scope {
   std::map<std::string, EnhancedAstNode*> variables;
   std::map<std::string, EnhancedAstNode*> modules;
   std::map<std::string, std::list<EnhancedAstNode*>> functions;
+  std::map<std::string, EnhancedAstNode*> functionImplementations;
   std::map<std::string, std::list<EnhancedAstNode*>> prototypes;
 public:
   void addVariable(std::string name, EnhancedAstNode *enhancedAstNode) {
@@ -55,6 +56,15 @@ public:
 
   std::list<EnhancedAstNode*>* getPrototypes(std::string name) {
     return &prototypes.at(name);
+  }
+
+  bool hasFunctionImplementation(std::string functionHash) {
+    return functionImplementations.find(functionHash) != functionImplementations.end();
+  }
+
+  void addFunctionImplementation(std::string functionHash, EnhancedAstNode* enhancedAstNode) {
+    // TODO do the other function types need lists or would hashing work nicely?
+    functionImplementations.insert({functionHash, enhancedAstNode});
   }
 };
 

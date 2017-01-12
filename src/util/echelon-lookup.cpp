@@ -294,6 +294,8 @@ std::string EchelonLookup::toString(EnhancedAstNodeType t) {
       return "binary operator";
     case EnhancedAstNodeType::VariableValue:
       return "variable value";
+    case EnhancedAstNodeType::NameStructure:
+      return "name structure";
   }
 
   throw std::runtime_error("Missing to string case for enhanced ast node type.");

@@ -90,15 +90,24 @@ void loadAstEnhancerDataInternal() {
 
     auto nodeToMap = input.getNodeToMap();
 
+    // Create the base node for the function.
     auto base = new EnhancedAstNode();
     base->setNodeType(EnhancedAstNodeType::Function);
     auto data = nodeToMap->getData();
     base->setData(data);
 
-    // TODO name structure
+    // Map the name structure if it exists.
+    bool hasNameStructure = false;
+    if (nodeToMap->hasChild(AstNodeType::NameStructure)) {
+      hasNameStructure = true;
+      AstNodeEnhancerInputData subInput = input;
+      subInput.setNodeToMap(nodeToMap->getChild(AstNodeType::NameStructure));
+      subInput.setTargetNode(base);
 
-    // TODO map return type.
+      NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::NameStructure)(subInput);
+    }
 
+    // Map the parameter definitions.
     if (nodeToMap->hasChild(AstNodeType::FunctionParamDefinitions)) {
       AstNodeEnhancerInputData subInput = input;
       subInput.setTargetNode(base);
@@ -106,13 +115,42 @@ void loadAstEnhancerDataInternal() {
 
       NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::FunctionParamDefinitions)(subInput);
     }
-    
+
+    // Map the block if there is one and handle scope logic.
     auto scope = input.getScope();
     if (nodeToMap->hasChild(AstNodeType::Block)) {
-      base->setNodeSubType(EnhancedAstNodeSubType::Implementation);
       AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
 
-      // TODO Add to scope, but have to worry about name structures. And if there is a name structure we need to search for a prototype.
+      // TODO need a "yet to be determined" on the return type so it can be mapped here. Or validated against the declared type.
+
+      if (hasNameStructure) {
+        // add to scope as implementation
+        base->setNodeSubType(EnhancedAstNodeSubType::Implementation);
+
+        // It is important the name structure, function name and params have been mapped.
+        auto functionHash = AstEnhancerHelper::computeFunctionHash(base);
+        if (!scope->hasFunctionImplementation(functionHash)) {
+          scope->addFunctionImplementation(functionHash, base);
+        }
+        else {
+          throw std::runtime_error("Re-implementing function [" + functionHash + "]");
+        }
+      }
+      else {
+        if (!scope->hasFunction(data)) {
+          scope->addFunction(data, base);
+        }
+        else {
+          auto& functions = scope->getFunctions(data);
+          for (auto f : functions) {
+            if (AstEnhancerHelper::doFunctionSignaturesMatch(base, f)) {
+              throw std::runtime_error("Redeclaration of function [" + data + "]");
+            }
+          }
+
+          scope->addFunction(data, base);
+        }
+      }
     }
     else {
       // Prototypes don't have name structures.
@@ -130,7 +168,7 @@ void loadAstEnhancerDataInternal() {
 
         scope->addPrototype(data, base);
       }
-      
+
       base->setNodeSubType(EnhancedAstNodeSubType::Prototype);
     }
 
@@ -307,6 +345,27 @@ void loadAstEnhancerDataInternal() {
     auto base = new EnhancedAstNode();
     base->setNodeType(EnhancedAstNodeType::VariableValue);
     base->setData(nodeToMap->getData());
+
+    outputData.getTargetNode()->putChild(base);
+    return outputData;
+  });
+
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::NameStructure, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
+    AstNodeEnhancerOutputData outputData(input);
+
+    auto nodeToMap = input.getNodeToMap();
+
+    auto base = new EnhancedAstNode();
+    base->setNodeType(EnhancedAstNodeType::NameStructure);
+    base->setData(nodeToMap->getData());
+
+    if (nodeToMap->hasChild(AstNodeType::NameStructure)) {
+      AstNodeEnhancerInputData subInput = input;
+      subInput.setNodeToMap(nodeToMap->getChild(AstNodeType::NameStructure));
+      subInput.setTargetNode(base);
+
+      NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::NameStructure)(subInput);
+    }
 
     outputData.getTargetNode()->putChild(base);
     return outputData;

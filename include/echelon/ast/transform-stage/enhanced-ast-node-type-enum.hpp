@@ -24,6 +24,8 @@ enum class EnhancedAstNodeType {
 
   VariableValue,
 
+  NameStructure,
+
   SingleLineComment,
 
 #ifdef ECHELON_DEBUG

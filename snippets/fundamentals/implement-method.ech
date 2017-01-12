@@ -1,0 +1,7 @@
+type MyType {
+  function func() -> string
+}
+
+function MyType::func() -> integer {
+  10 * 50
+}

@@ -10,6 +10,38 @@ void AstEnhancerHelper::mapBlockIfPresent(AstNode* nodeToMap, EnhancedAstNode* t
   }
 }
 
+std::string AstEnhancerHelper::computeFunctionHash(EnhancedAstNode* enhancedAstNode) {
+  std::stringstream ss;
+
+  auto working_name_structure_node = enhancedAstNode;
+  while (working_name_structure_node->hasChild(EnhancedAstNodeType::NameStructure)) {
+    ss << working_name_structure_node->getData() << "-";
+    working_name_structure_node = enhancedAstNode->getChild(EnhancedAstNodeType::NameStructure);
+  }
+
+  // the function name
+  ss << enhancedAstNode->getData();
+
+  if (enhancedAstNode->hasChild(EnhancedAstNodeType::FunctionParamDefinitions)) {
+    ss << "-";
+
+    auto paramDefinitions = enhancedAstNode->getChild(EnhancedAstNodeType::FunctionParamDefinitions);
+    int childCount = paramDefinitions->getChildCount();
+    for (unsigned i = 0; i < childCount; i++) {
+      if (paramDefinitions->getChild(i)->hasChild(EnhancedAstNodeType::TypeName)) {
+        ss << paramDefinitions->getChild(i)->getChild(EnhancedAstNodeType::TypeName)->getData() << "-";
+      }
+
+      ss << paramDefinitions->getChild(i)->getData();
+      if (i != childCount) {
+        ss << "-";
+      }
+    }
+  }
+
+  return ss.str();
+}
+
 bool AstEnhancerHelper::doFunctionSignaturesMatch(EnhancedAstNode *left, EnhancedAstNode *right) {
 #ifdef ECHELON_DEBUG
   if (left->getNodeType() != EnhancedAstNodeType::Function || right->getNodeType() != EnhancedAstNodeType::Function) {
