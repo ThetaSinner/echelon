@@ -290,6 +290,10 @@ std::string EchelonLookup::toString(EnhancedAstNodeType t) {
       return "function param definitions";
     case EnhancedAstNodeType::SingleLineComment:
       return "single line comment";
+    case EnhancedAstNodeType::BinaryOperator:
+      return "binary operator";
+    case EnhancedAstNodeType::VariableValue:
+      return "variable value";
   }
 
   throw std::runtime_error("Missing to string case for enhanced ast node type.");
@@ -308,6 +312,12 @@ std::string EchelonLookup::toString(EnhancedAstNodeSubType t) {
       return "integer type";
     case EnhancedAstNodeSubType::Unspecified:
       return "unspecified";
+    case EnhancedAstNodeSubType::Implementation:
+      return "implementation";
+    case EnhancedAstNodeSubType::Prototype:
+      return "prototype";
+    case EnhancedAstNodeSubType::Multiply:
+      return "multiply";
   }
 
   throw std::runtime_error("Missing to string case for enhanced ast node sub type.");

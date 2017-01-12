@@ -13,6 +13,13 @@ enum class EnhancedAstNodeSubType {
   // Type
       IntegerType,
 
+  // Function
+  Implementation,
+  Prototype,
+
+  // Binary operator
+  Multiply,
+
 #ifdef ECHELON_DEBUG
   First = Unspecified,
   Last = IntegerType,

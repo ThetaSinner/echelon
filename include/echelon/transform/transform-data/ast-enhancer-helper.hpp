@@ -8,6 +8,8 @@
 class AstEnhancerHelper {
 public:
   static void mapBlockIfPresent(AstNode* nodeToMap, EnhancedAstNode* target, const AstNodeEnhancerInputData& input);
+
+  static bool doFunctionSignaturesMatch(EnhancedAstNode *left, EnhancedAstNode *right);
 };
 
 #endif

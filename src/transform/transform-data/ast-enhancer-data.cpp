@@ -92,12 +92,12 @@ void loadAstEnhancerDataInternal() {
 
     auto base = new EnhancedAstNode();
     base->setNodeType(EnhancedAstNodeType::Function);
-    // TODO sub type prototype / impl
-    base->setData(nodeToMap->getData());
+    auto data = nodeToMap->getData();
+    base->setData(data);
+
+    // TODO name structure
 
     // TODO map return type.
-
-    // TODO add to scope.
 
     if (nodeToMap->hasChild(AstNodeType::FunctionParamDefinitions)) {
       AstNodeEnhancerInputData subInput = input;
@@ -106,9 +106,33 @@ void loadAstEnhancerDataInternal() {
 
       NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::FunctionParamDefinitions)(subInput);
     }
+    
+    auto scope = input.getScope();
+    if (nodeToMap->hasChild(AstNodeType::Block)) {
+      base->setNodeSubType(EnhancedAstNodeSubType::Implementation);
+      AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
 
-    // TODO map block.
-    // AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
+      // TODO Add to scope, but have to worry about name structures. And if there is a name structure we need to search for a prototype.
+    }
+    else {
+      // Prototypes don't have name structures.
+
+      if (!scope->hasPrototype(data)) {
+        scope->addPrototype(data, base);
+      }
+      else {
+        auto prototypes = scope->getPrototypes(data);
+        for (auto p : *prototypes) {
+          if (AstEnhancerHelper::doFunctionSignaturesMatch(base, p)) {
+            throw std::runtime_error("Redeclaration of prototype [" + data + "]");
+          }
+        }
+
+        scope->addPrototype(data, base);
+      }
+      
+      base->setNodeSubType(EnhancedAstNodeSubType::Prototype);
+    }
 
     outputData.getTargetNode()->putChild(base);
     return outputData;
@@ -249,6 +273,40 @@ void loadAstEnhancerDataInternal() {
     base->setData(nodeToMap->getData());
 
     AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
+
+    outputData.getTargetNode()->putChild(base);
+    return outputData;
+  });
+
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::BinaryOperatorMultiply, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
+    AstNodeEnhancerOutputData outputData(input);
+
+    auto nodeToMap = input.getNodeToMap();
+
+    auto base = new EnhancedAstNode();
+    base->setNodeType(EnhancedAstNodeType::BinaryOperator);
+    base->setNodeSubType(EnhancedAstNodeSubType::Multiply);
+
+    AstNodeEnhancerInputData subInput = input;
+    subInput.setNodeToMap(nodeToMap->getChild(0));
+    subInput.setTargetNode(base);
+    NodeEnhancerLookup::getInstance()->getNodeEnhancer(nodeToMap->getChild(0)->getType())(subInput);
+
+    subInput.setNodeToMap(nodeToMap->getChild(1));
+    NodeEnhancerLookup::getInstance()->getNodeEnhancer(nodeToMap->getChild(1)->getType())(subInput);
+
+    outputData.getTargetNode()->putChild(base);
+    return outputData;
+  });
+
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::VariableValue, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
+    AstNodeEnhancerOutputData outputData(input);
+
+    auto nodeToMap = input.getNodeToMap();
+
+    auto base = new EnhancedAstNode();
+    base->setNodeType(EnhancedAstNodeType::VariableValue);
+    base->setData(nodeToMap->getData());
 
     outputData.getTargetNode()->putChild(base);
     return outputData;

@@ -16,9 +16,13 @@ enum class EnhancedAstNodeType {
   PrimitiveValue,
   TypeName,
 
+  BinaryOperator,
+
   Function,
   FunctionParamDefinition,
   FunctionParamDefinitions,
+
+  VariableValue,
 
   SingleLineComment,
 
