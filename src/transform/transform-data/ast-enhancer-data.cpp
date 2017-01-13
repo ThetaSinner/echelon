@@ -116,12 +116,17 @@ void loadAstEnhancerDataInternal() {
       NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::FunctionParamDefinitions)(subInput);
     }
 
+    // TODO these params need to be mapped onto the scope.
+
     // Map the block if there is one and handle scope logic.
     auto scope = input.getScope();
     if (nodeToMap->hasChild(AstNodeType::Block)) {
       AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
 
       // TODO need a "yet to be determined" on the return type so it can be mapped here. Or validated against the declared type.
+      // Ideally map this if it can be mapped.
+
+      auto typeNode = base->getChild(EnhancedAstNodeType::Block)->getLastChild();
 
       if (hasNameStructure) {
         // add to scope as implementation

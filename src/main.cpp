@@ -1,6 +1,57 @@
 #include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/util/to-string.hpp>
 #include <echelon/compiler/echelon-compiler.hpp>
+#include <echelon/ast/transform-stage/scope.hpp>
+
+class EventKey;
+
+typedef std::function<void(EventKey&, void*)> EventListener;
+typedef std::list<EventListener>::iterator EventListenerIterator;
+
+class EventKey {
+  EventListenerIterator it;
+  std::string eventId;
+public:
+  EventKey(std::string eventId, EventListenerIterator it) : eventId(eventId), it(it) {}
+
+  EventListenerIterator getEventListenerIterator() {
+    return it;
+  }
+
+  std::string getEventId() {
+    return eventId;
+  }
+};
+
+class EventCentral {
+  std::map<std::string, std::list<EventListener>> eventListeners;
+
+public:
+  void addEventListener(std::string eventId, EventListener eventListener) {
+    if (eventListeners.find(eventId) == eventListeners.end()) {
+      eventListeners.insert({eventId, {eventListener}});
+    }
+    else {
+      eventListeners.at(eventId).push_back(eventListener);
+    }
+  }
+
+  void removeEventListener(EventKey& eventKey) {
+    eventListeners.at(eventKey.getEventId()).erase(eventKey.getEventListenerIterator());
+    // Iterator is now invalid.
+  }
+
+  void triggerEvent(std::string eventId, void* eventData) {
+    if (eventListeners.find(eventId) != eventListeners.end()) {
+      std::list<EventListener>& list = eventListeners.at(eventId);
+      for (auto i = list.begin(); i != list.end(); i++) {
+        // TODO catch exceptions here? Not really necessary but might be nice to log here.
+        EventKey eventKey(eventId, i);
+        (*i)(eventKey, eventData);
+      }
+    }
+  }
+};
 
 int main(int argc, char **args) {
   Logger *log = LoggerSharedInstance::get();
@@ -11,9 +62,22 @@ int main(int argc, char **args) {
   log->at(Level::Info) << "This is a release build.\n";
 #endif
 
+  EventCentral eventCentral;
+
+  eventCentral.addEventListener("event_id", [&eventCentral](EventKey& eventKey, void* data) {
+    std::cout << "event handler\n";
+    std::cout << ((EnhancedAstNode*) data)->getData();
+    eventCentral.removeEventListener(eventKey);
+  });
+
+  eventCentral.triggerEvent("event_id", nullptr);
+  eventCentral.triggerEvent("event_id", nullptr);
+
   LoggerSharedInstance::get()->setLevel(levelToInt(Level::Debug));
 
   EchelonCompiler compiler;
+
+  // TODO split scope into parent and local so that pointers can be used and declarations can be in any order.
 
   // TODO allow comments inside patterns. e.g. multi line comment inside function call which has been broken over lines.
 

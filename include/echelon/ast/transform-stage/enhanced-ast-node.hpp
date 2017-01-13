@@ -86,6 +86,10 @@ public:
     return nullptr;
 #endif
   }
+
+  EnhancedAstNode* getLastChild() {
+    return childList.at(childList.size() - 1);
+  }
 };
 
 #endif
