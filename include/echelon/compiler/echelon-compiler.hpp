@@ -5,7 +5,7 @@
 
 #include <echelon/parser/stage2/parser.hpp>
 #include <echelon/code-generation/code-generator.hpp>
-#include <echelon/transform/type-deduction-engine.hpp>
+#include <echelon/transform/type-deducer.hpp>
 #include <echelon/parser/stage1/tokenizer.hpp>
 #include <echelon/transform/ast-enhancer.hpp>
 
@@ -13,7 +13,7 @@ class EchelonCompiler {
   Tokenizer tokenizer;
   Parser2 parser;
   AstEnhancer astEnhancer;
-  TypeDeductionEngine typeDeductionEngine;
+  TypeDeducer typeDeducer;
   CodeGenerator *codeGenerator;
 
   std::list<Token *> tokenizeInternal(std::string input);

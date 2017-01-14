@@ -92,7 +92,7 @@ std::string EchelonCompiler::compile(std::string input) {
     f.close();
 #endif
 
-    typeDeductionEngine.deduceTypes(ast);
+    // TODO this doesn't belong here any more typeDeductionEngine.deduceTypes(ast);
 
     return codeGenerator->generate(ast);
   }
