@@ -10,6 +10,13 @@ void AstEnhancerHelper::mapBlockIfPresent(AstNode* nodeToMap, EnhancedAstNode* t
   }
 }
 
+void AstEnhancerHelper::simpleMapNode(AstNode* nodeToMap, EnhancedAstNode* target, AstNodeEnhancerInputData& input) {
+  auto subInput = input;
+  subInput.setTargetNode(target);
+  subInput.setNodeToMap(nodeToMap);
+  NodeEnhancerLookup::getInstance()->getNodeEnhancer(nodeToMap->getType())(subInput);
+}
+
 std::string AstEnhancerHelper::computeFunctionHash(EnhancedAstNode* enhancedAstNode) {
   std::stringstream ss;
 

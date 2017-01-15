@@ -28,10 +28,9 @@ enum class EnhancedAstNodeType {
 
   SingleLineComment,
 
-#ifdef ECHELON_DEBUG
+  // Not for ast structure use.
   First = None,
   Last = SingleLineComment,
-#endif
 };
 
 #endif

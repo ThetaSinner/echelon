@@ -6,10 +6,17 @@
 #include <echelon/parser/keyword-enum.hpp>
 #include <echelon/ast/ast-node.hpp>
 #include <echelon/util/event/event-container.hpp>
+#include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
+#include <echelon/ast/transform-stage/scope.hpp>
 
 class TypeDeducer {
+  void resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope);
+
 public:
-  void deduceTypes(AstNode *root);
+  /**
+   * Deduce types from a tree of \sa{EnhancedAstNode}
+   */
+  void deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, EnhancedAstNode* target);
 };
 
 #endif

@@ -14,6 +14,9 @@
 
 #endif
 
+/**
+ * \class
+ */
 class EnhancedAstNode {
   EnhancedAstNodeType nodeType = EnhancedAstNodeType::None;
   EnhancedAstNodeSubType nodeSubType = EnhancedAstNodeSubType::Unspecified;
@@ -69,6 +72,15 @@ public:
     }
 
     return false;
+  }
+
+  void removeChild(EnhancedAstNode* enhancedAstNode) {
+    for (auto c = childList.begin(); c != childList.end(); c++) {
+      if (&**c == enhancedAstNode) {
+        childList.erase(c);
+        break; // have to break or call method recursively because the iterator is destroyed.
+      }
+    }
   }
 
   EnhancedAstNode *getChild(EnhancedAstNodeType childType) {

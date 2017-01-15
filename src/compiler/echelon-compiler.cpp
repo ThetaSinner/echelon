@@ -92,8 +92,6 @@ std::string EchelonCompiler::compile(std::string input) {
     f.close();
 #endif
 
-    // TODO this doesn't belong here any more typeDeductionEngine.deduceTypes(ast);
-
     return codeGenerator->generate(ast);
   }
   catch (const std::runtime_error &e) {

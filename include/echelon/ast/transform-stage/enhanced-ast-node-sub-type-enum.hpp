@@ -8,10 +8,10 @@ enum class EnhancedAstNodeSubType {
   Assign,
 
   // Primitive Value
-      Integer,
+  Integer,
 
   // Type
-      IntegerType,
+  IntegerType,
 
   // Function
   Implementation,
@@ -19,11 +19,13 @@ enum class EnhancedAstNodeSubType {
 
   // Binary operator
   Multiply,
+  Subtract,
+  Add,
+  Divide,
 
-#ifdef ECHELON_DEBUG
+  // Not for use in ast structure.
   First = Unspecified,
-  Last = IntegerType,
-#endif
+  Last = Divide,
 };
 
 #endif

@@ -12,6 +12,8 @@ class AstEnhancerHelper {
 public:
   static void mapBlockIfPresent(AstNode* nodeToMap, EnhancedAstNode* target, const AstNodeEnhancerInputData& input);
 
+  static void simpleMapNode(AstNode* nodeToMap, EnhancedAstNode* target, AstNodeEnhancerInputData& input);
+
   static bool doFunctionSignaturesMatch(EnhancedAstNode *left, EnhancedAstNode *right);
 
   static std::string computeFunctionHash(EnhancedAstNode* enhancedAstNode);

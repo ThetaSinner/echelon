@@ -54,10 +54,9 @@ enum class AstNodeType {
   AccessSpecifierPublic,
   NameStructure,
 
-#ifdef ECHELON_DEBUG
+  // These are not for program structure.
   First = Program,
   Last = AccessSpecification,
-#endif
 };
 
 #endif
