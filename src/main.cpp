@@ -3,61 +3,7 @@
 #include <echelon/compiler/echelon-compiler.hpp>
 #include <echelon/ast/transform-stage/scope.hpp>
 #include <echelon/util/event/event-container.hpp>
-
-EnhancedAstNodeSubType nextOperator(EnhancedAstNodeSubType astNodeType) {
-  switch (astNodeType) {
-    case EnhancedAstNodeSubType::First:
-      return EnhancedAstNodeSubType::Subtract;
-    case EnhancedAstNodeSubType::Subtract:
-      return EnhancedAstNodeSubType::Add;
-    default:
-      return EnhancedAstNodeSubType::Last;
-  }
-}
-
-EnhancedAstNode* rotate(EnhancedAstNode *node, EnhancedAstNodeSubType subType = EnhancedAstNodeSubType::First) {
-  auto operatorSubType = subType;
-  while ((operatorSubType = nextOperator(operatorSubType)) != EnhancedAstNodeSubType::Last) {
-
-    // Find the first operator of this type.
-    EnhancedAstNode *parent = nullptr;
-    auto oper = node;
-    while (oper->getNodeSubType() != operatorSubType && oper->getChildCount() > 0) {
-      parent = oper;
-      oper = oper->getChild(1);
-    }
-
-    if (oper->getNodeType() != EnhancedAstNodeType::BinaryOperator) {
-      // We've hit a value, there are no more operators of teh current type, skip to the next type.
-      continue;
-    }
-
-    if (parent != nullptr) {
-      // rotate around this first operator.
-
-      // extract the operator node from its parent.
-      parent->removeChild(oper);
-
-      // Move the value from this operator node to the one above. i.e. associate left to the higher precedence operator.
-      auto value = oper->getChild(0);
-      oper->removeChild(value);
-      parent->putChild(value);
-
-      // rotate the left part.
-      auto leftPart = rotate(node, subType);
-      oper->putChild(leftPart);
-
-      // rotate the right part.
-      auto rightPart = oper->getChild(1);
-      oper->removeChild(rightPart);
-      oper->putChild(rotate(rightPart, subType));
-
-      return oper;
-    }
-  }
-
-  return node;
-}
+#include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
 
 int main(int argc, char **args) {
   Logger *log = LoggerSharedInstance::get();
@@ -96,8 +42,8 @@ int main(int argc, char **args) {
     // TODO Need private variables to try to implement anything here.. so it's context time.
     //auto out = compiler.enhance("behaviour ToString {\n  function toString() -> string\n}\n\ntype BigInteger {\n}");
 
-    auto expr = compiler.enhance("x + y - z");
-    auto e = rotate(expr->getChild(0)); // skip the program node.
+    auto expr = compiler.enhance("w + x + y - z");
+    auto e = OperatorPrecedenceTreeRestructurer::restructure(expr->getChild(0)); // skip the program node.
     log->at(Level::Info) << to_string(e);
 
     // TODO this is working as it should (apart from function return type, that's another problem) so create a test.
