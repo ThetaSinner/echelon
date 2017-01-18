@@ -63,6 +63,22 @@ void loadAstEnhancerDataInternal() {
     return outputData;
   });
 
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::BinaryOperatorDivide, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
+    AstNodeEnhancerOutputData outputData(input);
+
+    auto nodeToMap = input.getNodeToMap();
+
+    auto base = new EnhancedAstNode();
+    base->setNodeType(EnhancedAstNodeType::BinaryOperator);
+    base->setNodeSubType(EnhancedAstNodeSubType::Divide);
+
+    AstEnhancerHelper::simpleMapNode(nodeToMap->getChild(0), base, input);
+    AstEnhancerHelper::simpleMapNode(nodeToMap->getChild(1), base, input);
+
+    outputData.getTargetNode()->putChild(base);
+    return outputData;
+  });
+
   NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::TypeName, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
     AstNodeEnhancerOutputData outputData(input);
 

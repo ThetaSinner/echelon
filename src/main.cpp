@@ -4,6 +4,7 @@
 #include <echelon/ast/transform-stage/scope.hpp>
 #include <echelon/util/event/event-container.hpp>
 #include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
+#include <echelon/util/ast-to-graphviz.hpp>
 
 int main(int argc, char **args) {
   Logger *log = LoggerSharedInstance::get();
@@ -42,8 +43,14 @@ int main(int argc, char **args) {
     // TODO Need private variables to try to implement anything here.. so it's context time.
     //auto out = compiler.enhance("behaviour ToString {\n  function toString() -> string\n}\n\ntype BigInteger {\n}");
 
-    auto expr = compiler.enhance("w + x + y - z");
+    auto expr = compiler.enhance("w - x + y - z");
     auto e = OperatorPrecedenceTreeRestructurer::restructure(expr->getChild(0)); // skip the program node.
+
+    std::ofstream f("main-ast-out.gv", std::ios::out);
+    f << toGraphviz(e);
+    f.close();
+    // dot main-ast-out.gv -Tjpg -omain-ast-out.jpg && main-ast-out.jpg
+
     log->at(Level::Info) << to_string(e);
 
     // TODO this is working as it should (apart from function return type, that's another problem) so create a test.
