@@ -1,51 +1,94 @@
 #include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
 
-EnhancedAstNode* OperatorPrecedenceTreeRestructurer::restructure(EnhancedAstNode *node) {
-  auto operatorSubType = EnhancedAstNodeSubType::First;
-  while ((operatorSubType = nextOperator(operatorSubType)) != EnhancedAstNodeSubType::Last) {
+EnhancedAstNode* OperatorPrecedenceTreeRestructurer::restructureInternal(EnhancedAstNode* node, EnhancedAstNodeSubType nodeSubType) {
+  auto newRootNode = node; // alternate return value if the root node changes.
+  nodeSubType = nextOperator(nodeSubType);
 
-    auto oper = node;
-    while (oper->getChildCount() > 0) {
-      // Find the first operator of this type.
-      EnhancedAstNode *parent = nullptr;
-      while (oper->getNodeSubType() != operatorSubType && oper->getChildCount() > 0) {
-        parent = oper;
-        oper = oper->getChild(1);
-      }
+  std::list<std::pair<EnhancedAstNode*, EnhancedAstNode*>> operList;
 
-      if (oper->getNodeType() != EnhancedAstNodeType::BinaryOperator) {
-        // We've hit a value, there are no more operators of teh current type, skip to the next type.
-        continue;
-      }
-
-      if (parent != nullptr) {
-        // rotate around this first operator.
-
-        // extract the operator node from its parent.
-        parent->removeChild(oper);
-
-        // Move the value from this operator node to the one above. i.e. associate left to the higher precedence operator.
-        auto value = oper->getChild(0);
-        oper->removeChild(value);
-        parent->putChild(value);
-
-        // rotate the left part.
-        auto leftPart = restructure(node);
-        oper->putChild(leftPart);
-
-        // rotate the right part.
-        auto rightPart = oper->getChild(0);
-        oper->removeChild(rightPart);
-        oper->putChild(restructure(rightPart));
-
-        return oper;
-      }
-
-      oper = oper->getChild(1);
+  EnhancedAstNode *parent = nullptr;
+  auto oper = node;
+  while (oper->getChildCount() > 0) {
+    if (oper->getNodeType() == EnhancedAstNodeType::BinaryOperator && oper->getNodeSubType() == nodeSubType) {
+      operList.push_back(std::make_pair(oper, parent));
     }
+    parent = oper;
+    oper = oper->getChild(1);
   }
 
-  return node;
+  if (operList.empty()) {
+    return restructureInternal(node, nodeSubType);
+  }
+
+  auto firstOperator = operList.front().first;
+  auto firstParent = operList.front().second;
+
+  if (operList.front().second != nullptr) {
+    firstParent->removeChild(firstOperator);
+
+    auto leftTerm = firstOperator->getChild(0);
+    firstOperator->removeChild(leftTerm);
+
+    firstParent->putChild(leftTerm);
+
+    firstOperator->putChildFront(restructureInternal(newRootNode, nodeSubType));
+
+    newRootNode = firstOperator;
+  }
+
+  auto iter = operList.begin();
+  while (iter != operList.end() && std::next(iter, 1) != operList.end()) {
+    auto highOperator = iter->first;
+
+    auto lowOperator = std::next(iter, 1)->first;
+    auto lowParent = std::next(iter, 1)->second;
+
+    // There are two operators of the same type adjacent to one another, no need to process what's between them.
+    if (highOperator == lowParent) {
+      iter++;
+      continue;
+    }
+
+    auto extractRoot = highOperator->getChild(1);
+
+    // TODO check for two of the same operator adjacent.
+
+    // break top link.
+    highOperator->removeChild(extractRoot);
+
+    // break bottom link.
+    lowParent->removeChild(lowOperator);
+
+    // grab the value from the bottom operator to associate it to the tree being pushed down.
+    auto leftTerm = lowOperator->getChild(0);
+    lowOperator->removeChild(leftTerm);
+
+    // Attach the top level to the bottom level to cover the break.
+    highOperator->putChild(lowOperator);
+
+    // Attach the value that was grabbed off the top level of the tree.
+    lowParent->putChild(leftTerm);
+
+    // Inject the part we are pushing down after restructuring it.
+    lowOperator->putChildFront(restructureInternal(extractRoot, nodeSubType));
+
+    iter++;
+  }
+
+  auto lastOperator = operList.back().first;
+
+  // Restructure everything after the last operator of this type.
+  if (lastOperator->getChildCount() > 0 && lastOperator->getChild(1)->getNodeType() == EnhancedAstNodeType::BinaryOperator) {
+    auto extractRoot = lastOperator->getChild(1);
+    lastOperator->removeChild(extractRoot);
+    lastOperator->putChild(restructureInternal(extractRoot, nodeSubType));
+  }
+
+  return newRootNode;
+}
+
+EnhancedAstNode* OperatorPrecedenceTreeRestructurer::restructure(EnhancedAstNode* node) {
+  return restructureInternal(node, EnhancedAstNodeSubType::First);
 }
 
 EnhancedAstNodeSubType OperatorPrecedenceTreeRestructurer::nextOperator(EnhancedAstNodeSubType astNodeType) {

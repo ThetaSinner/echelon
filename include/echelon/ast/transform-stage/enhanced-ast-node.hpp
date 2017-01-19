@@ -52,6 +52,10 @@ public:
     childList.push_back(child);
   }
 
+  void putChildFront(EnhancedAstNode *child) {
+    childList.insert(childList.begin(), child);
+  }
+
   int getChildCount() {
     return childList.size();
   }

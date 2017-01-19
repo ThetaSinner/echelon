@@ -43,19 +43,9 @@ int main(int argc, char **args) {
     // TODO Need private variables to try to implement anything here.. so it's context time.
     //auto out = compiler.enhance("behaviour ToString {\n  function toString() -> string\n}\n\ntype BigInteger {\n}");
 
-    auto expr = compiler.enhance("w - x + y - z");
-    auto e = OperatorPrecedenceTreeRestructurer::restructure(expr->getChild(0)); // skip the program node.
-
-    std::ofstream f("main-ast-out.gv", std::ios::out);
-    f << toGraphviz(e);
-    f.close();
-    // dot main-ast-out.gv -Tjpg -omain-ast-out.jpg && main-ast-out.jpg
-
-    log->at(Level::Info) << to_string(e);
-
     // TODO this is working as it should (apart from function return type, that's another problem) so create a test.
-    //auto out = compiler.enhance("package PackageName\ntype MyType {\n  integer my_x = 5\n  integer my_y=4  public function get_product() -> integer}\n\nfunction MyType::get_product() -> integer {\n  my_x * my_y}");
-    //log->at(Level::Info) << to_string(out) << "\n";
+    auto out = compiler.enhance("package PackageName\ntype MyType {\n  integer my_x = 5\n  integer my_y=4  public function get_product() -> integer}\n\nfunction MyType::get_product() -> integer {\n  my_x * my_y}");
+    log->at(Level::Info) << to_string(out) << "\n";
   }
   catch (const std::runtime_error &e) {
     LoggerSharedInstance::get()->at(Level::Fatal) << "dev compile failed [" << e.what() << "]";
