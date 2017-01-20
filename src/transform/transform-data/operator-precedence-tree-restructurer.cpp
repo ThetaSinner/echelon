@@ -1,6 +1,17 @@
 #include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
 
 EnhancedAstNode* OperatorPrecedenceTreeRestructurer::restructureInternal(EnhancedAstNode* node, EnhancedAstNodeSubType nodeSubType) {
+  // TODO needs to allow integer float... etc so change to check for children.
+  if (node->getNodeType() == EnhancedAstNodeType::VariableValue) {
+    return node;
+  }
+  if (node->getNodeType() == EnhancedAstNodeType::ExpressionGroup) {
+    auto subExpression = node->getChild(0);
+    node->removeChild(subExpression);
+    node->putChild(restructureInternal(subExpression, EnhancedAstNodeSubType::First));
+    return node;
+  }
+
   auto newRootNode = node; // alternate return value if the root node changes.
   nodeSubType = nextOperator(nodeSubType);
 
@@ -13,11 +24,22 @@ EnhancedAstNode* OperatorPrecedenceTreeRestructurer::restructureInternal(Enhance
       operList.push_back(std::make_pair(oper, parent));
     }
     parent = oper;
-    oper = oper->getChild(1);
+    if (oper->hasChild(EnhancedAstNodeType::BinaryOperator)) {
+      oper = oper->getChild(1);
+    }
+    else {
+      break;
+    }
   }
 
   if (operList.empty()) {
     return restructureInternal(node, nodeSubType);
+  }
+
+  for (auto& i : operList) {
+    auto processLeft = i.first->getChild(0);
+    i.first->removeChild(processLeft);
+    i.first->putChildFront(restructureInternal(processLeft, EnhancedAstNodeSubType::First));
   }
 
   auto firstOperator = operList.front().first;
@@ -82,6 +104,11 @@ EnhancedAstNode* OperatorPrecedenceTreeRestructurer::restructureInternal(Enhance
     auto extractRoot = lastOperator->getChild(1);
     lastOperator->removeChild(extractRoot);
     lastOperator->putChild(restructureInternal(extractRoot, nodeSubType));
+  }
+  else if (lastOperator->getChildCount() > 0 && lastOperator->getChild(1)->getNodeType() == EnhancedAstNodeType::ExpressionGroup) {
+    auto extractRoot = lastOperator->getChild(1)->getChild(0);
+    lastOperator->getChild(1)->removeChild(extractRoot);
+    lastOperator->getChild(1)->putChild(restructureInternal(extractRoot, EnhancedAstNodeSubType::First));
   }
 
   return newRootNode;

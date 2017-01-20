@@ -79,6 +79,25 @@ void loadAstEnhancerDataInternal() {
     return outputData;
   });
 
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::ExprGroup, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
+    AstNodeEnhancerOutputData outputData(input);
+
+    auto base = new EnhancedAstNode();
+    base->setNodeType(EnhancedAstNodeType::ExpressionGroup);
+
+    AstNode* subNodeToMap = input.getNodeToMap()->getChild(0);
+    AstNodeEnhancerInputData subInput = input;
+    subInput.setSourceNode(input.getSourceNode());
+    subInput.setTargetNode(base);
+    subInput.setNodeToMap(subNodeToMap);
+
+    NodeEnhancerLookup::getInstance()->getNodeEnhancer(subNodeToMap->getType())(subInput);
+
+    outputData.getTargetNode()->putChild(base);
+
+    return outputData;
+  });
+
   NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::TypeName, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
     AstNodeEnhancerOutputData outputData(input);
 

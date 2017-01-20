@@ -23,6 +23,7 @@ enum class EnhancedAstNodeType {
   FunctionParamDefinitions,
 
   VariableValue,
+  ExpressionGroup,
 
   NameStructure,
 
