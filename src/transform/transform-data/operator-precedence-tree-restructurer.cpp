@@ -1,5 +1,7 @@
 #include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
 
+// TODO this doesn't belong under transform-data
+
 EnhancedAstNode* OperatorPrecedenceTreeRestructurer::restructureInternal(EnhancedAstNode* node, EnhancedAstNodeSubType nodeSubType) {
   // TODO needs to allow integer float... etc so change to check for children.
   if (node->getNodeType() == EnhancedAstNodeType::VariableValue) {

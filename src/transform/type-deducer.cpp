@@ -20,5 +20,8 @@ void TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNode, Sco
   // use rules to determine the result i.e. *, integer, decimal -> decimal
   // either return the type or an object describing what's missing.
 
+  if (expressionNode->getChildCount() > 0) {
+    return;
+  }
   // TODO need types to be in the right order (rotate tree for parenthesis and operator precedence) before this can proceed.
 }
