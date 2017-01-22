@@ -26,6 +26,11 @@ public:
     typeRuleMap.insert(std::make_pair(makeKey(subType, leftType, rightType), resultType));
   }
 
+  static bool hasRule(EnhancedAstNodeSubType subType, std::string leftType, std::string rightType) {
+    std::string key = makeKey(subType, leftType, rightType);
+    return typeRuleMap.find(key) != typeRuleMap.end();
+  }
+
   static std::string lookup(EnhancedAstNodeSubType subType, std::string leftType, std::string rightType) {
     std::string key = makeKey(subType, leftType, rightType);
     if (typeRuleMap.find(key) != typeRuleMap.end()) {

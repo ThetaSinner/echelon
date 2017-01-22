@@ -13,14 +13,14 @@
 #include <echelon/transform/type-rule-lookup.hpp>
 
 class TypeDeducer {
-  void resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope);
+  TypeResolve resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope);
 public:
   /**
    * Deduce types from a tree of \sa{EnhancedAstNode}
    */
   void deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, EnhancedAstNode* target);
 
-  std::string toTypeName(EnhancedAstNode* node);
+  TypeNameResolve resolveTypeName(EnhancedAstNode* node);
 };
 
 #endif

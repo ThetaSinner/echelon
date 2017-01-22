@@ -6,6 +6,14 @@ class TypeResolve {
 
   std::list<EnhancedAstNode*> dependencyNodes;
 public:
+  void setTypeName(std::string typeName) {
+    this->typeName = typeName;
+  }
+
+  std::string getTypeName() {
+    return typeName;
+  }
+
   bool isResolved() {
     return resolved;
   }
@@ -17,7 +25,21 @@ public:
 
 class TypeNameResolve {
   std::string typeName;
-  
+  bool resolved = false;
+
+public:
+  void setTypeName(std::string typeName) {
+    this->typeName = typeName;
+    resolved = true;
+  }
+
+  std::string getTypeName() {
+    return typeName;
+  }
+
+  bool isResolved() {
+    return resolved;
+  }
 };
 
 void TypeDeducer::deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, EnhancedAstNode* target) {
@@ -35,29 +57,46 @@ void TypeDeducer::deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, Enh
   // this method won't be called again.
 }
 
-void TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope) {
+TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope) {
   // grab operator and call resolve on left and right.
   // use rules to determine the result i.e. *, integer, decimal -> decimal
   // either return the type or an object describing what's missing.
 
+  TypeResolve typeResolve;
+
   if (expressionNode->getChildCount() > 0) {
-    resolveTypeFromExpression(expressionNode->getChild(0), scope);
-    resolveTypeFromExpression(expressionNode->getChild(1), scope);
-    // TODO return value TypeRuleLookup::lookup(expressionNode->getNodeSubType(), )
-    return;
+    auto typeNameResolveLeft = resolveTypeFromExpression(expressionNode->getChild(0), scope);
+    auto typeNameResolveRight = resolveTypeFromExpression(expressionNode->getChild(1), scope);
+
+    if (typeNameResolveLeft.isResolved() && typeNameResolveRight.isResolved()) {
+      if (TypeRuleLookup::hasRule(expressionNode->getNodeSubType(), typeNameResolveLeft.getTypeName(), typeNameResolveRight.getTypeName())) {
+        typeResolve.setTypeName(TypeRuleLookup::lookup(expressionNode->getNodeSubType(), typeNameResolveLeft.getTypeName(), typeNameResolveRight.getTypeName()));
+      }
+      // else error.
+    }
+    // else map dependencies.
   }
   else {
-    toTypeName(expressionNode);
+    auto typeNameResolve = resolveTypeName(expressionNode);
+
+    if (typeNameResolve.isResolved()) {
+      typeResolve.setTypeName(typeNameResolve.getTypeName());
+    }
+    // else map dependencies.
   }
+
+  return typeResolve;
 }
 
-std::string TypeDeducer::toTypeName(EnhancedAstNode* node) {
+TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node) {
+  TypeNameResolve typeNameResolve;
+
   if (node->getNodeType() == EnhancedAstNodeType::PrimitiveValue) {
     switch (node->getNodeSubType()) {
       case EnhancedAstNodeSubType::Integer:
-        return "integer";
+        typeNameResolve.setTypeName("integer");
     }
   }
 
-  throw std::runtime_error("Can't convert to typename.");
+  return typeNameResolve;
 }
