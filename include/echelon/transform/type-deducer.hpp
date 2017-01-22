@@ -12,6 +12,48 @@
 #include <echelon/ast/transform-stage/scope.hpp>
 #include <echelon/transform/type-rule-lookup.hpp>
 
+class TypeResolve {
+  std::string typeName;
+  bool resolved = false;
+
+  std::list<EnhancedAstNode*> dependencyNodes;
+public:
+  void setTypeName(std::string typeName) {
+    this->typeName = typeName;
+  }
+
+  std::string getTypeName() {
+    return typeName;
+  }
+
+  bool isResolved() {
+    return resolved;
+  }
+
+  void pushDependency(EnhancedAstNode* node) {
+    dependencyNodes.push_back(node);
+  }
+};
+
+class TypeNameResolve {
+  std::string typeName;
+  bool resolved = false;
+
+public:
+  void setTypeName(std::string typeName) {
+    this->typeName = typeName;
+    resolved = true;
+  }
+
+  std::string getTypeName() {
+    return typeName;
+  }
+
+  bool isResolved() {
+    return resolved;
+  }
+};
+
 class TypeDeducer {
   TypeResolve resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope);
 public:

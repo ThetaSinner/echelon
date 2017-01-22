@@ -1,47 +1,5 @@
 #include <echelon/transform/type-deducer.hpp>
 
-class TypeResolve {
-  std::string typeName;
-  bool resolved = false;
-
-  std::list<EnhancedAstNode*> dependencyNodes;
-public:
-  void setTypeName(std::string typeName) {
-    this->typeName = typeName;
-  }
-
-  std::string getTypeName() {
-    return typeName;
-  }
-
-  bool isResolved() {
-    return resolved;
-  }
-
-  void pushDependency(EnhancedAstNode* node) {
-    dependencyNodes.push_back(node);
-  }
-};
-
-class TypeNameResolve {
-  std::string typeName;
-  bool resolved = false;
-
-public:
-  void setTypeName(std::string typeName) {
-    this->typeName = typeName;
-    resolved = true;
-  }
-
-  std::string getTypeName() {
-    return typeName;
-  }
-
-  bool isResolved() {
-    return resolved;
-  }
-};
-
 void TypeDeducer::deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, EnhancedAstNode* target) {
   // need a node to work from. expression or bool expr etc.
   // scope pointer,
