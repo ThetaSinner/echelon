@@ -23,7 +23,7 @@ void loadAstEnhancerDataInternal() {
     AstNodeEnhancerOutputData outputData(input);
 
     auto base = new EnhancedAstNode();
-    base->setNodeType(EnhancedAstNodeType::PrimitiveValue); // TODO this isn't how I want to handle types...
+    base->setNodeType(EnhancedAstNodeType::PrimitiveValue);
     base->setNodeSubType(EnhancedAstNodeSubType::Integer);
     base->setData(input.getNodeToMap()->getData());
     input.getTargetNode()->putChild(base);

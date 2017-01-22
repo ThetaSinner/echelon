@@ -1,8 +1,9 @@
+#include <echelon/transform/type-rule-lookup.hpp>
+#include <echelon/ast/transform-stage/scope.hpp>
+#include <echelon/util/event/event-container.hpp>
 #include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/util/to-string.hpp>
 #include <echelon/compiler/echelon-compiler.hpp>
-#include <echelon/ast/transform-stage/scope.hpp>
-#include <echelon/util/event/event-container.hpp>
 #include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
 #include <echelon/util/ast-to-graphviz.hpp>
 
@@ -14,6 +15,9 @@ int main(int argc, char **args) {
 #else
   log->at(Level::Info) << "This is a release build.\n";
 #endif
+
+  TypeRuleLookup::addRule(EnhancedAstNodeSubType::Subtract, "integer", "integer", "integer");
+  TypeRuleLookup::addRule(EnhancedAstNodeSubType::Add, "integer", "integer", "integer");
 
   EventContainer eventContainer;
 

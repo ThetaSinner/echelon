@@ -1,5 +1,25 @@
 #include <echelon/transform/type-deducer.hpp>
 
+class TypeResolve {
+  std::string typeName;
+  bool resolved = false;
+
+  std::list<EnhancedAstNode*> dependencyNodes;
+public:
+  bool isResolved() {
+    return resolved;
+  }
+
+  void pushDependency(EnhancedAstNode* node) {
+    dependencyNodes.push_back(node);
+  }
+};
+
+class TypeNameResolve {
+  std::string typeName;
+  
+};
+
 void TypeDeducer::deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, EnhancedAstNode* target) {
   // need a node to work from. expression or bool expr etc.
   // scope pointer,
@@ -21,7 +41,23 @@ void TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNode, Sco
   // either return the type or an object describing what's missing.
 
   if (expressionNode->getChildCount() > 0) {
+    resolveTypeFromExpression(expressionNode->getChild(0), scope);
+    resolveTypeFromExpression(expressionNode->getChild(1), scope);
+    // TODO return value TypeRuleLookup::lookup(expressionNode->getNodeSubType(), )
     return;
   }
-  // TODO need types to be in the right order (rotate tree for parenthesis and operator precedence) before this can proceed.
+  else {
+    toTypeName(expressionNode);
+  }
+}
+
+std::string TypeDeducer::toTypeName(EnhancedAstNode* node) {
+  if (node->getNodeType() == EnhancedAstNodeType::PrimitiveValue) {
+    switch (node->getNodeSubType()) {
+      case EnhancedAstNodeSubType::Integer:
+        return "integer";
+    }
+  }
+
+  throw std::runtime_error("Can't convert to typename.");
 }

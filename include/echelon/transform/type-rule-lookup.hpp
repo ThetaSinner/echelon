@@ -2,7 +2,6 @@
 #define TYPE_RULE_LOOKUP_HPP_INCLUDED
 
 #include <map>
-#include <tuple>
 #include <string>
 #include <sstream>
 #include <stdexcept>
@@ -10,7 +9,7 @@
 #include <echelon/ast/transform-stage/enhanced-ast-node-sub-type-enum.hpp>
 
 class TypeRuleLookup {
-  std::map<std::string, std::string> typeRuleMap;
+  static std::map<std::string, std::string> typeRuleMap;
 
   template <typename E>
   static constexpr typename std::underlying_type<E>::type toUnderlying(E e) {
@@ -24,7 +23,7 @@ class TypeRuleLookup {
   }
 public:
   static void addRule(EnhancedAstNodeSubType subType, std::string leftType, std::string rightType, std::string resultType) {
-    typeRuleMap.insert(makeKey(subType, leftType, rightType), resultType);
+    typeRuleMap.insert(std::make_pair(makeKey(subType, leftType, rightType), resultType));
   }
 
   static std::string lookup(EnhancedAstNodeSubType subType, std::string leftType, std::string rightType) {

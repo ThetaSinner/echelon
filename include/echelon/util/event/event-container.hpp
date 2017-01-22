@@ -3,6 +3,7 @@
 
 #include <map>
 #include <list>
+#include <queue>
 #include <functional>
 
 class EventKey;
@@ -13,7 +14,6 @@ typedef std::list<EventListener>::iterator EventListenerIterator;
 
 class EventContainer {
   std::map<std::string, std::list<EventListener>> eventListeners;
-
 public:
   void addEventListener(std::string eventId, EventListener eventListener) {
     if (eventListeners.find(eventId) == eventListeners.end()) {
@@ -31,10 +31,11 @@ public:
 
   void triggerEvent(std::string eventId, void* eventData) {
     if (eventListeners.find(eventId) != eventListeners.end()) {
-      std::list<EventListener>& list = eventListeners.at(eventId);
-      for (auto i = list.begin(); i != list.end(); i++) {
+      auto iter = eventListeners.at(eventId).begin();
+      auto tempList = eventListeners.at(eventId);
+      for (auto i = tempList.begin(); i != tempList.end(); i++, iter++) {
         // TODO catch exceptions here? Not really necessary but might be nice to log here.
-        EventKey eventKey(eventId, i);
+        EventKey eventKey(eventId, iter);
         (*i)(eventKey, eventData);
       }
     }
