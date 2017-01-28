@@ -16,9 +16,6 @@ int main(int argc, char **args) {
   log->at(Level::Info) << "This is a release build.\n";
 #endif
 
-  TypeRuleLookup::addRule(EnhancedAstNodeSubType::Subtract, "integer", "integer", "integer");
-  TypeRuleLookup::addRule(EnhancedAstNodeSubType::Add, "integer", "integer", "integer");
-
   EventContainer eventContainer;
 
   eventContainer.addEventListener("event_id", [&eventContainer](EventKey& eventKey, void* data) {
@@ -37,8 +34,6 @@ int main(int argc, char **args) {
   EchelonCompiler compiler;
 
   // TODO split scope into parent and local so that pointers can be used and declarations can be in any order.
-
-  // TODO allow comments inside patterns. e.g. multi line comment inside function call which has been broken over lines.
 
   // TODO can actually detect this error and report it. "Did you forget the function keyword?"
   // auto out = compiler.parse("type MyType {\n  toString(integer t) -> string\n}");
