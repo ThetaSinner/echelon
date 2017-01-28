@@ -35,7 +35,12 @@ public:
     TS_ASSERT_EQUALS(EnhancedAstNodeType::TypeName, var_declare_type->getNodeType());
     TS_ASSERT_EQUALS(0, var_declare_type->getChildCount());
 
-    auto var_declare_value = var_declare->getChild(1);
+    auto var_declare_expression = var_declare->getChild(1);
+    TS_ASSERT_EQUALS("", var_declare_expression->getData());
+    TS_ASSERT_EQUALS(EnhancedAstNodeType::Expression, var_declare_expression->getNodeType());
+    TS_ASSERT_EQUALS(1, var_declare_expression->getChildCount());
+
+    auto var_declare_value = var_declare_expression->getChild(0);
     TS_ASSERT_EQUALS("2", var_declare_value->getData());
     TS_ASSERT_EQUALS(EnhancedAstNodeType::PrimitiveValue, var_declare_value->getNodeType());
     TS_ASSERT_EQUALS(0, var_declare_value->getChildCount());
@@ -46,7 +51,12 @@ public:
     TS_ASSERT_EQUALS(EnhancedAstNodeSubType::Assign, var_assign->getNodeSubType());
     TS_ASSERT_EQUALS(1, var_assign->getChildCount());
 
-    auto var_assign_value = var_assign->getChild(0);
+    auto var_assign_expression = var_assign->getChild(0);
+    TS_ASSERT_EQUALS("", var_assign_expression->getData());
+    TS_ASSERT_EQUALS(EnhancedAstNodeType::Expression, var_assign_expression->getNodeType());
+    TS_ASSERT_EQUALS(1, var_assign_expression->getChildCount());
+
+    auto var_assign_value = var_assign_expression->getChild(0);
     TS_ASSERT_EQUALS("3", var_assign_value->getData());
     TS_ASSERT_EQUALS(EnhancedAstNodeType::PrimitiveValue, var_assign_value->getNodeType());
     TS_ASSERT_EQUALS(EnhancedAstNodeSubType::Integer, var_assign_value->getNodeSubType());

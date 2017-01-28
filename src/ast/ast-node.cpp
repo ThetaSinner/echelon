@@ -51,6 +51,10 @@ AstNode *AstNode::getChild(AstNodeType childType) {
 #endif
 }
 
+AstNode* AstNode::getLastChild() {
+  return getChild(getChildCount() - 1);
+}
+
 void AstNode::setType(AstNodeType type) {
   this->type = type;
 }

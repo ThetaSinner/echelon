@@ -212,6 +212,8 @@ std::string EchelonLookup::toString(AstNodeType t) {
       return "access specifier public";
     case AstNodeType::NameStructure:
       return "name structure";
+    case AstNodeType::Expression:
+      return "expression";
   }
 
   throw std::runtime_error("Missing to string case for ast node type.");
@@ -277,7 +279,7 @@ std::string EchelonLookup::toString(EnhancedAstNodeType t) {
     case EnhancedAstNodeType::Program:
       return "program";
     case EnhancedAstNodeType::TypeName:
-      return "type";
+      return "type name";
     case EnhancedAstNodeType::Variable:
       return "variable";
     case EnhancedAstNodeType::PrimitiveValue:
@@ -298,6 +300,8 @@ std::string EchelonLookup::toString(EnhancedAstNodeType t) {
       return "name structure";
     case EnhancedAstNodeType::ExpressionGroup:
       return "expression group";
+    case EnhancedAstNodeType::Expression:
+      return "expression";
   }
 
   throw std::runtime_error("Missing to string case for enhanced ast node type.");

@@ -30,4 +30,14 @@ public:
     auto type_name = function->getChild(EnhancedAstNodeType::TypeName);
     TS_ASSERT_EQUALS("integer", type_name->getData());
   }
+
+  void testAssignSumOfTwoIntegers() {
+    auto program = compiler.enhance("my_test_variable = 5 + 1");
+
+    TS_ASSERT(program->hasChild(EnhancedAstNodeType::Variable));
+    auto function = program->getChild(EnhancedAstNodeType::Variable);
+    TS_ASSERT(function->hasChild(EnhancedAstNodeType::TypeName));
+    auto type_name = function->getChild(EnhancedAstNodeType::TypeName);
+    TS_ASSERT_EQUALS("integer", type_name->getData());
+  }
 };

@@ -29,9 +29,11 @@ enum class EnhancedAstNodeType {
 
   SingleLineComment,
 
+  Expression,
+
   // Not for ast structure use.
   First = None,
-  Last = SingleLineComment,
+  Last = Expression,
 };
 
 #endif

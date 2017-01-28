@@ -42,6 +42,12 @@ void loadGenerators() {
 
     GeneratorLookup::getInstance()->addGenerator(AstNodeType::Variable, variableGenerator);
 
+    Generator *expressionGenerator = new Generator([](AstNode *astNode) -> std::string {
+      return GeneratorLookup::getInstance()->getGenerator(astNode->getChild(0)->getType())->generate(astNode->getChild(0));
+    });
+
+    GeneratorLookup::getInstance()->addGenerator(AstNodeType::Expression, expressionGenerator);
+
     Generator *stringGenerator = new Generator([](AstNode *astNode) -> std::string {
       std::stringstream ss;
       ss << "\"";

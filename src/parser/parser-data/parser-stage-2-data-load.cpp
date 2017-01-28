@@ -575,7 +575,11 @@ void loadTransformers() {
 
         auto nested = astTransformData->getNestedAstNodes();
         if (nested != nullptr && !nested->empty()) {
-          base->putChild(nested->front()->getChild(0));
+          auto expressionNode = new AstNode();
+          expressionNode->setType(AstNodeType::Expression);
+          expressionNode->putChild(nested->front()->getChild(0));
+
+          base->putChild(expressionNode);
         }
 
         return base;
@@ -1200,6 +1204,7 @@ void loadPatterns() {
       "[access_specifier] kwd_function identifier parenthesis_open [parameter_definitions] parenthesis_close [forward_arrow_operator type_name]"
   );
 
+  // TODO this is covered by expressions.
   TokenPatternLookup::getInstance()->addTokenPattern(
       "top_level_function_call",
       "function_call"

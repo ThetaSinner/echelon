@@ -10,6 +10,7 @@
 #include <echelon/parser/parser-data/parser-stage-2-data-load.hpp>
 #include <echelon/parser/parser-data/parser-stage-1-data-load.hpp>
 #include <echelon/util/logging/logger-shared-instance.hpp>
+#include <echelon/transform/transform-data/type-rule-data-load.hpp>
 
 template<typename I, typename O>
 O exception_wrapper(EchelonCompiler *instance, O (EchelonCompiler::*exec)(I), I in) {
@@ -38,6 +39,8 @@ EchelonCompiler::EchelonCompiler() {
     loadParserStage2Data();
 
     loadAstEnhancerData();
+
+    loadTypeRuleData();
 
     IntegrityCheck::PostLoadCheck();
 

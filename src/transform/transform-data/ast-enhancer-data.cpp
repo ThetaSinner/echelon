@@ -112,6 +112,25 @@ void loadAstEnhancerDataInternal() {
     return outputData;
   });
 
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::Expression, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
+    AstNodeEnhancerOutputData outputData(input);
+
+    auto nodeToMap = input.getNodeToMap();
+
+    auto base = new EnhancedAstNode();
+    base->setNodeType(EnhancedAstNodeType::Expression);
+
+    AstNodeEnhancerInputData subInput;
+    subInput.setTargetNode(base);
+    subInput.setNodeToMap(nodeToMap->getChild(0));
+
+    NodeEnhancerLookup::getInstance()->getNodeEnhancer(nodeToMap->getChild(0)->getType())(subInput);
+
+    outputData.getTargetNode()->putChild(base);
+
+    return outputData;
+  });
+
   NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::FunctionParamDefinition, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
     AstNodeEnhancerOutputData outputData(input);
 
@@ -281,11 +300,34 @@ void loadAstEnhancerDataInternal() {
     base->setNodeType(EnhancedAstNodeType::Variable);
     base->setData(data);
 
+    if (nodeToMap->hasChild(AstNodeType::TypeName)) {
+      AstNodeEnhancerInputData subInput = input;
+      subInput.setNodeToMap(nodeToMap->getChild(AstNodeType::TypeName));
+      subInput.setTargetNode(base);
+
+      NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::TypeName)(subInput);
+    }
+
+    // This is the value to assign. Not a very nice way to access it.
+    if (nodeToMap->hasChild(AstNodeType::Expression)) {
+      AstNodeEnhancerInputData subInput = input;
+      subInput.setNodeToMap(nodeToMap->getChild(AstNodeType::Expression));
+      subInput.setTargetNode(base);
+
+      NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::Expression)(subInput);
+    }
+
     // This is the first time we've seen this variable in this scope, add it.
     auto scope = input.getScope();
     if (!scope->hasVariable(data)) {
       base->setNodeSubType(EnhancedAstNodeSubType::Declaration);
       scope->addVariable(data, base);
+
+      // Determine the type from the value assigned.
+      if (base->hasChild(EnhancedAstNodeType::Expression)) {
+        auto expression = base->getChild(EnhancedAstNodeType::Expression)->getChild(0);
+        TypeDeducer::deduceTypes(expression, input.getScope(), base);
+      }
     }
     else {
       // The variable has been seen before. Check that there is no type declaration.
@@ -295,16 +337,6 @@ void loadAstEnhancerDataInternal() {
       }
 
       base->setNodeSubType(EnhancedAstNodeSubType::Assign);
-    }
-
-    // TODO this means a variable declaration can refer to itself because it will be on the scope..
-    // expect to map type node and expression to assign if present.
-    for (unsigned i = 0; i < nodeToMap->getChildCount(); i++) {
-      AstNodeEnhancerInputData subInput = input;
-      subInput.setNodeToMap(nodeToMap->getChild(i));
-      subInput.setTargetNode(base);
-
-      NodeEnhancerLookup::getInstance()->getNodeEnhancer(nodeToMap->getChild(i)->getType())(subInput);
     }
 
     outputData.getTargetNode()->putChild(base);

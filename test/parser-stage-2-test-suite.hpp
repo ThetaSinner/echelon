@@ -152,98 +152,106 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
     TS_ASSERT_EQUALS(1, ast->getChildCount());
 
-    AstNode *var_node = ast->getChild(0);
+    AstNode* var_node = ast->getChild(0);
     TS_ASSERT_EQUALS("my_val", var_node->getData());
     TS_ASSERT_EQUALS(AstNodeType::Variable, var_node->getType());
     TS_ASSERT_EQUALS(1, var_node->getChildCount());
 
-    TS_ASSERT_EQUALS("+", var_node->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, var_node->getChild(0)->getType());
-    TS_ASSERT_EQUALS(2, var_node->getChild(0)->getChildCount());
+    auto expression = var_node->getChild(0);
+    TS_ASSERT_EQUALS("", expression->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Expression, expression->getType());
+    TS_ASSERT_EQUALS(1, expression->getChildCount());
 
-    TS_ASSERT_EQUALS("helloWorld", var_node->getChild(0)->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, var_node->getChild(0)->getChild(0)->getType());
-    TS_ASSERT_EQUALS(0, var_node->getChild(0)->getChild(0)->getChildCount());
+    auto plus = expression->getChild(0);
+    TS_ASSERT_EQUALS("+", plus->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, plus->getType());
+    TS_ASSERT_EQUALS(2, plus->getChildCount());
 
-    TS_ASSERT_EQUALS("byeWorld", var_node->getChild(0)->getChild(1)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, var_node->getChild(0)->getChild(1)->getType());
-    TS_ASSERT_EQUALS(0, var_node->getChild(0)->getChild(1)->getChildCount());
+    auto hello_world_function_call = plus->getChild(0);
+    TS_ASSERT_EQUALS("helloWorld", hello_world_function_call->getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, hello_world_function_call->getType());
+    TS_ASSERT_EQUALS(0, hello_world_function_call->getChildCount());
+
+    auto bye_world_function_call = plus->getChild(1);
+    TS_ASSERT_EQUALS("byeWorld", bye_world_function_call->getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, bye_world_function_call->getType());
+    TS_ASSERT_EQUALS(0, bye_world_function_call->getChildCount());
   }
 
   void testVariableDeclarationWithType(void) {
-    std::list<Token *> program;
-    program.push_back(new Token("integer", TokenType::Identifier));
-    program.push_back(new Token("my_val", TokenType::Identifier));
-    program.push_back(new Token("=", TokenType::Assignment));
-    program.push_back(new Token("helloWorld", TokenType::Identifier));
-    program.push_back(new Token("(", TokenType::ParenthesisOpen));
-    program.push_back(new Token(")", TokenType::ParenthesisClose));
-    program.push_back(new Token("+", TokenType::AddOperator));
-    program.push_back(new Token("byeWorld", TokenType::Identifier));
-    program.push_back(new Token("(", TokenType::ParenthesisOpen));
-    program.push_back(new Token(")", TokenType::ParenthesisClose));
-
-    auto ast = parser.parse(program);
+    auto ast = compiler.parse("integer my_val = helloWorld() + byeWorld()");
 
     TS_ASSERT_EQUALS("root", ast->getData());
     TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
     TS_ASSERT_EQUALS(1, ast->getChildCount());
 
-    TS_ASSERT_EQUALS("my_val", ast->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Variable, ast->getChild(0)->getType());
-    TS_ASSERT_EQUALS(2, ast->getChild(0)->getChildCount());
+    auto variable = ast->getChild(0);
+    TS_ASSERT_EQUALS("my_val", variable->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Variable, variable->getType());
+    TS_ASSERT_EQUALS(2, variable->getChildCount());
 
-    TS_ASSERT_EQUALS("integer", ast->getChild(0)->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::TypeName, ast->getChild(0)->getChild(0)->getType());
-    TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(0)->getChildCount());
+    auto type_name = variable->getChild(0);
+    TS_ASSERT_EQUALS("integer", type_name->getData());
+    TS_ASSERT_EQUALS(AstNodeType::TypeName, type_name->getType());
+    TS_ASSERT_EQUALS(0, type_name->getChildCount());
 
-    TS_ASSERT_EQUALS("+", ast->getChild(0)->getChild(1)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, ast->getChild(0)->getChild(1)->getType());
-    TS_ASSERT_EQUALS(2, ast->getChild(0)->getChild(1)->getChildCount());
+    auto expression = variable->getChild(1);
+    TS_ASSERT_EQUALS("", expression->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Expression, expression->getType());
+    TS_ASSERT_EQUALS(1, expression->getChildCount());
 
-    TS_ASSERT_EQUALS("helloWorld", ast->getChild(0)->getChild(1)->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, ast->getChild(0)->getChild(1)->getChild(0)->getType());
-    TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(1)->getChild(0)->getChildCount());
+    auto plus = expression->getChild(0);
+    TS_ASSERT_EQUALS("+", plus->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, plus->getType());
+    TS_ASSERT_EQUALS(2, plus->getChildCount());
 
-    TS_ASSERT_EQUALS("byeWorld", ast->getChild(0)->getChild(1)->getChild(1)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, ast->getChild(0)->getChild(1)->getChild(1)->getType());
-    TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(1)->getChild(1)->getChildCount());
+    auto hello_world_function_call = plus->getChild(0);
+    TS_ASSERT_EQUALS("helloWorld", hello_world_function_call->getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, hello_world_function_call->getType());
+    TS_ASSERT_EQUALS(0, hello_world_function_call->getChildCount());
+
+    auto bye_world_function_call = plus->getChild(1);
+    TS_ASSERT_EQUALS("byeWorld", bye_world_function_call->getData());
+    TS_ASSERT_EQUALS(AstNodeType::FunctionCall, bye_world_function_call->getType());
+    TS_ASSERT_EQUALS(0, bye_world_function_call->getChildCount());
   }
 
   void testAddTwoStringsAndAssignToVariable(void) {
-    std::list<Token *> program;
-    program.push_back(new Token("string", TokenType::Identifier));
-    program.push_back(new Token("my_val", TokenType::Identifier));
-    program.push_back(new Token("=", TokenType::Assignment));
-    program.push_back(new Token("my string data ", TokenType::String));
-    program.push_back(new Token("+", TokenType::AddOperator));
-    program.push_back(new Token("other string data", TokenType::String));
-
-    auto ast = parser.parse(program);
+    auto ast = compiler.parse("string my_val = \"my string data \" + \"other string data\"");
 
     TS_ASSERT_EQUALS("root", ast->getData());
     TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
     TS_ASSERT_EQUALS(1, ast->getChildCount());
 
-    TS_ASSERT_EQUALS("my_val", ast->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Variable, ast->getChild(0)->getType());
-    TS_ASSERT_EQUALS(2, ast->getChild(0)->getChildCount());
+    auto variable = ast->getChild(0);
+    TS_ASSERT_EQUALS("my_val", variable->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Variable, variable->getType());
+    TS_ASSERT_EQUALS(2, variable->getChildCount());
 
-    TS_ASSERT_EQUALS("string", ast->getChild(0)->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::TypeName, ast->getChild(0)->getChild(0)->getType());
-    TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(0)->getChildCount());
+    auto type_name = variable->getChild(0);
+    TS_ASSERT_EQUALS("string", type_name->getData());
+    TS_ASSERT_EQUALS(AstNodeType::TypeName, type_name->getType());
+    TS_ASSERT_EQUALS(0, type_name->getChildCount());
 
-    TS_ASSERT_EQUALS("+", ast->getChild(0)->getChild(1)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, ast->getChild(0)->getChild(1)->getType());
-    TS_ASSERT_EQUALS(2, ast->getChild(0)->getChild(1)->getChildCount());
+    auto expression = variable->getChild(1);
+    TS_ASSERT_EQUALS("", expression->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Expression, expression->getType());
+    TS_ASSERT_EQUALS(1, expression->getChildCount());
 
-    TS_ASSERT_EQUALS("my string data ", ast->getChild(0)->getChild(1)->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::String, ast->getChild(0)->getChild(1)->getChild(0)->getType());
-    TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(1)->getChild(0)->getChildCount());
+    auto plus = expression->getChild(0);
+    TS_ASSERT_EQUALS("+", plus->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, plus->getType());
+    TS_ASSERT_EQUALS(2, plus->getChildCount());
 
-    TS_ASSERT_EQUALS("other string data", ast->getChild(0)->getChild(1)->getChild(1)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::String, ast->getChild(0)->getChild(1)->getChild(1)->getType());
-    TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(1)->getChild(1)->getChildCount());
+    auto my_string_data = plus->getChild(0);
+    TS_ASSERT_EQUALS("my string data ", my_string_data->getData());
+    TS_ASSERT_EQUALS(AstNodeType::String, my_string_data->getType());
+    TS_ASSERT_EQUALS(0, my_string_data->getChildCount());
+
+    auto other_string_data = plus->getChild(1);
+    TS_ASSERT_EQUALS("other string data", other_string_data->getData());
+    TS_ASSERT_EQUALS(AstNodeType::String, other_string_data->getType());
+    TS_ASSERT_EQUALS(0, other_string_data->getChildCount());
   }
 
   // TODO use the parse on the compiler
@@ -254,43 +262,55 @@ public:
     program.push_back(new Token("=", TokenType::Assignment));
     program.push_back(new Token("my string data ", TokenType::String));
     program.push_back(new Token("+", TokenType::AddOperator));
-    program.push_back(new Token("other string data", TokenType::String));
+    program.push_back(new Token("other string data ", TokenType::String));
     program.push_back(new Token("+", TokenType::AddOperator));
     program.push_back(new Token("third string data", TokenType::String));
 
-    auto ast = parser.parse(program);
+    auto ast = compiler.parse("string my_val = \"my string data \" + \"other string data \" + \"third string data\"");
 
     TS_ASSERT_EQUALS("root", ast->getData());
     TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
     TS_ASSERT_EQUALS(1, ast->getChildCount());
 
-    TS_ASSERT_EQUALS("my_val", ast->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::Variable, ast->getChild(0)->getType());
-    TS_ASSERT_EQUALS(2, ast->getChild(0)->getChildCount());
+    auto variable = ast->getChild(0);
+    TS_ASSERT_EQUALS("my_val", variable->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Variable, variable->getType());
+    TS_ASSERT_EQUALS(2, variable->getChildCount());
 
-    TS_ASSERT_EQUALS("string", ast->getChild(0)->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::TypeName, ast->getChild(0)->getChild(0)->getType());
-    TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(0)->getChildCount());
+    auto type_name = variable->getChild(0);
+    TS_ASSERT_EQUALS("string", type_name->getData());
+    TS_ASSERT_EQUALS(AstNodeType::TypeName, type_name->getType());
+    TS_ASSERT_EQUALS(0, type_name->getChildCount());
 
-    TS_ASSERT_EQUALS("+", ast->getChild(0)->getChild(1)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, ast->getChild(0)->getChild(1)->getType());
-    TS_ASSERT_EQUALS(2, ast->getChild(0)->getChild(1)->getChildCount());
+    auto expression = variable->getChild(1);
+    TS_ASSERT_EQUALS("", expression->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Expression, expression->getType());
+    TS_ASSERT_EQUALS(1, expression->getChildCount());
 
-    TS_ASSERT_EQUALS("my string data ", ast->getChild(0)->getChild(1)->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::String, ast->getChild(0)->getChild(1)->getChild(0)->getType());
-    TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(1)->getChild(0)->getChildCount());
+    auto first_plus = expression->getChild(0);
+    TS_ASSERT_EQUALS("+", first_plus->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, first_plus->getType());
+    TS_ASSERT_EQUALS(2, first_plus->getChildCount());
 
-    TS_ASSERT_EQUALS("+", ast->getChild(0)->getChild(1)->getChild(1)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, ast->getChild(0)->getChild(1)->getChild(1)->getType());
-    TS_ASSERT_EQUALS(2, ast->getChild(0)->getChild(1)->getChild(1)->getChildCount());
+    auto my_string_data = first_plus->getChild(0);
+    TS_ASSERT_EQUALS("my string data ", my_string_data->getData());
+    TS_ASSERT_EQUALS(AstNodeType::String, my_string_data->getType());
+    TS_ASSERT_EQUALS(0, my_string_data->getChildCount());
 
-    TS_ASSERT_EQUALS("other string data", ast->getChild(0)->getChild(1)->getChild(1)->getChild(0)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::String, ast->getChild(0)->getChild(1)->getChild(1)->getChild(0)->getType());
-    TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(1)->getChild(1)->getChild(0)->getChildCount());
+    auto second_plus = first_plus->getChild(1);
+    TS_ASSERT_EQUALS("+", second_plus->getData());
+    TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, second_plus->getType());
+    TS_ASSERT_EQUALS(2, second_plus->getChildCount());
 
-    TS_ASSERT_EQUALS("third string data", ast->getChild(0)->getChild(1)->getChild(1)->getChild(1)->getData());
-    TS_ASSERT_EQUALS(AstNodeType::String, ast->getChild(0)->getChild(1)->getChild(1)->getChild(1)->getType());
-    TS_ASSERT_EQUALS(0, ast->getChild(0)->getChild(1)->getChild(1)->getChild(1)->getChildCount());
+    auto other_string_data = second_plus->getChild(0);
+    TS_ASSERT_EQUALS("other string data ", other_string_data->getData());
+    TS_ASSERT_EQUALS(AstNodeType::String, other_string_data->getType());
+    TS_ASSERT_EQUALS(0, other_string_data->getChildCount());
+
+    auto third_string_data = second_plus->getChild(1);
+    TS_ASSERT_EQUALS("third string data", third_string_data->getData());
+    TS_ASSERT_EQUALS(AstNodeType::String, third_string_data->getType());
+    TS_ASSERT_EQUALS(0, third_string_data->getChildCount());
   }
 
   void testIfStatementWithEmptyBlock(void) {
@@ -386,7 +406,12 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::TypeName, cond_var_type->getType());
     TS_ASSERT_EQUALS(0, cond_var_type->getChildCount());
 
-    auto cond_var_data = cond_var->getChild(1);
+    auto expression = cond_var->getChild(1);
+    TS_ASSERT_EQUALS("", expression->getData());
+    TS_ASSERT_EQUALS(AstNodeType::Expression, expression->getType());
+    TS_ASSERT_EQUALS(1, expression->getChildCount());
+
+    auto cond_var_data = expression->getChild(0);
     TS_ASSERT_EQUALS("this string will only be assigned if 1 and 2 are equal", cond_var_data->getData());
     TS_ASSERT_EQUALS(AstNodeType::String, cond_var_data->getType());
     TS_ASSERT_EQUALS(0, cond_var_data->getChildCount());

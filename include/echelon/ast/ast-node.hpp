@@ -23,6 +23,8 @@ public:
 
   AstNode *getChild(AstNodeType type);
 
+  AstNode* getLastChild();
+
   void setType(AstNodeType type);
 
   AstNodeType getType();

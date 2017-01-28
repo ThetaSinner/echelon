@@ -7,6 +7,13 @@
 #include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
 #include <echelon/util/ast-to-graphviz.hpp>
 
+void gv_out(EnhancedAstNode* e) {
+  std::ofstream f("main-ast-out.gv", std::ios::out);
+  f << toGraphviz(e);
+  f.close();
+  // dot main-ast-out.gv -Tjpg -omain-ast-out.jpg && main-ast-out.jpg
+}
+
 int main(int argc, char **args) {
   Logger *log = LoggerSharedInstance::get();
 
@@ -42,24 +49,9 @@ int main(int argc, char **args) {
     // TODO Need private variables to try to implement anything here.. so it's context time.
     //auto out = compiler.enhance("behaviour ToString {\n  function toString() -> string\n}\n\ntype BigInteger {\n}");
 
-    // TODO extract test auto expr = compiler.enhance("a * (b + c - d)");
-    // TODO extract test auto expr = compiler.enhance("(a - b + c) * (d + e - f)");
-    // TODO extract test auto expr = compiler.enhance("(a + b - c)");
-    // TODO extract test auto expr = compiler.enhance("(a + b - c) * (d + e - f) * (g + h - i)");
-    auto expr = compiler.enhance("(a + b - c) / (d + e - f) * (g + h - i)");
-
-    auto e = OperatorPrecedenceTreeRestructurer::restructure(expr->getChild(0)); // skip the program node.
-
-    std::ofstream f("main-ast-out.gv", std::ios::out);
-    f << toGraphviz(e);
-    f.close();
-    // dot main-ast-out.gv -Tjpg -omain-ast-out.jpg && main-ast-out.jpg
-
-    log->at(Level::Info) << to_string(e);
-
     // TODO this is working as it should (apart from function return type, that's another problem) so create a test.
     //auto out = compiler.enhance("package PackageName\ntype MyType {\n  integer my_x = 5\n  integer my_y=4  public function get_product() -> integer}\n\nfunction MyType::get_product() -> integer {\n  my_x * my_y}");
-    auto out = compiler.enhance("function get_two_plus_two() {\n  2 + 2}");
+    auto out = compiler.enhance("my_test_variable = 5 + 1");
     log->at(Level::Info) << to_string(out) << "\n";
   }
   catch (const std::runtime_error &e) {

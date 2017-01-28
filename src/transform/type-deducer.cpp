@@ -46,7 +46,7 @@ TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNo
 
   TypeResolve typeResolve;
 
-  if (expressionNode->getChildCount() > 0) {
+  if (expressionNode->getChildCount() == 2) {
     // Try to resolve the left and right children.
     auto typeNameResolveLeft = resolveTypeFromExpression(expressionNode->getChild(0), scope);
     auto typeNameResolveRight = resolveTypeFromExpression(expressionNode->getChild(1), scope);
