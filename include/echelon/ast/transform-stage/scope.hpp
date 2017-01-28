@@ -23,6 +23,10 @@ public:
   }
 
   void addFunction(std::string name, EnhancedAstNode *enhancedAstNode) {
+    if (!hasFunction(name)) {
+      functions.insert({name, std::list<EnhancedAstNode*>()});
+    }
+
     functions.at(name).push_back(enhancedAstNode);
   }
 

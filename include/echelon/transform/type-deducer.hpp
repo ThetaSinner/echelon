@@ -20,6 +20,7 @@ class TypeResolve {
 public:
   void setTypeName(std::string typeName) {
     this->typeName = typeName;
+    resolved = true;
   }
 
   std::string getTypeName() {
@@ -55,14 +56,14 @@ public:
 };
 
 class TypeDeducer {
-  TypeResolve resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope);
+  static TypeResolve resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope);
+  static TypeNameResolve resolveTypeName(EnhancedAstNode* node);
 public:
+
   /**
    * Deduce types from a tree of \sa{EnhancedAstNode}
    */
-  void deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, EnhancedAstNode* target);
-
-  TypeNameResolve resolveTypeName(EnhancedAstNode* node);
+  static void deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, EnhancedAstNode* target);
 };
 
 #endif

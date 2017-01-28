@@ -5,6 +5,7 @@
 #include <echelon/ast/transform-stage/node-enhancer-lookup.hpp>
 #include <echelon/ast/transform-stage/enhanced-ast-block-node.hpp>
 #include <echelon/transform/transform-data/ast-enhancer-helper.hpp>
+#include <echelon/transform/type-deducer.hpp>
 
 void loadAstEnhancerDataInternal();
 
@@ -190,10 +191,7 @@ void loadAstEnhancerDataInternal() {
     if (nodeToMap->hasChild(AstNodeType::Block)) {
       AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
 
-      // TODO need a "yet to be determined" on the return type so it can be mapped here. Or validated against the declared type.
-      // Ideally map this if it can be mapped.
-
-      auto typeNode = base->getChild(EnhancedAstNodeType::Block)->getLastChild();
+      TypeDeducer::deduceTypes(base->getChild(EnhancedAstNodeType::Block)->getLastChild(), scope, base);
 
       if (hasNameStructure) {
         // add to scope as implementation
