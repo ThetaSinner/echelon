@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <stdexcept>
 
 #include <echelon/ast/transform-stage/enhanced-ast-node-type-enum.hpp>
 #include <echelon/ast/transform-stage/enhanced-ast-node-sub-type-enum.hpp>

@@ -13,6 +13,6 @@ void loadTypeRuleData() {
 }
 
 void loadInternal() {
-  TypeRuleLookup::addRule(EnhancedAstNodeSubType::Subtract, "integer", "integer", "integer");
-  TypeRuleLookup::addRule(EnhancedAstNodeSubType::Add, "integer", "integer", "integer");
+  TypeRuleLookup::getInstance()->addRule(EnhancedAstNodeSubType::Subtract, "integer", "integer", "integer");
+  TypeRuleLookup::getInstance()->addRule(EnhancedAstNodeSubType::Add, "integer", "integer", "integer");
 }

@@ -7,6 +7,22 @@
 #include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
 #include <echelon/util/ast-to-graphviz.hpp>
 
+#include <map>
+class TestClass {
+  static std::map<int, int> my_map;
+
+public:
+  static void put(int x, int y) {
+    my_map.insert(std::make_pair(x, y));
+  }
+
+  static void print() {
+    std::cout << my_map.begin()->first << ", " << my_map.begin()->second << std::endl;
+  }
+};
+
+std::map<int, int> TestClass::my_map;
+
 void gv_out(EnhancedAstNode* e) {
   std::ofstream f("main-ast-out.gv", std::ios::out);
   f << toGraphviz(e);
@@ -16,6 +32,10 @@ void gv_out(EnhancedAstNode* e) {
 
 int main(int argc, char **args) {
   Logger *log = LoggerSharedInstance::get();
+
+  TestClass::put(2, 3);
+
+  TestClass::print();
 
 #ifdef ECHELON_DEBUG
   log->at(Level::Info) << "This is a debug build.\n";

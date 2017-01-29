@@ -52,8 +52,8 @@ TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNo
     auto typeNameResolveRight = resolveTypeFromExpression(expressionNode->getChild(1), scope);
 
     if (typeNameResolveLeft.isResolved() && typeNameResolveRight.isResolved()) {
-      if (TypeRuleLookup::hasRule(expressionNode->getNodeSubType(), typeNameResolveLeft.getTypeName(), typeNameResolveRight.getTypeName())) {
-        typeResolve.setTypeName(TypeRuleLookup::lookup(expressionNode->getNodeSubType(), typeNameResolveLeft.getTypeName(), typeNameResolveRight.getTypeName()));
+      if (TypeRuleLookup::getInstance()->hasRule(expressionNode->getNodeSubType(), typeNameResolveLeft.getTypeName(), typeNameResolveRight.getTypeName())) {
+        typeResolve.setTypeName(TypeRuleLookup::getInstance()->lookup(expressionNode->getNodeSubType(), typeNameResolveLeft.getTypeName(), typeNameResolveRight.getTypeName()));
       }
       else {
         // TODO error message.
