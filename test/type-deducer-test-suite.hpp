@@ -40,4 +40,44 @@ public:
     auto type_name = function->getChild(EnhancedAstNodeType::TypeName);
     TS_ASSERT_EQUALS("integer", type_name->getData());
   }
+
+  void testAssignSumOfIntegerAndDecimal() {
+    auto program = compiler.enhance("my_test_variable = 5 + 1.5");
+
+    TS_ASSERT(program->hasChild(EnhancedAstNodeType::Variable));
+    auto variable = program->getChild(EnhancedAstNodeType::Variable);
+    TS_ASSERT(variable->hasChild(EnhancedAstNodeType::TypeName));
+    auto type_name = variable->getChild(EnhancedAstNodeType::TypeName);
+    TS_ASSERT_EQUALS("decimal", type_name->getData());
+  }
+
+  void testAssignSumOfIntegerAndTypedVariable() {
+    auto program = compiler.enhance("integer variable_one = 5\nvariable_one_plus_five = 5 + variable_one");
+
+    TS_ASSERT(program->hasChild(EnhancedAstNodeType::Variable));
+    TS_ASSERT_EQUALS(2, program->getChildCount());
+    auto variable = program->getChild(1);
+    TS_ASSERT(variable->hasChild(EnhancedAstNodeType::TypeName));
+    auto type_name = variable->getChild(EnhancedAstNodeType::TypeName);
+    TS_ASSERT_EQUALS("integer", type_name->getData());
+  }
+
+  void testAssignSumOfIntegerAndDeterminedTypedVariable() {
+    auto program = compiler.enhance("variable_one = 5\nvariable_one_plus_five = 5 + variable_one");
+
+    TS_ASSERT(program->hasChild(EnhancedAstNodeType::Variable));
+    TS_ASSERT_EQUALS(2, program->getChildCount());
+
+    auto var = program->getChild(0);
+    TS_ASSERT(var->hasChild(EnhancedAstNodeType::TypeName));
+    auto var_type_name = var->getChild(EnhancedAstNodeType::TypeName);
+    TS_ASSERT_EQUALS("integer", var_type_name->getData());
+    
+    auto variable = program->getChild(1);
+    TS_ASSERT(variable->hasChild(EnhancedAstNodeType::TypeName));
+    auto variable_type_name = variable->getChild(EnhancedAstNodeType::TypeName);
+    TS_ASSERT_EQUALS("integer", variable_type_name->getData());
+  }
+
+  //auto out = compiler.enhance();
 };
