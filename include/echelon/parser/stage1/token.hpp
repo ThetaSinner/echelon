@@ -3,11 +3,13 @@
 
 #include <string>
 #include <echelon/parser/token-type-enum.hpp>
+#include <echelon/parser/stage1/source-map-data.hpp>
 
 class Token {
 private:
   std::string data;
   TokenType type;
+  SourceMapData sourceMapData;
 
 public:
   Token() {}
@@ -17,6 +19,9 @@ public:
   std::string getData() const;
 
   TokenType getTokenType() const;
+
+  void setSourceMapData(SourceMapData sourceMapData);
+  SourceMapData getSourceMapData();
 };
 
 #endif

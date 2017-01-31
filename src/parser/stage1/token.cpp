@@ -12,3 +12,11 @@ std::string Token::getData() const {
 TokenType Token::getTokenType() const {
   return type;
 }
+
+void Token::setSourceMapData(SourceMapData sourceMapData) {
+  this->sourceMapData = sourceMapData;
+}
+
+SourceMapData Token::getSourceMapData() {
+  return sourceMapData;
+}

@@ -5,14 +5,17 @@
 #include <echelon/parser/stage1/character-pattern-lookup.hpp>
 #include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/util/to-string.hpp>
+#include <echelon/parser/stage1/source-map-data.hpp>
 
 int matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
-                     std::list<CharacterPatternGroup *>::iterator &group,
-                     std::string::iterator &ig,
-                     std::string::iterator &input_end);
+                    std::list<CharacterPatternGroup *>::iterator &group,
+                    std::string::iterator &ig,
+                    std::string::iterator &input_end,
+                    SourceMapData* sourceMapData);
 
 bool matchSequenceGroup(std::list<CharacterPatternGroup *>::iterator &group,
-                        std::string::iterator &ig);
+                        std::string::iterator &ig,
+                        SourceMapData* sourceMapData);
 
 bool matchLookahead(std::list<CharacterPatternElement *>::iterator &element,
                     std::list<CharacterPatternGroup *>::iterator &group,
@@ -24,17 +27,23 @@ bool checkUpperBound(int val, int upperBound) {
   return upperBound == -1 || val < upperBound;
 }
 
-std::list<Token *> Tokenizer::tokenize(std::string input) {
+std::list<Token*> Tokenizer::tokenize(std::string input) {
   auto log = LoggerSharedInstance::get();
 
-  std::list<Token *> tokens;
+  std::list<Token*> tokens;
 
   auto i = input.begin();
   auto input_end = input.end();
+  SourceMapData sourceMapData;
 
   while (i != input.end()) {
-    if (*i == ' ' || *i == '\n') {
+    if (*i == ' ') {
       i++;
+      continue;
+    }
+    else if (*i == '\n') {
+      i++;
+      sourceMapData.incrementLineNumber();
       continue;
     }
 
@@ -45,6 +54,8 @@ std::list<Token *> Tokenizer::tokenize(std::string input) {
       log->at(Level::Debug) << to_string(pattern) << "\n";
 
       auto ip = i;
+      SourceMapData sourceMapDataPattern;
+
       bool patternMatches = true;
       auto groups = pattern->getGroups();
       std::list<unsigned> groupMatchInfo;
@@ -52,22 +63,28 @@ std::list<Token *> Tokenizer::tokenize(std::string input) {
         log->at(Level::Debug) << to_string(*group) << "\n";
 
         auto ig = ip;
+        SourceMapData sourceMapDataGroup;
+
         bool groupMatches = false;
         if ((*group)->getType() == CharacterPatternGroupType::Union) {
-          int elementMatchCount = matchUnionGroup(groups, group, ig, input_end);
+          int elementMatchCount = matchUnionGroup(groups, group, ig, input_end, &sourceMapDataGroup);
 
           if (elementMatchCount >= (*group)->getRepeatLowerBound()) {
             groupMatches = true;
           }
-        } else {
-          groupMatches = matchSequenceGroup(group, ig);
+        }
+        else {
+          groupMatches = matchSequenceGroup(group, ig, &sourceMapDataGroup);
         }
 
         if (groupMatches) {
           log->at(Level::Debug) << "Group consume: " << std::distance(ip, ig) << "\n";
           groupMatchInfo.push_back(static_cast<unsigned>(std::distance(ip, ig)));
           std::advance(ip, ig - ip);
-        } else {
+
+          sourceMapDataPattern.addToLineNumber(sourceMapDataGroup.getLineNumber());
+        }
+        else {
           patternMatches = false;
           break;
         }
@@ -92,11 +109,16 @@ std::list<Token *> Tokenizer::tokenize(std::string input) {
         }
 
         std::string token_data = input.substr((i - input.begin()) + beginOffset, (ip - i) - beginOffset - endOffset);
-#ifdef ECHELON_DEBUG
+        #ifdef ECHELON_DEBUG
         log->at(Level::Debug) << "Token data [" << token_data << "]\n";
-#endif
-        tokens.push_back(new Token(token_data, pattern->getTokenType()));
+        #endif
+        Token *token = new Token(token_data, pattern->getTokenType());
+        token->setSourceMapData(sourceMapData);
+        tokens.push_back(token);
         std::advance(i, ip - i);
+
+        sourceMapData.addToLineNumber(sourceMapDataPattern.getLineNumber());
+
         // Always break after a pattern match so that we restart matching from the top of the pattern list.
         break;
       }
@@ -120,9 +142,10 @@ std::list<Token *> Tokenizer::tokenize(std::string input) {
 }
 
 int matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
-                     std::list<CharacterPatternGroup *>::iterator &group,
-                     std::string::iterator &ig,
-                     std::string::iterator& input_end) {
+                    std::list<CharacterPatternGroup *>::iterator &group,
+                    std::string::iterator &ig,
+                    std::string::iterator& input_end,
+                    SourceMapData* sourceMapData) {
 
   auto elements = (*group)->getElements();
   int elementMatchCount = 0;
@@ -139,12 +162,20 @@ int matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
         ig++;
         elementMatchCount++;
 
+        if (sourceMapData != nullptr && *ig == '\n') {
+          sourceMapData->incrementLineNumber();
+        }
+
         while (ig != input_end &&
                checkUpperBound(elementMatchCount, (*group)->getRepeatUpperBound()) &&
                matcher(*ig) &&
                !matchLookahead(element, group, groups, ig, input_end)) {
           ig++;
           elementMatchCount++;
+
+          if (sourceMapData != nullptr && *ig == '\n') {
+            sourceMapData->incrementLineNumber();
+          }
         }
 
         noProgress = false;
@@ -175,7 +206,7 @@ bool matchLookahead(std::list<CharacterPatternElement *>::iterator &element,
     auto next_group = std::next(group, 1);
     std::string::iterator ig_copy = ig;
     if ((*next_group)->getType() == CharacterPatternGroupType::Union) {
-      int groupMatchCount = matchUnionGroup(groups, next_group, ig_copy, input_end);
+      int groupMatchCount = matchUnionGroup(groups, next_group, ig_copy, input_end, nullptr);
 
       // If the next group has a non-zero lower bound then the condition must be met.
       if ((*next_group)->getRepeatLowerBound() > 0) {
@@ -189,7 +220,7 @@ bool matchLookahead(std::list<CharacterPatternElement *>::iterator &element,
         nextGroupMatches = true;
       }
     } else {
-      nextGroupMatches = matchSequenceGroup(next_group, ig_copy);
+      nextGroupMatches = matchSequenceGroup(next_group, ig_copy, nullptr);
     }
   }
 
@@ -197,7 +228,8 @@ bool matchLookahead(std::list<CharacterPatternElement *>::iterator &element,
 }
 
 bool matchSequenceGroup(std::list<CharacterPatternGroup *>::iterator &group,
-                        std::string::iterator &ig) {
+                        std::string::iterator &ig,
+                        SourceMapData* sourceMapData) {
   bool groupMatches = true;
 
   auto elements = (*group)->getElements();
@@ -206,7 +238,12 @@ bool matchSequenceGroup(std::list<CharacterPatternGroup *>::iterator &group,
 
     if (matcher(*ig)) {
       ig++;
-    } else {
+
+      if (sourceMapData != nullptr && *ig == '\n') {
+        sourceMapData->incrementLineNumber();
+      }
+    }
+    else {
       groupMatches = false;
       break;
     }
