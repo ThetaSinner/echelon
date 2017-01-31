@@ -10,7 +10,7 @@ std::string to_string(const Token *t) {
 std::string to_string(const std::list<Token *> *tokens) {
   std::stringstream ss;
   for (auto& i : *tokens) {
-    ss << EchelonLookup::toString(i->getTokenType()) << " [" << i->getData() << "] " << "line: [" << i->getSourceMapData().getLineNumber() << "]\n";
+    ss << EchelonLookup::toString(i->getTokenType()) << " [" << i->getData() << "] " << "line: [" << i->getSourceMapData().getLineNumber() << "], char: [" << i->getSourceMapData().getCharacterNumber() << "]\n";
   }
   return ss.str();
 }

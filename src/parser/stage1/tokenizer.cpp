@@ -39,11 +39,13 @@ std::list<Token*> Tokenizer::tokenize(std::string input) {
   while (i != input.end()) {
     if (*i == ' ') {
       i++;
+      sourceMapData.incrementCharacterNumber();
       continue;
     }
     else if (*i == '\n') {
       i++;
       sourceMapData.incrementLineNumber();
+      sourceMapData.resetCharacterNumber();
       continue;
     }
 
@@ -83,6 +85,7 @@ std::list<Token*> Tokenizer::tokenize(std::string input) {
           std::advance(ip, ig - ip);
 
           sourceMapDataPattern.addToLineNumber(sourceMapDataGroup.getLineNumber());
+          sourceMapDataPattern.addToCharacterNumber(sourceMapDataGroup.getCharacterNumber());
         }
         else {
           patternMatches = false;
@@ -118,6 +121,7 @@ std::list<Token*> Tokenizer::tokenize(std::string input) {
         std::advance(i, ip - i);
 
         sourceMapData.addToLineNumber(sourceMapDataPattern.getLineNumber());
+        sourceMapData.addToCharacterNumber(sourceMapDataPattern.getCharacterNumber());
 
         // Always break after a pattern match so that we restart matching from the top of the pattern list.
         break;
@@ -159,8 +163,13 @@ int matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
       if (checkUpperBound(elementMatchCount, (*group)->getRepeatUpperBound()) &&
           matcher(*ig) &&
           !matchLookahead(element, group, groups, ig, input_end)) {
-        if (sourceMapData != nullptr && *ig == '\n') {
-          sourceMapData->incrementLineNumber();
+
+        if (sourceMapData != nullptr) {
+          sourceMapData->incrementCharacterNumber();
+          if (*ig == '\n') {
+            sourceMapData->resetCharacterNumber();
+            sourceMapData->incrementLineNumber();
+          }
         }
 
         ig++;
@@ -170,8 +179,12 @@ int matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
                checkUpperBound(elementMatchCount, (*group)->getRepeatUpperBound()) &&
                matcher(*ig) &&
                !matchLookahead(element, group, groups, ig, input_end)) {
-          if (sourceMapData != nullptr && *ig == '\n') {
-            sourceMapData->incrementLineNumber();
+          if (sourceMapData != nullptr) {
+            sourceMapData->incrementCharacterNumber();
+            if (*ig == '\n') {
+              sourceMapData->resetCharacterNumber();
+              sourceMapData->incrementLineNumber();
+            }
           }
 
           ig++;
@@ -237,8 +250,12 @@ bool matchSequenceGroup(std::list<CharacterPatternGroup *>::iterator &group,
     auto matcher = (*element)->getMatcher();
 
     if (matcher(*ig)) {
-      if (sourceMapData != nullptr && *ig == '\n') {
-        sourceMapData->incrementLineNumber();
+      if (sourceMapData != nullptr) {
+        sourceMapData->incrementCharacterNumber();
+        if (*ig == '\n') {
+          sourceMapData->resetCharacterNumber();
+          sourceMapData->incrementLineNumber();
+        }
       }
 
       ig++;

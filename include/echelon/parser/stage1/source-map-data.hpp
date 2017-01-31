@@ -22,6 +22,14 @@ public:
     characterNumber += distance;
   }
 
+  void incrementCharacterNumber() {
+    addToCharacterNumber(1);
+  }
+
+  void resetCharacterNumber() {
+    characterNumber = 0;
+  }
+
   long getCharacterNumber() {
     return characterNumber;
   }
