@@ -159,23 +159,23 @@ int matchUnionGroup(std::list<CharacterPatternGroup *> *groups,
       if (checkUpperBound(elementMatchCount, (*group)->getRepeatUpperBound()) &&
           matcher(*ig) &&
           !matchLookahead(element, group, groups, ig, input_end)) {
-        ig++;
-        elementMatchCount++;
-
         if (sourceMapData != nullptr && *ig == '\n') {
           sourceMapData->incrementLineNumber();
         }
+
+        ig++;
+        elementMatchCount++;
 
         while (ig != input_end &&
                checkUpperBound(elementMatchCount, (*group)->getRepeatUpperBound()) &&
                matcher(*ig) &&
                !matchLookahead(element, group, groups, ig, input_end)) {
-          ig++;
-          elementMatchCount++;
-
           if (sourceMapData != nullptr && *ig == '\n') {
             sourceMapData->incrementLineNumber();
           }
+
+          ig++;
+          elementMatchCount++;
         }
 
         noProgress = false;
@@ -237,11 +237,11 @@ bool matchSequenceGroup(std::list<CharacterPatternGroup *>::iterator &group,
     auto matcher = (*element)->getMatcher();
 
     if (matcher(*ig)) {
-      ig++;
-
       if (sourceMapData != nullptr && *ig == '\n') {
         sourceMapData->incrementLineNumber();
       }
+
+      ig++;
     }
     else {
       groupMatches = false;
