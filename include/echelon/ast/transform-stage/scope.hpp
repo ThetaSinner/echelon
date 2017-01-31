@@ -22,6 +22,10 @@ public:
     return variables.find(name) != variables.end();
   }
 
+  EnhancedAstNode* getVariable(std::string name) {
+    return variables.at(name);
+  }
+
   void addFunction(std::string name, EnhancedAstNode *enhancedAstNode) {
     if (!hasFunction(name)) {
       functions.insert({name, std::list<EnhancedAstNode*>()});

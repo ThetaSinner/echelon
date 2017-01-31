@@ -57,7 +57,7 @@ public:
 
 class TypeDeducer {
   static TypeResolve resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope);
-  static TypeNameResolve resolveTypeName(EnhancedAstNode* node);
+  static TypeNameResolve resolveTypeName(EnhancedAstNode* node, Scope* scope);
 public:
 
   /**

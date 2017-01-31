@@ -52,8 +52,8 @@ TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNo
     auto typeNameResolveRight = resolveTypeFromExpression(expressionNode->getChild(1), scope);
 
     if (typeNameResolveLeft.isResolved() && typeNameResolveRight.isResolved()) {
-      if (TypeRuleLookup::hasRule(expressionNode->getNodeSubType(), typeNameResolveLeft.getTypeName(), typeNameResolveRight.getTypeName())) {
-        typeResolve.setTypeName(TypeRuleLookup::lookup(expressionNode->getNodeSubType(), typeNameResolveLeft.getTypeName(), typeNameResolveRight.getTypeName()));
+      if (TypeRuleLookup::getInstance()->hasRule(expressionNode->getNodeSubType(), typeNameResolveLeft.getTypeName(), typeNameResolveRight.getTypeName())) {
+        typeResolve.setTypeName(TypeRuleLookup::getInstance()->lookup(expressionNode->getNodeSubType(), typeNameResolveLeft.getTypeName(), typeNameResolveRight.getTypeName()));
       }
       else {
         // TODO error message.
@@ -63,7 +63,7 @@ TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNo
     // else map dependencies.
   }
   else {
-    auto typeNameResolve = resolveTypeName(expressionNode);
+    auto typeNameResolve = resolveTypeName(expressionNode, scope);
 
     if (typeNameResolve.isResolved()) {
       typeResolve.setTypeName(typeNameResolve.getTypeName());
@@ -74,13 +74,33 @@ TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNo
   return typeResolve;
 }
 
-TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node) {
+TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node, Scope* scope) {
   TypeNameResolve typeNameResolve;
 
   if (node->getNodeType() == EnhancedAstNodeType::PrimitiveValue) {
     switch (node->getNodeSubType()) {
       case EnhancedAstNodeSubType::Integer:
         typeNameResolve.setTypeName("integer");
+        break;
+      case EnhancedAstNodeSubType::Decimal:
+        typeNameResolve.setTypeName("decimal");
+        break;
+    }
+  }
+  else if (node->getNodeType() == EnhancedAstNodeType::VariableValue) {
+    if (scope->hasVariable(node->getData())) {
+      auto var = scope->getVariable(node->getData());
+      if (var->hasChild(EnhancedAstNodeType::TypeName)) {
+        typeNameResolve.setTypeName(var->getChild(EnhancedAstNodeType::TypeName)->getData());
+      }
+      else {
+        // Missing type name.
+        throw std::runtime_error("Depends on variable with missing type name.");
+      }
+    }
+    else {
+      // Variable doesn't exist.
+      throw std::runtime_error("Depends on variable which doesn't exist.");
     }
   }
 
