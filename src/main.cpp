@@ -50,9 +50,9 @@ int main(int argc, char **args) {
     //auto out = compiler.enhance("behaviour ToString {\n  function toString() -> string\n}\n\ntype BigInteger {\n}");
 
     // TODO this is working as it should (apart from function return type, that's another problem) so create a test.
-    // auto out = compiler.enhance("package PackageName\ntype MyType {\n  integer my_x = 5\n  integer my_y=4  public function get_product() -> integer}\n\nfunction MyType::get_product() -> integer {\n  my_x * my_y}");
-    auto out = compiler.tokenize("integer v = 5\nfunction func() {\n  5 * v\n}\n");
-    log->at(Level::Info) << to_string(&out) << "\n";
+    //auto out = compiler.enhance("package PackageName\ntype MyType {\n  integer my_x = 5\n  integer my_y=4  public function get_product() -> integer}\n\nfunction MyType::get_product() -> integer {\n  my_x * my_y}");
+    auto out = compiler.enhance("integer x = 3\nfunction getFiveTimesX() {\n  5 * x\n}");
+    log->at(Level::Info) << to_string(out) << "\n";
   }
   catch (const std::runtime_error &e) {
     LoggerSharedInstance::get()->at(Level::Fatal) << "dev compile failed [" << e.what() << "]";
