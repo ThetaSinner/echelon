@@ -79,5 +79,14 @@ public:
     TS_ASSERT_EQUALS("integer", variable_type_name->getData());
   }
 
-  //auto out = compiler.enhance();
+  void testReturnProductOfIntegerAndVariableFromHigherScope() {
+    auto program = compiler.enhance("integer x = 3\nfunction getFiveTimesX() {\n  5 * x\n}");
+
+    TS_ASSERT(program->hasChild(EnhancedAstNodeType::Variable));
+    TS_ASSERT(program->hasChild(EnhancedAstNodeType::Function));
+
+    auto function = program->getChild(EnhancedAstNodeType::Function);
+    TS_ASSERT(function->hasChild(EnhancedAstNodeType::TypeName));
+    TS_ASSERT_EQUALS("integer", function->getChild(EnhancedAstNodeType::TypeName)->getData());
+  }
 };

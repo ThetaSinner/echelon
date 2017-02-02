@@ -40,14 +40,18 @@ void _toGraphviz(AstNode *currentNode, std::stringstream &stream, std::string tr
 
 void _toGraphviz(EnhancedAstNode* currentNode, std::stringstream &stream, std::string tracker) {
   for (int i = 0; i < currentNode->getChildCount(); i++) {
-    stream << no_whitespace(EchelonLookup::getInstance()->toString(currentNode->getNodeType())) << "_"
-           << no_whitespace(EchelonLookup::getInstance()->toString(currentNode->getNodeSubType())) << "_"
-           << tracker;
+    stream << no_whitespace(EchelonLookup::getInstance()->toString(currentNode->getNodeType())) << "_";
+    if (currentNode->getNodeSubType() != EnhancedAstNodeSubType::Unspecified) {
+      stream << no_whitespace(EchelonLookup::getInstance()->toString(currentNode->getNodeSubType())) << "_";
+    }
+    stream << tracker;
 
     stream << " -> ";
-    stream << no_whitespace(EchelonLookup::getInstance()->toString(currentNode->getChild(i)->getNodeType())) << "_"
-           << no_whitespace(EchelonLookup::getInstance()->toString(currentNode->getChild(i)->getNodeSubType())) << "_"
-           << tracker << "_"
+    stream << no_whitespace(EchelonLookup::getInstance()->toString(currentNode->getChild(i)->getNodeType())) << "_";
+    if (currentNode->getChild(i)->getNodeSubType() != EnhancedAstNodeSubType::Unspecified) {
+      stream << no_whitespace(EchelonLookup::getInstance()->toString(currentNode->getChild(i)->getNodeSubType())) << "_";
+    }
+    stream << tracker << "_"
            << i;
 
     if (currentNode->getChild(i)->getData() != "") {
