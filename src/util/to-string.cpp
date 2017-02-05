@@ -1,4 +1,5 @@
 #include <echelon/util/to-string.hpp>
+#include <echelon/ast/transform-stage/enhanced-ast-function-prototype-node.hpp>
 
 std::string to_string(const Token *t) {
   std::stringstream ss;
@@ -126,7 +127,20 @@ std::string to_string_internal(EnhancedAstNode *enhancedAstNode, int dump_level)
   // clion overloading analysis bug.
   ss << "type=[" << EchelonLookup::toString(enhancedAstNode->getNodeType()) << "], "
      << "data=[" << enhancedAstNode->getData() << "], "
-     << "sub_type=[" << EchelonLookup::toString(enhancedAstNode->getNodeSubType()) << "]\n";
+     << "sub_type=[" << EchelonLookup::toString(enhancedAstNode->getNodeSubType()) << "]";
+
+  if (enhancedAstNode->getNodeType() == EnhancedAstNodeType::Function && enhancedAstNode->getNodeSubType() == EnhancedAstNodeSubType::Prototype) {
+    auto impl = ((EnhancedAstFunctionPrototypeNode*) enhancedAstNode)->getImpl();
+
+    if (impl == nullptr) {
+      ss << ", no impl";
+    }
+    else {
+      ss << ", has impl ";
+    }
+  }
+
+  ss << "\n";
 
   for (auto child : *enhancedAstNode->getChildList()) {
     ss << to_string_internal(child, dump_level + 1) << "\n";

@@ -51,7 +51,9 @@ int main(int argc, char **args) {
 
     // TODO this is working as it should (apart from function return type, that's another problem) so create a test.
     //auto out = compiler.enhance("package PackageName\ntype MyType {\n  integer my_x = 5\n  integer my_y=4  public function get_product() -> integer}\n\nfunction MyType::get_product() -> integer {\n  my_x * my_y}");
-    auto out = compiler.enhance("module ModuleOne {\n  integer x = 5\n}\nmodule ModuleTwo {\n  function getX() {\n    ModuleOne::x\n  }\n}\n");
+
+    // TODO looks like this works, extract test.
+    auto out = compiler.enhance("type MyType {\n  function getValue()\n}\nfunction MyType::getValue() {\n  5\n}");
     gv_out(out);
     log->at(Level::Info) << to_string(out) << "\n";
   }

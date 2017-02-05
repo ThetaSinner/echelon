@@ -5,7 +5,9 @@
 #include <echelon/ast/transform-stage/node-enhancer-lookup.hpp>
 #include <echelon/ast/transform-stage/enhanced-ast-block-node.hpp>
 #include <echelon/transform/transform-data/ast-enhancer-helper.hpp>
+#include <echelon/transform/name-resolver.hpp>
 #include <echelon/transform/type-deducer.hpp>
+#include <echelon/ast/transform-stage/enhanced-ast-function-prototype-node.hpp>
 
 void loadAstEnhancerDataInternal();
 
@@ -20,6 +22,8 @@ void loadAstEnhancerData() {
 
 // TODO integrity check.
 void loadAstEnhancerDataInternal() {
+  NameResolver nameResolver;
+
   NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::Integer, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
     AstNodeEnhancerOutputData outputData(input);
 
@@ -184,7 +188,7 @@ void loadAstEnhancerDataInternal() {
     return outputData;
   });
 
-  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::Function, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::Function, [&nameResolver](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
     AstNodeEnhancerOutputData outputData(input);
 
     auto nodeToMap = input.getNodeToMap();
@@ -222,19 +226,26 @@ void loadAstEnhancerDataInternal() {
     if (nodeToMap->hasChild(AstNodeType::Block)) {
       AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
 
+      // Get the return statement.
       TypeDeducer::deduceTypes(base->getChild(EnhancedAstNodeType::Block)->getLastChild(), scope, base);
 
       if (hasNameStructure) {
         // add to scope as implementation
         base->setNodeSubType(EnhancedAstNodeSubType::Implementation);
 
-        // It is important the name structure, function name and params have been mapped.
-        auto functionHash = AstEnhancerHelper::computeFunctionHash(base);
-        if (!scope->hasFunctionImplementation(functionHash)) {
-          scope->addFunctionImplementation(functionHash, base);
+        auto resolved = nameResolver.resolve(base, scope);
+        if (resolved == nullptr) {
+          throw std::runtime_error("Error [" + base->getData() + "] does not implement a prototype");
         }
         else {
-          throw std::runtime_error("Re-implementing function [" + functionHash + "]");
+          auto resolvedPrototype = (EnhancedAstFunctionPrototypeNode*) resolved;
+          if (resolvedPrototype->getImpl() == nullptr) {
+            // Attach the implementation to its prototype.
+            resolvedPrototype->setImpl(base);
+          }
+          else {
+            throw std::runtime_error("Re-implementing function [" + base->getData() + "]");
+          }
         }
       }
       else {
@@ -255,6 +266,9 @@ void loadAstEnhancerDataInternal() {
     }
     else {
       // Prototypes don't have name structures.
+
+      // The prototype is a special node, construct it now.
+      base = new EnhancedAstFunctionPrototypeNode(base);
 
       if (!scope->hasPrototype(data)) {
         scope->addPrototype(data, base);
@@ -423,6 +437,8 @@ void loadAstEnhancerDataInternal() {
     auto base = new EnhancedAstNode();
     base->setNodeType(EnhancedAstNodeType::CustomType);
     base->setData(nodeToMap->getData());
+
+    input.getScope()->addType(nodeToMap->getData(), base);
 
     AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
 
