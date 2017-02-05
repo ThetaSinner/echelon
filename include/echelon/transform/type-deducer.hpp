@@ -11,6 +11,7 @@
 #include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
 #include <echelon/ast/transform-stage/scope.hpp>
 #include <echelon/transform/type-rule-lookup.hpp>
+#include <echelon/transform/name-resolver.hpp>
 
 class TypeResolve {
   std::string typeName;
@@ -56,6 +57,8 @@ public:
 };
 
 class TypeDeducer {
+  static NameResolver nameResolver;
+
   static TypeResolve resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope);
   static TypeNameResolve resolveTypeName(EnhancedAstNode* node, Scope* scope);
 public:

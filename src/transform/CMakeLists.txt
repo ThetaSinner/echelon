@@ -4,7 +4,7 @@ add_library(${transform_lib_name}
   type-deducer.cpp
   ast-enhancer.cpp
   transform-data/ast-enhancer-data.cpp
-  ast-node-enhancer-input-input-data.cpp ast-node-enhancer-input-output-data.cpp transform-data/ast-enhancer-helper.cpp transform-data/operator-precedence-tree-restructurer.cpp type-rule-lookup.cpp transform-data/type-rule-data-load.cpp)
+  ast-node-enhancer-input-input-data.cpp ast-node-enhancer-input-output-data.cpp transform-data/ast-enhancer-helper.cpp transform-data/operator-precedence-tree-restructurer.cpp type-rule-lookup.cpp transform-data/type-rule-data-load.cpp name-resolver.cpp)
 
 target_link_libraries(${transform_lib_name}
   ${ast_lib_name}

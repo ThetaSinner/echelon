@@ -245,12 +245,32 @@ void loadTransformers() {
 
   AstTransformLookup::getInstance()->addAstTransform("expression_variable", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
+        // [subtract_operator] [name_structure] identifier [binary_operator expression]
+
         AstNode *base = new AstNode();
+
+        auto nested = astTransformData->getNestedAstNodes();
+        int nameStructureDepth = 0;
+        if (nested != nullptr && !nested->empty() && nested->front()->getChild(0)->getType() == AstNodeType::NameStructure) {
+          auto nameStructure = nested->front()->getChild(0);
+          base->putChild(nameStructure);
+
+          auto nextNested = nameStructure;
+          nameStructureDepth++;
+          while (nextNested->hasChild(AstNodeType::NameStructure)) {
+            nextNested = nextNested->getChild(AstNodeType::NameStructure);
+            nameStructureDepth++;
+          }
+
+          nested->pop();
+        }
 
         auto tokens = astTransformData->getTokens();
         if (tokens->front()->getTokenType() == TokenType::SubtractOperator) {
           base->setType(AstNodeType::UnaryMinus);
           tokens->pop_front();
+
+          for (int i = 0; i < nameStructureDepth; i++) { tokens->pop_front(); tokens->pop_front(); }
 
           auto variable = new AstNode();
           variable->setType(AstNodeType::VariableValue);
@@ -260,12 +280,13 @@ void loadTransformers() {
           base->putChild(variable);
         }
         else {
+          for (int i = 0; i < nameStructureDepth; i++) { tokens->pop_front(); tokens->pop_front(); }
+
           base->setType(AstNodeType::VariableValue);
           base->setData(tokens->front()->getData());
           tokens->pop_front();
         }
 
-        auto nested = astTransformData->getNestedAstNodes();
         if (nested != nullptr && nested->size() == 2) {
           auto oper = nested->front();
           nested->pop();
@@ -1048,6 +1069,7 @@ void loadNested() {
   );
 
   NestedPatternLookup::getInstance()->forwardDeclareNested("function_call");
+  NestedPatternLookup::getInstance()->forwardDeclareNested("name_structure");
   std::string expression = "expression";
   NestedPatternLookup::getInstance()->registerNested(
       expression,
@@ -1088,7 +1110,7 @@ void loadNested() {
   NestedPatternLookup::getInstance()->registerNested(
       expression,
       "expression_variable",
-      "[subtract_operator] identifier [binary_operator expression]"
+      "[subtract_operator] [name_structure] identifier [binary_operator expression]"
   );
 
   std::string any_comparison_operator = "any_comparison_operator";

@@ -50,6 +50,10 @@ public:
     return modules.find(name) != modules.end();
   }
 
+  EnhancedAstNode* getModule(std::string name) {
+    return modules.at(name);
+  }
+
   bool hasPrototype(std::string name) {
     return prototypes.find(name) != prototypes.end();
   }

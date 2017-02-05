@@ -460,6 +460,8 @@ void loadAstEnhancerDataInternal() {
     base->setNodeType(EnhancedAstNodeType::VariableValue);
     base->setData(nodeToMap->getData());
 
+    AstEnhancerHelper::mapChildIfPresent(base, nodeToMap, input, AstNodeType::NameStructure);
+
     outputData.getTargetNode()->putChild(base);
     return outputData;
   });

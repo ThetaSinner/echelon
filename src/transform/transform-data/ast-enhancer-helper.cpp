@@ -100,3 +100,13 @@ bool AstEnhancerHelper::doFunctionSignaturesMatch(EnhancedAstNode *left, Enhance
 
   return match;
 }
+
+void AstEnhancerHelper::mapChildIfPresent(EnhancedAstNode* target, AstNode* nodeToMap, const AstNodeEnhancerInputData& input, AstNodeType astNodeType) {
+  if (nodeToMap->hasChild(astNodeType)) {
+    auto subInput = input;
+    subInput.setTargetNode(target);
+    subInput.setNodeToMap(nodeToMap);
+
+    NodeEnhancerLookup::getInstance()->getNodeEnhancer(astNodeType)(subInput);
+  }
+}

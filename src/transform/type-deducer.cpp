@@ -1,5 +1,7 @@
 #include <echelon/transform/type-deducer.hpp>
 
+NameResolver TypeDeducer::nameResolver;
+
 void TypeDeducer::deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, EnhancedAstNode* target) {
   // need a node to work from. expression or bool expr etc.
   // scope pointer,
@@ -88,8 +90,9 @@ TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node, Scope* scope
     }
   }
   else if (node->getNodeType() == EnhancedAstNodeType::VariableValue) {
-    if (scope->hasVariable(node->getData())) {
-      auto var = scope->getVariable(node->getData());
+    auto var = nameResolver.resolve(node, scope);
+
+    if (var != nullptr) {
       if (var->hasChild(EnhancedAstNodeType::TypeName)) {
         typeNameResolve.setTypeName(var->getChild(EnhancedAstNodeType::TypeName)->getData());
       }
@@ -102,6 +105,9 @@ TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node, Scope* scope
       // Variable doesn't exist.
       throw std::runtime_error("Depends on variable which doesn't exist.");
     }
+  }
+  else {
+    throw std::runtime_error("failure: type resolution requested for unhandled node type");
   }
 
   return typeNameResolve;
