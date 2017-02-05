@@ -245,8 +245,6 @@ void loadTransformers() {
 
   AstTransformLookup::getInstance()->addAstTransform("expression_variable", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
-        // [subtract_operator] [name_structure] identifier [binary_operator expression]
-
         AstNode *base = new AstNode();
 
         auto nested = astTransformData->getNestedAstNodes();

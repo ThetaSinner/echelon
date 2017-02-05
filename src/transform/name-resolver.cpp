@@ -16,8 +16,8 @@ std::queue<std::string> NameResolver::toNameStructure(EnhancedAstNode* node) {
     nameStructure.push(data);
   }
 
-  std::string& data1 = node->getData();
-  nameStructure.push(data1);
+  std::string& data = node->getData();
+  nameStructure.push(data);
   return nameStructure;
 }
 

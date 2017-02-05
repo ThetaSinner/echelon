@@ -105,7 +105,7 @@ void AstEnhancerHelper::mapChildIfPresent(EnhancedAstNode* target, AstNode* node
   if (nodeToMap->hasChild(astNodeType)) {
     auto subInput = input;
     subInput.setTargetNode(target);
-    subInput.setNodeToMap(nodeToMap);
+    subInput.setNodeToMap(nodeToMap->getChild(astNodeType));
 
     NodeEnhancerLookup::getInstance()->getNodeEnhancer(astNodeType)(subInput);
   }
