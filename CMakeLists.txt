@@ -51,8 +51,10 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
   target_compile_definitions(${project_binary_name} PUBLIC ECHELON_DEBUG)
 endif()
 
+# Add cxxtest directory to (path) or (/etc/environment and link to /usr/bin)
 find_package(CxxTest)
 if (CXXTEST_FOUND)
+  message(${CXXTEST_INCLUDE_DIR})
   include_directories(${CXXTEST_INCLUDE_DIR})
   enable_testing()
 

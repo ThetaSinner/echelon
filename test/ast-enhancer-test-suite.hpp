@@ -5,6 +5,7 @@
 #include <echelon/parser/parser-data/parser-stage-2-data-load.hpp>
 #include <echelon/compiler/echelon-compiler.hpp>
 #include <echelon/ast/transform-stage/enhanced-ast-block-node.hpp>
+#include <echelon/ast/transform-stage/enhanced-ast-function-prototype-node.hpp>
 
 class AstEnhancerTestSuite : public CxxTest::TestSuite {
 private:
@@ -112,6 +113,23 @@ public:
     TS_ASSERT(blockScope->hasModule("TestModule"));
     TS_ASSERT(blockScope->hasVariable("v"));
     TS_ASSERT(blockScope->hasVariable("w"));
+  }
+
+  void testAttachImplementationToMethod() {
+    auto ast = compiler.enhance("type MyType {\n  function getValue()\n}\nfunction MyType::getValue() {\n  5\n}");
+
+    TS_ASSERT(ast->hasChild(EnhancedAstNodeType::CustomType));
+    auto custom_type = ast->getChild(EnhancedAstNodeType::CustomType);
+
+    TS_ASSERT_EQUALS("MyType", custom_type->getData());
+    TS_ASSERT(custom_type->getChild(EnhancedAstNodeType::Block)->hasChild(EnhancedAstNodeType::Function));
+    auto func = custom_type->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Function);
+
+    TS_ASSERT_EQUALS("getValue", func->getData());
+    TS_ASSERT_EQUALS(EnhancedAstNodeSubType::Prototype, func->getNodeSubType());
+
+    auto prototype = (EnhancedAstFunctionPrototypeNode*) func;
+    TS_ASSERT_EQUALS(ast->getChild(EnhancedAstNodeType::Function), prototype->getImpl());
   }
 
   // TODO this isn't ready yet. Need to be able to map the block and type or determine the type from the block.
