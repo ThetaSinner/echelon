@@ -40,8 +40,6 @@ int main(int argc, char **args) {
 
   EchelonCompiler compiler;
 
-  // TODO split scope into parent and local so that pointers can be used and declarations can be in any order.
-
   // TODO can actually detect this error and report it. "Did you forget the function keyword?"
   // auto out = compiler.parse("type MyType {\n  toString(integer t) -> string\n}");
 
@@ -49,6 +47,7 @@ int main(int argc, char **args) {
     // TODO Need private variables to try to implement anything here.. so it's context time.
     //auto out = compiler.enhance("behaviour ToString {\n  function toString() -> string\n}\n\ntype BigInteger {\n}");
 
+    // TODO fixed, should fail to find oops variable, not accessible. Extract test.
     auto out = compiler.enhance("module ModuleOne {\ndecimal oops = 0.5\n\ntype MyType {\n  integer my_type_var\n  function get_my_type_var() -> integer\n}\n}\n\nmodule ModuleTwo {\nfunction ModuleOne::MyType::get_my_type_var() {\n  oops + my_type_var\n}\n}");
     gv_out(out);
     log->at(Level::Info) << to_string(out) << "\n";

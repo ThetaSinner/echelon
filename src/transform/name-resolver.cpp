@@ -6,11 +6,21 @@ EnhancedAstNode* NameResolver::resolve(EnhancedAstNode* unresolved, Scope* scope
 
   auto resolved = resolveInternal(unresolved, nameStructure, scope);
 
+  // TODO reverse iterator? might want to check the most recently added first, i.e. the closest in source code.
   // Try to find the name in any other scopes which this scope has access to.
   auto linkedScopeIterator = scope->getLinkedScopes().begin();
   while (resolved == nullptr && linkedScopeIterator != scope->getLinkedScopes().end()) {
     resolved = resolveInternal(unresolved, nameStructure, *linkedScopeIterator);
+    linkedScopeIterator++;
   }
+
+  auto parentScope = scope->getParentScope();
+  while (resolved == nullptr && parentScope != nullptr) {
+    resolved = resolveInternal(unresolved, nameStructure, parentScope);
+    parentScope = parentScope->getParentScope();
+  }
+
+  // TODO would it make sense to check linked scopes on each parent? Just something to bear in mind.
 
   return resolved;
 }

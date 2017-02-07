@@ -5,7 +5,10 @@
 #include <list>
 #include <string>
 
+class ScopeHelper;
+
 #include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
+#include <echelon/transform/scope-helper.hpp>
 
 class Scope {
   std::map<std::string, EnhancedAstNode*> variables;
@@ -16,7 +19,20 @@ class Scope {
   std::map<std::string, EnhancedAstNode*> functionImplementations;
   std::map<std::string, std::list<EnhancedAstNode*>> prototypes;
 
+  Scope* parentScope;
   std::list<Scope*> linkedScopes;
+
+  friend ScopeHelper;
+protected:
+  void pushLinkedScope(Scope* linkedScope) {
+    linkedScopes.push_back(linkedScope);
+  }
+
+  void setParentScope(Scope* parentScope) {
+    // TODO It would be nice to store the owner (i.e. when created in ast-enhancer-scope)
+    this->parentScope = parentScope;
+  }
+
 public:
   void addVariable(std::string name, EnhancedAstNode *enhancedAstNode) {
     variables.insert({name, enhancedAstNode});
@@ -98,12 +114,12 @@ public:
     return paramDefinitions.at(name);
   }
 
-  void pushLinkedScope(Scope* linkedScope) {
-    linkedScopes.push_back(linkedScope);
+  const std::list<Scope*>& getLinkedScopes() {
+    return linkedScopes;
   }
 
-  std::list<Scope*>& getLinkedScopes() {
-    return linkedScopes;
+  Scope* getParentScope() {
+    return parentScope;
   }
 
   // TODO [[deprecated]]

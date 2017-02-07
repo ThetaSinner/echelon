@@ -108,7 +108,7 @@ TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node, Scope* scope
     }
     else {
       // Variable doesn't exist.
-      throw std::runtime_error("Depends on variable which doesn't exist.");
+      throw std::runtime_error("Depends on variable which doesn't exist [" + node->getData() + "].");
     }
   }
   else {

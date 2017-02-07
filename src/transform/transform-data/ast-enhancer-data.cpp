@@ -9,6 +9,7 @@
 #include <echelon/transform/type-deducer.hpp>
 #include <echelon/ast/transform-stage/enhanced-ast-function-prototype-node.hpp>
 #include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
+#include <echelon/transform/scope-helper.hpp>
 
 // TODO what was I intending to be the difference between sourceNode and nodeToMap?
 
@@ -263,11 +264,10 @@ void loadAstEnhancerDataInternal() {
         base->setNodeSubType(EnhancedAstNodeSubType::Implementation);
 
         // Link the function scope to the scope of the block for the item the name structure points to.
-        auto nameStructureResolved = nameResolver.resolve(base->getChild(EnhancedAstNodeType::NameStructure), scope);
-        if (nameStructureResolved != nullptr && nameStructureResolved->hasChild(EnhancedAstNodeType::Block)) {
-          auto block = nameStructureResolved->getChild(EnhancedAstNodeType::Block);
-          blockScope->pushLinkedScope(((EnhancedAstBlockNode*) block)->getScope());
-          // TODO it's now really important that scopes have "local and parent" as suggested in some other TODO, otherwise we're importing a whole bunch of things we shouldn't be.
+        auto structureToLink = nameResolver.resolve(base->getChild(EnhancedAstNodeType::NameStructure), scope);
+        if (structureToLink != nullptr && structureToLink->hasChild(EnhancedAstNodeType::Block)) {
+          auto blockToLink = structureToLink->getChild(EnhancedAstNodeType::Block);
+          ScopeHelper::linkScopes(blockScope, ((EnhancedAstBlockNode*) blockToLink)->getScope());
         }
 
         auto resolved = nameResolver.resolve(base, scope);
@@ -440,7 +440,7 @@ void loadAstEnhancerDataInternal() {
     auto base = new EnhancedAstBlockNode();
     base->setNodeType(EnhancedAstNodeType::Block);
 
-    Scope* blockScope = new Scope(*input.getScope());
+    Scope* blockScope = ScopeHelper::createChildScope(input.getScope());
     base->setScope(blockScope);
 
     AstNodeEnhancerInputData subInput = input;
