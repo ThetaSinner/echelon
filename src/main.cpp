@@ -49,10 +49,7 @@ int main(int argc, char **args) {
     // TODO Need private variables to try to implement anything here.. so it's context time.
     //auto out = compiler.enhance("behaviour ToString {\n  function toString() -> string\n}\n\ntype BigInteger {\n}");
 
-    // TODO this is working as it should (apart from function return type, that's another problem) so create a test.
-    //auto out = compiler.enhance("package PackageName\ntype MyType {\n  integer my_x = 5\n  integer my_y=4  public function get_product() -> integer}\n\nfunction MyType::get_product() -> integer {\n  my_x * my_y}");
-
-    auto out = compiler.enhance("type MyType {\n  integer my_type_var\n  function get_my_type_var() -> integer\n}\n\nfunction MyType::get_my_type_var() {\n  my_type_var\n}");
+    auto out = compiler.enhance("module ModuleOne {\ndecimal oops = 0.5\n\ntype MyType {\n  integer my_type_var\n  function get_my_type_var() -> integer\n}\n}\n\nmodule ModuleTwo {\nfunction ModuleOne::MyType::get_my_type_var() {\n  oops + my_type_var\n}\n}");
     gv_out(out);
     log->at(Level::Info) << to_string(out) << "\n";
   }

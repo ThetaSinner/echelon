@@ -6,6 +6,7 @@ EnhancedAstNode* NameResolver::resolve(EnhancedAstNode* unresolved, Scope* scope
 
   auto resolved = resolveInternal(unresolved, nameStructure, scope);
 
+  // Try to find the name in any other scopes which this scope has access to.
   auto linkedScopeIterator = scope->getLinkedScopes().begin();
   while (resolved == nullptr && linkedScopeIterator != scope->getLinkedScopes().end()) {
     resolved = resolveInternal(unresolved, nameStructure, *linkedScopeIterator);
@@ -15,6 +16,10 @@ EnhancedAstNode* NameResolver::resolve(EnhancedAstNode* unresolved, Scope* scope
 }
 
 std::queue<std::string> NameResolver::toNameStructure(EnhancedAstNode* node) {
+  if (node->getNodeType() == EnhancedAstNodeType::NameStructure) {
+    return toNameStructureFromNameStructureNode(node);
+  }
+
   std::queue<std::string> nameStructure;
 
   auto nsItem = node;
@@ -23,9 +28,25 @@ std::queue<std::string> NameResolver::toNameStructure(EnhancedAstNode* node) {
     std::string& data = nsItem->getData();
     nameStructure.push(data);
   }
-
+  
   std::string& data = node->getData();
   nameStructure.push(data);
+  return nameStructure;
+}
+
+std::queue<std::string> NameResolver::toNameStructureFromNameStructureNode(EnhancedAstNode* node) {
+  std::queue<std::string> nameStructure;
+
+  std::string& topName = node->getData();
+  nameStructure.push(topName);
+
+  auto nsItem = node;
+  while (nsItem->hasChild(EnhancedAstNodeType::NameStructure)) {
+    nsItem = nsItem->getChild(EnhancedAstNodeType::NameStructure);
+    std::string& data = nsItem->getData();
+    nameStructure.push(data);
+  }
+
   return nameStructure;
 }
 
