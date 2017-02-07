@@ -109,8 +109,10 @@ public:
 
     auto blockScope = ((EnhancedAstBlockNode*) block)->getScope();
     TS_ASSERT(blockScope != nullptr);
-    TS_ASSERT(blockScope->hasVariable("u"));
-    TS_ASSERT(blockScope->hasModule("TestModule"));
+    auto blockScopeParent = blockScope->getParentScope();
+    TS_ASSERT_DIFFERS(nullptr, blockScopeParent);
+    TS_ASSERT(blockScopeParent->hasVariable("u"));
+    TS_ASSERT(blockScopeParent->hasModule("TestModule"));
     TS_ASSERT(blockScope->hasVariable("v"));
     TS_ASSERT(blockScope->hasVariable("w"));
   }
