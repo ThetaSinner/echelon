@@ -46,6 +46,11 @@ TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNo
   // use rules to determine the result i.e. *, integer, decimal -> decimal
   // either return the type or an object describing what's missing.
 
+  // Fine to resolve to the type of an expression, but we don't care about the node itself, start from its data.
+  if (expressionNode->getNodeType() == EnhancedAstNodeType::Expression) {
+    return resolveTypeFromExpression(expressionNode->getChild(0), scope);
+  }
+
   TypeResolve typeResolve;
 
   if (expressionNode->getChildCount() == 2) {

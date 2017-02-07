@@ -8,6 +8,7 @@
 #include <echelon/transform/name-resolver.hpp>
 #include <echelon/transform/type-deducer.hpp>
 #include <echelon/ast/transform-stage/enhanced-ast-function-prototype-node.hpp>
+#include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
 
 // TODO what was I intending to be the difference between sourceNode and nodeToMap?
 
@@ -141,8 +142,14 @@ void loadAstEnhancerDataInternal() {
     AstNodeEnhancerInputData subInput;
     subInput.setTargetNode(base);
     subInput.setNodeToMap(nodeToMap->getChild(0));
-
+    
     NodeEnhancerLookup::getInstance()->getNodeEnhancer(nodeToMap->getChild(0)->getType())(subInput);
+    
+    // Expect that expression will contain a single child which will either be an operator or a value.
+    auto childToRestructure = base->getChild(0);
+    base->removeChild(childToRestructure);
+    auto restructured = OperatorPrecedenceTreeRestructurer::restructure(childToRestructure);
+    base->putChild(restructured);
 
     outputData.getTargetNode()->putChild(base);
 

@@ -16,7 +16,7 @@ public:
 
   void testAddThenSubtract() {
     auto expr = compiler.enhance("x + y - z");
-    auto result = OperatorPrecedenceTreeRestructurer::restructure(expr->getChild(0)); // skip the program node.
+    auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     TS_ASSERT_EQUALS(EnhancedAstNodeType::BinaryOperator, result->getNodeType());
     TS_ASSERT_EQUALS(EnhancedAstNodeSubType::Subtract, result->getNodeSubType());
@@ -40,7 +40,7 @@ public:
 
   void testAddThenAddThenSubtract() {
     auto expr = compiler.enhance("w + x + y - z");
-    auto result = OperatorPrecedenceTreeRestructurer::restructure(expr->getChild(0)); // skip the program node.
+    auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     TS_ASSERT_EQUALS(EnhancedAstNodeType::BinaryOperator, result->getNodeType());
     TS_ASSERT_EQUALS(EnhancedAstNodeSubType::Subtract, result->getNodeSubType());
@@ -72,7 +72,7 @@ public:
 
   void testSubtractAddSubtract() {
     auto expr = compiler.enhance("w - x + y - z");
-    auto result = OperatorPrecedenceTreeRestructurer::restructure(expr->getChild(0)); // skip the program node.
+    auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     auto top_subtract = result;
     TS_ASSERT_EQUALS(EnhancedAstNodeType::BinaryOperator, top_subtract->getNodeType());
@@ -105,7 +105,7 @@ public:
 
   void testSubtractMultiplyAdd() {
     auto expr = compiler.enhance("w - x * y + z");
-    auto result = OperatorPrecedenceTreeRestructurer::restructure(expr->getChild(0)); // skip the program node.
+    auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     auto subtract = result;
     TS_ASSERT_EQUALS(EnhancedAstNodeType::BinaryOperator, subtract->getNodeType());
@@ -138,7 +138,7 @@ public:
 
   void testMultiplyDivide() {
     auto expr = compiler.enhance("x / y * z");
-    auto result = OperatorPrecedenceTreeRestructurer::restructure(expr->getChild(0)); // skip the program node.
+    auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     auto multiply = result;
     TS_ASSERT_EQUALS(EnhancedAstNodeType::BinaryOperator, multiply->getNodeType());
@@ -163,7 +163,7 @@ public:
 
   void testMultiplyExpressionGroup() {
     auto expr = compiler.enhance("a * (b + c - d)");
-    auto result = OperatorPrecedenceTreeRestructurer::restructure(expr->getChild(0)); // skip the program node.
+    auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     auto multiply = result;
     TS_ASSERT_EQUALS(EnhancedAstNodeType::BinaryOperator, multiply->getNodeType());
@@ -199,7 +199,7 @@ public:
 
   void testMultiplyExpressionGroups() {
     auto expr = compiler.enhance("(a - b + c) * (d + e - f)");
-    auto result = OperatorPrecedenceTreeRestructurer::restructure(expr->getChild(0)); // skip the program node.
+    auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     auto multiply = result;
     TS_ASSERT_EQUALS(EnhancedAstNodeType::BinaryOperator, multiply->getNodeType());
@@ -254,7 +254,7 @@ public:
 
   void testTopLevelExpressionGroup() {
     auto expr = compiler.enhance("(a + b - c)");
-    auto result = OperatorPrecedenceTreeRestructurer::restructure(expr->getChild(0)); // skip the program node.
+    auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     auto expression_group = result;
     TS_ASSERT_EQUALS(EnhancedAstNodeType::ExpressionGroup, expression_group->getNodeType());
@@ -282,7 +282,7 @@ public:
 
   void testMultipleExpressionGroups() {
     auto expr = compiler.enhance("(a + b - c) / (d + e - f) * (g + h - i)");
-    auto result = OperatorPrecedenceTreeRestructurer::restructure(expr->getChild(0)); // skip the program node.
+    auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     auto multiply = result;
     TS_ASSERT_EQUALS(EnhancedAstNodeType::BinaryOperator, multiply->getNodeType());

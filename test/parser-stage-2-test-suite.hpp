@@ -510,7 +510,11 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
     TS_ASSERT_EQUALS(1, ast->getChildCount());
 
-    auto plus = ast->getChild(0);
+    TS_ASSERT(ast->hasChild(AstNodeType::Expression));
+    auto expr = ast->getChild(AstNodeType::Expression);
+    TS_ASSERT_EQUALS(1, expr->getChildCount());
+
+    auto plus = expr->getChild(0);
     TS_ASSERT_EQUALS("+", plus->getData());
     TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, plus->getType());
     TS_ASSERT_EQUALS(2, plus->getChildCount());
@@ -665,7 +669,11 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
     TS_ASSERT_EQUALS(1, ast->getChildCount());
 
-    auto top_plus = ast->getChild(0);
+    TS_ASSERT(ast->hasChild(AstNodeType::Expression));
+    auto expr = ast->getChild(AstNodeType::Expression);
+    TS_ASSERT_EQUALS(1, expr->getChildCount());
+
+    auto top_plus = expr->getChild(0);
     TS_ASSERT_EQUALS("+", top_plus->getData());
     TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorAdd, top_plus->getType());
     TS_ASSERT_EQUALS(2, top_plus->getChildCount());
@@ -787,7 +795,11 @@ public:
   void testUnaryMinus() {
     auto ast = compiler.parse("-1 - (2 * -5)");
 
-    auto minus = ast->getChild(0);
+    TS_ASSERT(ast->hasChild(AstNodeType::Expression));
+    auto expr = ast->getChild(AstNodeType::Expression);
+    TS_ASSERT(expr->hasChild(AstNodeType::BinaryOperatorSubtract));
+
+    auto minus = expr->getChild(0);
     TS_ASSERT_EQUALS("-", minus->getData());
     TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorSubtract, minus->getType());
     TS_ASSERT_EQUALS(2, minus->getChildCount());
@@ -831,7 +843,11 @@ public:
   void testUnaryMinusWithParenthesis() {
     auto ast = compiler.parse("2 * -(2 * -5)");
 
-    auto multiply = ast->getChild(0);
+    TS_ASSERT(ast->hasChild(AstNodeType::Expression));
+    auto expr = ast->getChild(AstNodeType::Expression);
+    TS_ASSERT(expr->hasChild(AstNodeType::BinaryOperatorMultiply));
+
+    auto multiply = expr->getChild(0);
     TS_ASSERT_EQUALS("*", multiply->getData());
     TS_ASSERT_EQUALS(AstNodeType::BinaryOperatorMultiply, multiply->getType());
     TS_ASSERT_EQUALS(2, multiply->getChildCount());

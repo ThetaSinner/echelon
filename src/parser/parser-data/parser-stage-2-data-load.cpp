@@ -817,10 +817,14 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("top_level_expression", new AstTransform(
-      [](AstTransformData *astTransformData) -> AstNode * {
-        return astTransformData->getNestedAstNodes()->front()->getChild(0);
-      }));
+  AstTransformLookup::getInstance()->addAstTransform("top_level_expression", new AstTransform([](AstTransformData *astTransformData) -> AstNode * {
+    AstNode *base = new AstNode();
+    base->setType(AstNodeType::Expression);
+
+    base->putChild(astTransformData->getNestedAstNodes()->front()->getChild(0));
+
+    return base;
+  }));
 
   AstTransformLookup::getInstance()->addAstTransform("top_level_boolean_expression", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {

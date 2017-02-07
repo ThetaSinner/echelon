@@ -7,6 +7,10 @@ EnhancedAstNode* OperatorPrecedenceTreeRestructurer::restructureInternal(Enhance
   if (node->getNodeType() == EnhancedAstNodeType::VariableValue) {
     return node;
   }
+  // TODO again, this isn't ideal, see todo above.
+  else if (node->getNodeType() == EnhancedAstNodeType::PrimitiveValue) {
+    return node;
+  }
   if (node->getNodeType() == EnhancedAstNodeType::ExpressionGroup) {
     auto subExpression = node->getChild(0);
     node->removeChild(subExpression);

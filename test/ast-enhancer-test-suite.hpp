@@ -132,6 +132,69 @@ public:
     TS_ASSERT_EQUALS(ast->getChild(EnhancedAstNodeType::Function), prototype->getImpl());
   }
 
+  void testUseFunctionParametersAsVariables() {
+    auto ast = compiler.enhance("function larp(integer i, decimal d) {\n  x = i + d\n  x * x + i\n}");
+
+    TS_ASSERT(ast->hasChild(EnhancedAstNodeType::Function));
+
+    auto func = ast->getChild(EnhancedAstNodeType::Function);
+    TS_ASSERT_EQUALS("larp", func->getData());
+
+    TS_ASSERT(func->hasChild(EnhancedAstNodeType::FunctionParamDefinitions));
+
+    auto paramDefinitions = func->getChild(EnhancedAstNodeType::FunctionParamDefinitions);
+    TS_ASSERT_EQUALS(2, paramDefinitions->getChildCount());
+
+    auto i = paramDefinitions->getChild(0);
+    TS_ASSERT_EQUALS("i", i->getData());
+    TS_ASSERT_EQUALS(EnhancedAstNodeType::FunctionParamDefinition, i->getNodeType());
+    TS_ASSERT(i->hasChild(EnhancedAstNodeType::TypeName));
+    TS_ASSERT_EQUALS("integer", i->getChild(EnhancedAstNodeType::TypeName)->getData());
+
+    auto d = paramDefinitions->getChild(1);
+    TS_ASSERT_EQUALS("d", d->getData());
+    TS_ASSERT_EQUALS(EnhancedAstNodeType::FunctionParamDefinition, d->getNodeType());
+    TS_ASSERT(d->hasChild(EnhancedAstNodeType::TypeName));
+    TS_ASSERT_EQUALS("decimal", d->getChild(EnhancedAstNodeType::TypeName)->getData());
+
+    TS_ASSERT(func->hasChild(EnhancedAstNodeType::Block));
+
+    auto block = func->getChild(EnhancedAstNodeType::Block);
+    TS_ASSERT(block->hasChild(EnhancedAstNodeType::Variable));
+
+    auto x = block->getChild(EnhancedAstNodeType::Variable);
+    TS_ASSERT_EQUALS("x", x->getData());
+    TS_ASSERT_EQUALS(EnhancedAstNodeSubType::Declaration, x->getNodeSubType());
+    TS_ASSERT(x->hasChild(EnhancedAstNodeType::TypeName));
+    TS_ASSERT_EQUALS("decimal", x->getChild(EnhancedAstNodeType::TypeName)->getData());
+    TS_ASSERT(x->hasChild(EnhancedAstNodeType::Expression));
+
+    auto x_expr = x->getChild(EnhancedAstNodeType::Expression);
+    TS_ASSERT(x_expr->hasChild(EnhancedAstNodeType::BinaryOperator));
+    auto x_expr_add = x_expr->getChild(EnhancedAstNodeType::BinaryOperator);
+    TS_ASSERT_EQUALS(EnhancedAstNodeSubType::Add, x_expr_add->getNodeSubType());
+    TS_ASSERT_EQUALS(2, x_expr_add->getChildCount());
+    TS_ASSERT_EQUALS("i", x_expr_add->getChild(0)->getData());
+    TS_ASSERT_EQUALS("d", x_expr_add->getChild(1)->getData());
+
+    TS_ASSERT(block->hasChild(EnhancedAstNodeType::Expression));
+    auto expr = block->getChild(EnhancedAstNodeType::Expression);
+    TS_ASSERT(expr->hasChild(EnhancedAstNodeType::BinaryOperator));
+    auto expr_add = expr->getChild(EnhancedAstNodeType::BinaryOperator);
+    TS_ASSERT_EQUALS(EnhancedAstNodeSubType::Add, expr_add->getNodeSubType());
+    TS_ASSERT_EQUALS(2, expr_add->getChildCount());
+    auto expr_add_left = expr_add->getChild(0);
+    TS_ASSERT_EQUALS(EnhancedAstNodeType::BinaryOperator, expr_add_left->getNodeType());
+    TS_ASSERT_EQUALS(EnhancedAstNodeSubType::Multiply, expr_add_left->getNodeSubType());
+    TS_ASSERT_EQUALS(2, expr_add_left->getChildCount());
+    TS_ASSERT_EQUALS("x", expr_add_left->getChild(0)->getData());
+    TS_ASSERT_EQUALS("x", expr_add_left->getChild(1)->getData());
+    TS_ASSERT_EQUALS("i", expr_add->getChild(1)->getData());
+
+    TS_ASSERT(func->hasChild(EnhancedAstNodeType::TypeName));
+    TS_ASSERT_EQUALS("decimal", func->getChild(EnhancedAstNodeType::TypeName)->getData());
+  }
+
   // TODO this isn't ready yet. Need to be able to map the block and type or determine the type from the block.
   /*
     // example of overloaded functions.
