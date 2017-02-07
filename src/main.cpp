@@ -52,8 +52,8 @@ int main(int argc, char **args) {
     // TODO this is working as it should (apart from function return type, that's another problem) so create a test.
     //auto out = compiler.enhance("package PackageName\ntype MyType {\n  integer my_x = 5\n  integer my_y=4  public function get_product() -> integer}\n\nfunction MyType::get_product() -> integer {\n  my_x * my_y}");
 
-    // TODO looks like this works, extract test.
-    auto out = compiler.enhance("type MyType {\n  function getValue()\n}\nfunction MyType::getValue() {\n  5\n}");
+    // TODO top level expressions not rotated?
+    auto out = compiler.enhance("function larp(integer i, decimal f) {\n  x = i + f\n  x * x + i\n}");
     gv_out(out);
     log->at(Level::Info) << to_string(out) << "\n";
   }

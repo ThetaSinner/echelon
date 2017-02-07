@@ -43,6 +43,9 @@ EnhancedAstNode* NameResolver::resolveInternal(EnhancedAstNode* unresolved, std:
       }
     }
   }
+  else if (scope->hasParamDefinition(name)) {
+    found = scope->getParamDefinition(name);
+  }
   else if (scope->hasVariable(name)) {
     found = scope->getVariable(name);
   }

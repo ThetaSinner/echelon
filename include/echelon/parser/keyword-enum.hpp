@@ -14,6 +14,7 @@ enum class Keyword {
 
   Integer,
   String,
+  Decimal,
   True,
   False,
   Behaviour,

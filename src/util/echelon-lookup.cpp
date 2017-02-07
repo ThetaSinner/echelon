@@ -244,6 +244,8 @@ std::string EchelonLookup::toString(Keyword t) {
       return "integer";
     case Keyword::String:
       return "string";
+    case Keyword::Decimal:
+      return "decimal";
     case Keyword::True:
       return "true";
     case Keyword::False:

@@ -23,4 +23,5 @@ void loadInternal() {
   TypeRuleLookup::getInstance()->addRule(EnhancedAstNodeSubType::Add, "integer", "decimal", "decimal");
   TypeRuleLookup::getInstance()->addRule(EnhancedAstNodeSubType::Multiply, "decimal", "integer", "decimal");
   TypeRuleLookup::getInstance()->addRule(EnhancedAstNodeSubType::Multiply, "integer", "decimal", "decimal");
+  TypeRuleLookup::getInstance()->addRule(EnhancedAstNodeSubType::Multiply, "decimal", "decimal", "decimal");
 }

@@ -22,6 +22,7 @@ void loadDataTypeKeywords() {
 
   EchelonLookup::getInstance()->addDataTypeKeyword(EchelonLookup::getInstance()->toString(Keyword::Integer));
   EchelonLookup::getInstance()->addDataTypeKeyword(EchelonLookup::getInstance()->toString(Keyword::String));
+  EchelonLookup::getInstance()->addDataTypeKeyword(EchelonLookup::getInstance()->toString(Keyword::Decimal));
 }
 
 void loadKeywords() {
@@ -765,7 +766,9 @@ void loadTransformers() {
         if (!subProcess->empty()) {
           auto block = new AstNode();
           block->setType(AstNodeType::Block);
-          block->putChild(subProcess->front()->getChild(0));
+          for (unsigned i = 0; i < subProcess->front()->getChildCount(); i++) {
+            block->putChild(subProcess->front()->getChild(i));
+          }
           base->putChild(block);
         }
 

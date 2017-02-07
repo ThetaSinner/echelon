@@ -9,6 +9,7 @@
 
 class Scope {
   std::map<std::string, EnhancedAstNode*> variables;
+  std::map<std::string, EnhancedAstNode*> paramDefinitions;
   std::map<std::string, EnhancedAstNode*> modules;
   std::map<std::string, EnhancedAstNode*> types;
   std::map<std::string, std::list<EnhancedAstNode*>> functions;
@@ -81,6 +82,18 @@ public:
 
   std::list<EnhancedAstNode*>* getPrototypes(std::string name) {
     return &prototypes.at(name);
+  }
+
+  void addParamDefinition(std::string name, EnhancedAstNode* enhancedAstNode) {
+    paramDefinitions.insert(std::make_pair(name, enhancedAstNode));
+  }
+
+  bool hasParamDefinition(std::string name) {
+    return paramDefinitions.find(name) != paramDefinitions.end();
+  }
+
+  EnhancedAstNode* getParamDefinition(std::string name) {
+    return paramDefinitions.at(name);
   }
 
   // TODO [[deprecated]]

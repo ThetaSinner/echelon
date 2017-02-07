@@ -9,6 +9,8 @@
 #include <echelon/transform/type-deducer.hpp>
 #include <echelon/ast/transform-stage/enhanced-ast-function-prototype-node.hpp>
 
+// TODO what was I intending to be the difference between sourceNode and nodeToMap?
+
 void loadAstEnhancerDataInternal();
 
 void loadAstEnhancerData() {
@@ -150,21 +152,24 @@ void loadAstEnhancerDataInternal() {
   NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::FunctionParamDefinition, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
     AstNodeEnhancerOutputData outputData(input);
 
+    auto nodeToMap = input.getNodeToMap();
+
     auto base = new EnhancedAstNode();
     base->setNodeType(EnhancedAstNodeType::FunctionParamDefinition);
-    base->setData(input.getSourceNode()->getData());
+    base->setData(nodeToMap->getData());
 
-    if (input.getSourceNode()->hasChild(AstNodeType::Type)) {
-      AstNode *typeNode = input.getSourceNode()->getChild(AstNodeType::Type);
+    if (nodeToMap->hasChild(AstNodeType::TypeName)) {
+      AstNode *typeNode = nodeToMap->getChild(AstNodeType::TypeName);
 
-      AstNodeEnhancerInputData subInput;
-      subInput.setSourceNode(input.getSourceNode());
+      AstNodeEnhancerInputData subInput = input;
+      subInput.setSourceNode(nodeToMap);
       subInput.setTargetNode(base);
       subInput.setNodeToMap(typeNode);
-      subInput.setScope(input.getScope());
 
-      NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::Type)(subInput);
+      NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::TypeName)(subInput);
     }
+
+    input.getTargetNode()->putChild(base);
 
     return outputData;
   });
@@ -172,18 +177,21 @@ void loadAstEnhancerDataInternal() {
   NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::FunctionParamDefinitions, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
     AstNodeEnhancerOutputData outputData(input);
 
+    auto nodeToMap = input.getNodeToMap();
+
     auto base = new EnhancedAstNode();
     base->setNodeType(EnhancedAstNodeType::FunctionParamDefinitions);
 
-    for (unsigned i = 0; i < input.getSourceNode()->getChildCount(); i++) {
-      AstNodeEnhancerInputData subInput;
-      subInput.setSourceNode(input.getSourceNode());
+    for (unsigned i = 0; i < nodeToMap->getChildCount(); i++) {
+      AstNodeEnhancerInputData subInput = input;
+      subInput.setSourceNode(nodeToMap);
       subInput.setTargetNode(base);
-      subInput.setNodeToMap(input.getSourceNode()->getChild(i));
-      subInput.setScope(input.getScope());
+      subInput.setNodeToMap(nodeToMap->getChild(i));
 
       NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::FunctionParamDefinition)(subInput);
     }
+
+    input.getTargetNode()->putChild(base);
 
     return outputData;
   });
@@ -210,6 +218,8 @@ void loadAstEnhancerDataInternal() {
       NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::NameStructure)(subInput);
     }
 
+    auto scope = input.getScope();
+
     // Map the parameter definitions.
     if (nodeToMap->hasChild(AstNodeType::FunctionParamDefinitions)) {
       AstNodeEnhancerInputData subInput = input;
@@ -217,17 +227,24 @@ void loadAstEnhancerDataInternal() {
       subInput.setNodeToMap(nodeToMap->getChild(AstNodeType::FunctionParamDefinitions));
 
       NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::FunctionParamDefinitions)(subInput);
+
+      auto paramDefinitions = base->getChild(EnhancedAstNodeType::FunctionParamDefinitions);
+      for (auto paramDef : *paramDefinitions->getChildList()) {
+        if (scope->hasParamDefinition(paramDef->getData())) {
+          throw std::runtime_error("more than one param with the same name");
+        }
+
+        scope->addParamDefinition(paramDef->getData(), paramDef);
+      }
     }
 
-    // TODO these params need to be mapped onto the scope.
-
     // Map the block if there is one and handle scope logic.
-    auto scope = input.getScope();
     if (nodeToMap->hasChild(AstNodeType::Block)) {
       AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
 
       // Get the return statement.
-      TypeDeducer::deduceTypes(base->getChild(EnhancedAstNodeType::Block)->getLastChild(), scope, base);
+      auto blockScope = ((EnhancedAstBlockNode*) base->getChild(EnhancedAstNodeType::Block))->getScope();
+      TypeDeducer::deduceTypes(base->getChild(EnhancedAstNodeType::Block)->getLastChild(), blockScope, base);
 
       if (hasNameStructure) {
         // add to scope as implementation
