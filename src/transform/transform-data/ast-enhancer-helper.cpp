@@ -17,6 +17,7 @@ void AstEnhancerHelper::simpleMapNode(AstNode* nodeToMap, EnhancedAstNode* targe
   NodeEnhancerLookup::getInstance()->getNodeEnhancer(nodeToMap->getType())(subInput);
 }
 
+// TODO This was a bit too simplistic, and can probably be removed.. could still be useful.
 std::string AstEnhancerHelper::computeFunctionHash(EnhancedAstNode* enhancedAstNode) {
   std::stringstream ss;
 
@@ -59,6 +60,9 @@ bool AstEnhancerHelper::doFunctionSignaturesMatch(EnhancedAstNode *left, Enhance
   // Handle functions with empty signatures.
   if (!left->hasChild(EnhancedAstNodeType::FunctionParamDefinitions)) {
     return !right->hasChild(EnhancedAstNodeType::FunctionParamDefinitions);
+  }
+  else if (!right->hasChild(EnhancedAstNodeType::FunctionParamDefinitions)) {
+    return false;
   }
 
   auto leftParams = left->getChild(EnhancedAstNodeType::FunctionParamDefinitions);

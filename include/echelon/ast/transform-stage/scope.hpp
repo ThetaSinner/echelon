@@ -15,6 +15,8 @@ class Scope {
   std::map<std::string, std::list<EnhancedAstNode*>> functions;
   std::map<std::string, EnhancedAstNode*> functionImplementations;
   std::map<std::string, std::list<EnhancedAstNode*>> prototypes;
+
+  std::list<Scope*> linkedScopes;
 public:
   void addVariable(std::string name, EnhancedAstNode *enhancedAstNode) {
     variables.insert({name, enhancedAstNode});
@@ -94,6 +96,14 @@ public:
 
   EnhancedAstNode* getParamDefinition(std::string name) {
     return paramDefinitions.at(name);
+  }
+
+  void pushLinkedScope(Scope* linkedScope) {
+    linkedScopes.push_back(linkedScope);
+  }
+
+  std::list<Scope*>& getLinkedScopes() {
+    return linkedScopes;
   }
 
   // TODO [[deprecated]]

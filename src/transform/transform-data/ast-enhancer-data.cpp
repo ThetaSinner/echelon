@@ -245,17 +245,30 @@ void loadAstEnhancerDataInternal() {
       }
     }
 
+    if (nodeToMap->hasChild(AstNodeType::TypeName)) {
+      AstNodeEnhancerInputData subInput = input;
+      subInput.setTargetNode(base);
+      subInput.setNodeToMap(nodeToMap->getChild(AstNodeType::TypeName));
+
+      NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::TypeName)(subInput);
+    }
+
     // Map the block if there is one and handle scope logic.
     if (nodeToMap->hasChild(AstNodeType::Block)) {
       AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
-
-      // Get the return statement.
       auto blockScope = ((EnhancedAstBlockNode*) base->getChild(EnhancedAstNodeType::Block))->getScope();
-      TypeDeducer::deduceTypes(base->getChild(EnhancedAstNodeType::Block)->getLastChild(), blockScope, base);
 
       if (hasNameStructure) {
         // add to scope as implementation
         base->setNodeSubType(EnhancedAstNodeSubType::Implementation);
+
+        // Link the function scope to the scope of the block for the item the name structure points to.
+        auto nameStructureResolved = nameResolver.resolve(base->getChild(EnhancedAstNodeType::NameStructure), scope);
+        if (nameStructureResolved != nullptr && nameStructureResolved->hasChild(EnhancedAstNodeType::Block)) {
+          auto block = nameStructureResolved->getChild(EnhancedAstNodeType::Block);
+          blockScope->pushLinkedScope(((EnhancedAstBlockNode*) block)->getScope());
+          // TODO it's now really important that scopes have "local and parent" as suggested in some other TODO, otherwise we're importing a whole bunch of things we shouldn't be.
+        }
 
         auto resolved = nameResolver.resolve(base, scope);
         if (resolved == nullptr) {
@@ -287,6 +300,9 @@ void loadAstEnhancerDataInternal() {
           scope->addFunction(data, base);
         }
       }
+
+      // Get the return statement and use it to find the return type.
+      TypeDeducer::deduceTypes(base->getChild(EnhancedAstNodeType::Block)->getLastChild(), blockScope, base);
     }
     else {
       // Prototypes don't have name structures.

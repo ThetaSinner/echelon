@@ -195,6 +195,58 @@ public:
     TS_ASSERT_EQUALS("decimal", func->getChild(EnhancedAstNodeType::TypeName)->getData());
   }
 
+  void testUseCustomTypeFieldsWithPrototypeAndImplMethod() {
+    auto ast = compiler.enhance("type MyType {\n  integer my_type_var\n  function get_my_type_var() -> integer\n}\n\nfunction MyType::get_my_type_var() {\n  my_type_var\n}");
+
+    TS_ASSERT(ast->hasChild(EnhancedAstNodeType::CustomType));
+    auto custom_type = ast->getChild(EnhancedAstNodeType::CustomType);
+
+    TS_ASSERT(custom_type->hasChild(EnhancedAstNodeType::Block));
+    auto block = custom_type->getChild(EnhancedAstNodeType::Block);
+
+    TS_ASSERT(block->hasChild(EnhancedAstNodeType::Variable));
+    auto my_type_var = block->getChild(EnhancedAstNodeType::Variable);
+
+    TS_ASSERT_EQUALS("my_type_var", my_type_var->getData());
+    TS_ASSERT(my_type_var->hasChild(EnhancedAstNodeType::TypeName));
+    auto my_type_var_type_name = my_type_var->getChild(EnhancedAstNodeType::TypeName);
+
+    TS_ASSERT_EQUALS("integer", my_type_var_type_name->getData());
+
+    TS_ASSERT(block->hasChild(EnhancedAstNodeType::Function));
+    auto func = block->getChild(EnhancedAstNodeType::Function);
+
+    TS_ASSERT_EQUALS("get_my_type_var", func->getData());
+    TS_ASSERT_EQUALS(EnhancedAstNodeSubType::Prototype, func->getNodeSubType());
+    TS_ASSERT(func->hasChild(EnhancedAstNodeType::TypeName));
+    auto func_type_name = func->getChild(EnhancedAstNodeType::TypeName);
+
+    TS_ASSERT_EQUALS("integer", func_type_name->getData());
+
+    TS_ASSERT_DIFFERS(nullptr, ((EnhancedAstFunctionPrototypeNode*) func)->getImpl());
+
+    TS_ASSERT(ast->hasChild(EnhancedAstNodeType::Function));
+    auto func_impl = ast->getChild(EnhancedAstNodeType::Function);
+
+    TS_ASSERT_EQUALS("get_my_type_var", func_impl->getData());
+    TS_ASSERT_EQUALS(EnhancedAstNodeSubType::Implementation, func_impl->getNodeSubType());
+    TS_ASSERT(func_impl->hasChild(EnhancedAstNodeType::TypeName));
+    auto func_impl_type_name = func_impl->getChild(EnhancedAstNodeType::TypeName);
+
+    TS_ASSERT_EQUALS("integer", func_impl_type_name->getData());
+
+    TS_ASSERT(func_impl->hasChild(EnhancedAstNodeType::Block));
+    auto func_impl_block = func_impl->getChild(EnhancedAstNodeType::Block);
+
+    TS_ASSERT(func_impl_block->hasChild(EnhancedAstNodeType::Expression));
+    auto func_impl_expr = func_impl_block->getChild(EnhancedAstNodeType::Expression);
+
+    TS_ASSERT(func_impl_expr->hasChild(EnhancedAstNodeType::VariableValue));
+    auto func_impl_var = func_impl_expr->getChild(EnhancedAstNodeType::VariableValue);
+
+    TS_ASSERT_EQUALS("my_type_var", func_impl_var->getData());
+  }
+
   // TODO this isn't ready yet. Need to be able to map the block and type or determine the type from the block.
   /*
     // example of overloaded functions.

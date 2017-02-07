@@ -4,7 +4,14 @@
 EnhancedAstNode* NameResolver::resolve(EnhancedAstNode* unresolved, Scope* scope) {
   auto nameStructure = toNameStructure(unresolved);
 
-  return resolveInternal(unresolved, nameStructure, scope);
+  auto resolved = resolveInternal(unresolved, nameStructure, scope);
+
+  auto linkedScopeIterator = scope->getLinkedScopes().begin();
+  while (resolved == nullptr && linkedScopeIterator != scope->getLinkedScopes().end()) {
+    resolved = resolveInternal(unresolved, nameStructure, *linkedScopeIterator);
+  }
+
+  return resolved;
 }
 
 std::queue<std::string> NameResolver::toNameStructure(EnhancedAstNode* node) {
