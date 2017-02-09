@@ -96,7 +96,8 @@ std::string EchelonLookup::toString(TokenType t) {
       return "forward arrow operator";
     case TokenType::EllipsisOperator:
       return "ellipsis operator";
-
+    case TokenType::AccessOperator:
+      return "access operator";
   }
 
   throw std::runtime_error("Missing to string case for token type enum.");
@@ -214,6 +215,12 @@ std::string EchelonLookup::toString(AstNodeType t) {
       return "name structure";
     case AstNodeType::Expression:
       return "expression";
+    case AstNodeType::AccessExpression:
+      return "access expression";
+    case AstNodeType::AccessStructure:
+      return "access structure";
+    case AstNodeType::AccessFunctionCall:
+      return "access function call";
   }
 
   throw std::runtime_error("Missing to string case for ast node type.");

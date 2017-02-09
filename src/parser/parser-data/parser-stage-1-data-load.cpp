@@ -149,5 +149,7 @@ void loadCharacterPatterns() {
   addCharacterPatternToLookup(TokenType::MultiplyOperator, "star");
   addCharacterPatternToLookup(TokenType::DivideOperator, "forward_slash");
 
+  addCharacterPatternToLookup(TokenType::AccessOperator, "full_stop");
+
   addCharacterPatternToLookup(TokenType::Comma, "comma");
 }

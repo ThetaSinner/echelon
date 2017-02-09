@@ -28,10 +28,11 @@ enum class TokenType {
   StructureOperator,
   ForwardArrowOperator,
   EllipsisOperator,
+  AccessOperator,
 
 #ifdef ECHELON_DEBUG
   First = Identifier,
-  Last = EllipsisOperator,
+  Last = AccessOperator,
 #endif
 };
 

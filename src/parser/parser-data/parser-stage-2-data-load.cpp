@@ -73,6 +73,7 @@ void loadMatchers() {
   MatcherLookup::getInstance()->addMatcher("logical_disjunction", Matcher::forTokenType(TokenType::LogicalDisjunction));
 
   MatcherLookup::getInstance()->addMatcher("structure_operator", Matcher::forTokenType(TokenType::StructureOperator));
+  MatcherLookup::getInstance()->addMatcher("access_operator", Matcher::forTokenType(TokenType::AccessOperator));
   MatcherLookup::getInstance()->addMatcher("assignment", Matcher::forTokenType(TokenType::Assignment));
   MatcherLookup::getInstance()->addMatcher("comma", Matcher::forTokenType(TokenType::Comma));
   MatcherLookup::getInstance()->addMatcher("forward_arrow_operator", Matcher::forTokenType(TokenType::ForwardArrowOperator));
@@ -340,6 +341,27 @@ void loadTransformers() {
       [](AstTransformData *astTransformData) -> AstNode * {
         AstNode *base = new AstNode();
         base->setType(AstNodeType::Decimal);
+        base->setData(astTransformData->getTokens()->front()->getData());
+
+        auto nested = astTransformData->getNestedAstNodes();
+        if (nested != nullptr && nested->size() == 2) {
+          auto oper = nested->front();
+          nested->pop();
+          auto nextExpr = nested->front();
+          nested->pop();
+
+          oper->getChild(0)->putChild(base);
+          oper->getChild(0)->putChild(nextExpr->getChild(0));
+          base = oper;
+        }
+
+        return base;
+      }));
+
+  AstTransformLookup::getInstance()->addAstTransform("access_expression", new AstTransform(
+      [](AstTransformData *astTransformData) -> AstNode * {
+        AstNode *base = new AstNode();
+        base->setType(AstNodeType::AccessExpression);
         base->setData(astTransformData->getTokens()->front()->getData());
 
         auto nested = astTransformData->getNestedAstNodes();
@@ -1034,11 +1056,34 @@ void loadTransformers() {
         return base;
       }));
 
+  AstTransformLookup::getInstance()->addAstTransform("access_structure", new AstTransform(
+      [](AstTransformData *astTransformData) -> AstNode * {
+        auto base = new AstNode();
+        base->setType(AstNodeType::AccessStructure);
+        base->setData(astTransformData->getTokens()->front()->getData());
+
+        auto nested = astTransformData->getNestedAstNodes();
+        if (nested->size()) {
+          base->putChild(nested->front()->getChild(0));
+        }
+
+        return base;
+      }));
+
+  AstTransformLookup::getInstance()->addAstTransform("access_function_call", new AstTransform([](AstTransformData *astTransformData) -> AstNode * {
+    auto base = new AstNode();
+    base->setType(AstNodeType::AccessFunctionCall);
+
+    // Put the function call into this node.
+    base->putChild(astTransformData->getNestedAstNodes()->front()->getChild(0));
+
+    return base;
+  }));
+
   AstTransformLookup::getInstance()->addAstTransform("name_structure", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         auto base = new AstNode();
         base->setType(AstNodeType::NameStructure);
-        LoggerSharedInstance::get()->at(Level::Info) << to_string(astTransformData->getTokens()) << "\n";
         base->setData(astTransformData->getTokens()->front()->getData());
 
         auto nested = astTransformData->getNestedAstNodes();
@@ -1075,6 +1120,7 @@ void loadNested() {
 
   NestedPatternLookup::getInstance()->forwardDeclareNested("function_call");
   NestedPatternLookup::getInstance()->forwardDeclareNested("name_structure");
+  NestedPatternLookup::getInstance()->forwardDeclareNested("type_accessor");
   std::string expression = "expression";
   NestedPatternLookup::getInstance()->registerNested(
       expression,
@@ -1086,6 +1132,12 @@ void loadNested() {
       "expression_function_call",
       "function_call [binary_operator expression]"
   );
+  // TODO conflicts with expression variable.
+  /*NestedPatternLookup::getInstance()->registerNested(
+      expression,
+      "access_expression",
+      "type_accessor [binary_operator expression]"
+  );*/
   NestedPatternLookup::getInstance()->registerNested(
       expression,
       "string",
@@ -1206,6 +1258,18 @@ void loadNested() {
       access_specifier,
       "access_specifier_public",
       "kwd_public"
+  );
+
+  std::string access_structure = "access_structure";
+  NestedPatternLookup::getInstance()->registerNested(
+    access_structure,
+    "access_structure",
+    "identifier [access_operator access_structure]"
+  );
+  NestedPatternLookup::getInstance()->registerNested(
+    access_structure,
+    "access_function_call",
+    "function_call"
   );
 
   NestedPatternLookup::getInstance()->registerNested(
