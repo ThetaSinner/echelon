@@ -51,6 +51,16 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
   target_compile_definitions(${project_binary_name} PUBLIC ECHELON_DEBUG)
 endif()
 
+# -DSPIDERMONKEY_DIR=~/spidermonkey/js/src/build_DBG.OBJ
+# g++ --std=c++11 -I/home/thetasinner/spidermonkey/js/src/build_DBG.OBJ/dist/include -L/home/thetasinner/spidermonkey/js/src/build_DBG.OBJ/js/src -g -DDEBUG test.cpp -o test -Wl,--verbose -lmozjs-45 -lm -lz -ldl
+if (SPIDERMONKEY_DIR)
+  include_directories(${SPIDERMONKEY_DIR}/dist/include)
+  link_libraries(${SPIDERMONKEY_DIR}/js/src)
+
+  target_link_libraries(${project_binary_name} mozjs-45 m z dl)
+  target_compile_definitions(${project_binary_name} PUBLIC WITH_SPIDER_MONKEY_RUNNER DEBUG)
+endif()
+
 # Add cxxtest directory to (path) or (/etc/environment and link to /usr/bin)
 find_package(CxxTest)
 if (CXXTEST_FOUND)

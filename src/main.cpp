@@ -6,6 +6,7 @@
 #include <echelon/compiler/echelon-compiler.hpp>
 #include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
 #include <echelon/util/ast-to-graphviz.hpp>
+#include <echelon/util/spidermonkey-runner.hpp>
 
 void gv_out(EnhancedAstNode* e) {
   std::ofstream f("main-ast-out.gv", std::ios::out);
@@ -39,6 +40,8 @@ int main(int argc, char **args) {
   LoggerSharedInstance::get()->setLevel(levelToInt(Level::Debug));
 
   EchelonCompiler compiler;
+
+  runner();
 
   // TODO can actually detect this error and report it. "Did you forget the function keyword?"
   // auto out = compiler.parse("type MyType {\n  toString(integer t) -> string\n}");
