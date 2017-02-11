@@ -26,3 +26,7 @@ endif ()
 if (LOG_LEVEL)
   target_compile_definitions(${util_lib_name} PUBLIC LOG_LEVEL=${LOG_LEVEL})
 endif ()
+
+if (SPIDERMONKEY_DIR)
+  target_compile_definitions(${util_lib_name} PUBLIC DEBUG WITH_SPIDER_MONKEY_RUNNER)
+endif()

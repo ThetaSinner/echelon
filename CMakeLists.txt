@@ -24,6 +24,19 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # (sub directories can be referenced in code, they don't need to be aded here)
 include_directories(include)
 
+# -DSPIDERMONKEY_DIR=~/spidermonkey/js/src/build_DBG.OBJ
+# g++ --std=c++11 -I/home/thetasinner/spidermonkey/js/src/build_DBG.OBJ/dist/include -L/home/thetasinner/spidermonkey/js/src/build_DBG.OBJ/js/src -g -DDEBUG test.cpp -o test -Wl,--verbose -lmozjs-45 -lm -lz -ldl
+# spidermonkey build modified for mfbt: http://stackoverflow.com/questions/40540492/jsapi-segfault-in-js-newcontext
+if (SPIDERMONKEY_DIR)
+  message("Using spider monkey runner")
+
+  set(spider_monkey_header_directory ${SPIDERMONKEY_DIR}/dist/include)
+  set(spider_monkey_lib_directory    ${SPIDERMONKEY_DIR}/js/src)
+
+  include_directories(${spider_monkey_header_directory})
+  link_libraries(${spider_monkey_lib_directory})
+endif()
+
 add_subdirectory(src/parser)
 add_subdirectory(src/ast)
 add_subdirectory(src/transform)
@@ -43,22 +56,16 @@ target_link_libraries(${project_binary_name}
   ${util_lib_name}
 )
 
+if (SPIDERMONKEY_DIR)
+  target_link_libraries(${project_binary_name} mozjs-45 m z dl)
+endif()
+
 # Specify required features for compilation.
 target_compile_features(${project_binary_name} PRIVATE cxx_range_for)
 target_compile_features(${project_binary_name} PRIVATE cxx_nullptr)
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
   target_compile_definitions(${project_binary_name} PUBLIC ECHELON_DEBUG)
-endif()
-
-# -DSPIDERMONKEY_DIR=~/spidermonkey/js/src/build_DBG.OBJ
-# g++ --std=c++11 -I/home/thetasinner/spidermonkey/js/src/build_DBG.OBJ/dist/include -L/home/thetasinner/spidermonkey/js/src/build_DBG.OBJ/js/src -g -DDEBUG test.cpp -o test -Wl,--verbose -lmozjs-45 -lm -lz -ldl
-if (SPIDERMONKEY_DIR)
-  include_directories(${SPIDERMONKEY_DIR}/dist/include)
-  link_libraries(${SPIDERMONKEY_DIR}/js/src)
-
-  target_link_libraries(${project_binary_name} mozjs-45 m z dl)
-  target_compile_definitions(${project_binary_name} PUBLIC WITH_SPIDER_MONKEY_RUNNER DEBUG)
 endif()
 
 # Add cxxtest directory to (path) or (/etc/environment and link to /usr/bin)
@@ -77,6 +84,11 @@ if (CXXTEST_FOUND)
     ${code_generator_lib_name}
     ${compiler_lib_name}
     ${util_lib_name})
+
+  if (SPIDERMONKEY_DIR)
+    target_link_libraries(${project_test_binary_name} mozjs-45 m z dl)
+    target_compile_definitions(${project_test_binary_name} PUBLIC WITH_SPIDER_MONKEY_RUNNER DEBUG)
+  endif()
 
   if (USE_GCC_GCOV)
     set_target_properties(

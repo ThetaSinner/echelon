@@ -1,14 +1,11 @@
 #include <echelon/util/spidermonkey-runner.hpp>
 
-/*
- * #define __STDC_LIMIT_MACROS
- * #include <stdint.h>
- */
+#define __STDC_LIMIT_MACROS
+#include <stdint.h>
 
 #ifdef WITH_SPIDER_MONKEY_RUNNER
 
 /* The class of the global object. */
-/*
 static JSClass global_class = {
   "global",
   JSCLASS_GLOBAL_FLAGS,
@@ -25,19 +22,22 @@ static JSClass global_class = {
   nullptr,
   JS_GlobalObjectTraceHook
 };
-*/
 
 int runner()
 {
-  JS_Init();
-
-/*  JSRuntime *rt = JS_NewRuntime(8L * 1024 * 1024);
-  if (!rt)
+  if (!JS_Init()) {
     return 1;
+  }
+
+  JSRuntime *rt = JS_NewRuntime(8L * 1024 * 1024);
+  if (!rt) {
+    return 1;
+  }
 
   JSContext *cx = JS_NewContext(rt, 8192);
-  if (!cx)
+  if (!cx) {
     return 1;
+  }
 
   { // Scope for our various stack objects (JSAutoRequest, RootedObject), so they all go
     // out of scope before we JS_DestroyContext.
@@ -70,9 +70,14 @@ int runner()
   }
 
   JS_DestroyContext(cx);
-  JS_DestroyRuntime(rt);*/
+  JS_DestroyRuntime(rt);
   JS_ShutDown();
   return 0;
+}
+#else
+
+int runner() {
+  return 1;
 }
 
 #endif
