@@ -6,6 +6,9 @@
 #include <js/Initialization.h>
 #endif
 
-int runner();
+#include <stdexcept>
+#include <echelon/runner/runner-data.hpp>
+
+void runner(RunnerData& runnerData);
 
 #endif

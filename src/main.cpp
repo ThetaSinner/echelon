@@ -6,7 +6,7 @@
 #include <echelon/compiler/echelon-compiler.hpp>
 #include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
 #include <echelon/util/ast-to-graphviz.hpp>
-#include <echelon/util/spidermonkey-runner.hpp>
+#include <echelon/runner/spidermonkey-runner.hpp>
 
 void gv_out(EnhancedAstNode* e) {
   std::ofstream f("main-ast-out.gv", std::ios::out);
@@ -55,7 +55,10 @@ int main(int argc, char **args) {
     gv_out(out);
     log->at(Level::Info) << to_string(out) << "\n";*/
 
-    return runner();
+    RunnerData runnerData;
+    runnerData.setScript("function tf() {return 'test string'} tf()");
+
+    runner(runnerData);
   }
   catch (const std::runtime_error &e) {
     LoggerSharedInstance::get()->at(Level::Fatal) << "dev compile failed [" << e.what() << "]";

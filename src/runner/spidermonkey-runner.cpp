@@ -1,4 +1,4 @@
-#include <echelon/util/spidermonkey-runner.hpp>
+#include <echelon/runner/spidermonkey-runner.hpp>
 
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
@@ -23,20 +23,20 @@ static JSClass global_class = {
   JS_GlobalObjectTraceHook
 };
 
-int runner()
+void runner(RunnerData& runnerData)
 {
   if (!JS_Init()) {
-    return 1;
+    throw std::runtime_error("Failed to initialise.");
   }
 
   JSRuntime *rt = JS_NewRuntime(8L * 1024 * 1024);
   if (!rt) {
-    return 1;
+    throw std::runtime_error("Failed to create runtime.");
   }
 
   JSContext *cx = JS_NewContext(rt, 8192);
   if (!cx) {
-    return 1;
+    throw std::runtime_error("Failed to create context.");
   }
 
   { // Scope for our various stack objects (JSAutoRequest, RootedObject), so they all go
@@ -46,8 +46,9 @@ int runner()
     // time you're spinning the event loop
 
     JS::RootedObject global(cx, JS_NewGlobalObject(cx, &global_class, nullptr, JS::FireOnNewGlobalHook));
-    if (!global)
-      return 1;
+    if (!global) {
+      throw std::runtime_error("Failed to create global object");
+    }
 
     JS::RootedValue rval(cx);
 
@@ -55,14 +56,12 @@ int runner()
       JSAutoCompartment ac(cx, global);
       JS_InitStandardClasses(cx, global);
 
-      const char *script = "'hello'+'world, it is '+new Date()";
-      const char *filename = "noname";
-      int lineno = 1;
       JS::CompileOptions opts(cx);
-      opts.setFileAndLine(filename, lineno);
-      bool ok = JS::Evaluate(cx, opts, script, strlen(script), &rval);
-      if (!ok)
-        return 1;
+      opts.setFileAndLine("spider-monkey-input-script", 1);
+      bool ok = JS::Evaluate(cx, opts, runnerData.getScript().c_str(), runnerData.getScript().length(), &rval);
+      if (!ok) {
+        throw std::runtime_error("Failed to execute input script.");
+      }
     }
 
     JSString *str = rval.toString();
@@ -72,12 +71,11 @@ int runner()
   JS_DestroyContext(cx);
   JS_DestroyRuntime(rt);
   JS_ShutDown();
-  return 0;
 }
 #else
 
-int runner() {
-  return 1;
+void runner(RunnerData& runnerData) {
+  throw std::runtime_error("Dummy spidermonkey runner");
 }
 
 #endif

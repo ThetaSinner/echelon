@@ -5,7 +5,6 @@ add_library(${util_lib_name}
   to-string.cpp
   ast-to-graphviz.cpp
   echelon-lookup.cpp
-  spidermonkey-runner.cpp
 
   logging/stream-logger.cpp
   logging/stream-logger-level.cpp

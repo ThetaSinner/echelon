@@ -14,6 +14,7 @@ set(ast_lib_name "${PROJECT_NAME}_lib_ast")
 set(transform_lib_name "${PROJECT_NAME}_lib_transform")
 set(code_generator_lib_name "${PROJECT_NAME}_lib_code_generator")
 set(compiler_lib_name "${PROJECT_NAME}_lib_compiler")
+set(runner_lib_name "${PROJECT_NAME}_lib_runner")
 set(util_lib_name "${PROJECT_NAME}_lib_util")
 
 # Set output directories
@@ -42,6 +43,7 @@ add_subdirectory(src/ast)
 add_subdirectory(src/transform)
 add_subdirectory(src/code-generation)
 add_subdirectory(src/compiler)
+add_subdirectory(src/runner)
 add_subdirectory(src/util)
 
 # Create an executable from the main file.
@@ -53,6 +55,7 @@ target_link_libraries(${project_binary_name}
   ${transform_lib_name}
   ${code_generator_lib_name}
   ${compiler_lib_name}
+  ${runner_lib_name}
   ${util_lib_name}
 )
 
