@@ -70,7 +70,7 @@ public:
     return functions.find(name) != functions.end();
   }
 
-  std::list<EnhancedAstNode*>& getFunctions(std::string name) {
+  std::list<EnhancedAstNode*>* getFunctions(std::string name) {
     return functions.at(name);
   }
 

@@ -565,6 +565,8 @@ void loadAstEnhancerDataInternal() {
 
     AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
 
+
+
     outputData.getTargetNode()->putChild(base);
     return outputData;
   });
