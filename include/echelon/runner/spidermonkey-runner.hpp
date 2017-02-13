@@ -7,6 +7,7 @@
 #endif
 
 #include <stdexcept>
+#include <iostream>
 #include <echelon/runner/runner-data.hpp>
 
 void runner(RunnerData& runnerData);

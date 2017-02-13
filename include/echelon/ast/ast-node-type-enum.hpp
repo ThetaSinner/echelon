@@ -56,7 +56,7 @@ enum class AstNodeType {
   Expression,
   AccessExpression,
   AccessStructure,
-  AccessFunctionCall,
+  AccessStructureFunctionCall,
 
   // These are not for program structure.
   First = Program,

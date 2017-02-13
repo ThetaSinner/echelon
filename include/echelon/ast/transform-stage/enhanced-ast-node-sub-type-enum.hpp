@@ -24,6 +24,9 @@ enum class EnhancedAstNodeSubType {
   Add,
   Divide,
 
+  // Access structure
+  FunctionCall,
+
   // Not for use in ast structure.
   First = Unspecified,
   Last = Divide,

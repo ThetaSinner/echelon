@@ -51,21 +51,20 @@ int main(int argc, char **args) {
     // TODO fixed, should fail to find oops variable, not accessible. Extract test.
     // auto out = compiler.enhance("module ModuleOne {\ndecimal oops = 0.5\n\ntype MyType {\n  integer my_type_var\n  function get_my_type_var() -> integer\n}\n}\n\nmodule ModuleTwo {\nfunction ModuleOne::MyType::get_my_type_var() {\n  oops + my_type_var\n}\n}");
 
-/*    auto out = compiler.enhance("type MyType {function get_val() -> integer {5} myinstance = MyType.create() myinstance.get_val()");
+    auto out = compiler.enhance("type MyType {function get_val() -> integer {5}} myinstance = MyType.create() myinstance.get_val()");
     gv_out(out);
-    log->at(Level::Info) << to_string(out) << "\n";*/
+    log->at(Level::Info) << to_string(out) << "\n";
 
     RunnerData runnerData;
     runnerData.setScript("function tf() {return 'test string'} tf()");
-
     runner(runnerData);
   }
   catch (const std::runtime_error &e) {
-    LoggerSharedInstance::get()->at(Level::Fatal) << "dev compile failed [" << e.what() << "]";
+    LoggerSharedInstance::get()->at(Level::Fatal) << "dev run failed [" << e.what() << "]";
     return 1;
   }
   catch (...) {
-    LoggerSharedInstance::get()->at(Level::Fatal) << "dev compile failed. Exception handling in the program isn't catching this error.";
+    LoggerSharedInstance::get()->at(Level::Fatal) << "dev run failed. Exception handling in the program isn't catching this error.";
     return 2;
   }
 

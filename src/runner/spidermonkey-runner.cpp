@@ -75,7 +75,7 @@ void runner(RunnerData& runnerData)
 #else
 
 void runner(RunnerData& runnerData) {
-  throw std::runtime_error("Dummy spidermonkey runner");
+  std::cout << "Spider monkey runner not available.\n";
 }
 
 #endif

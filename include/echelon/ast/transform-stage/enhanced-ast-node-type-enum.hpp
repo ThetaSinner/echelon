@@ -31,6 +31,9 @@ enum class EnhancedAstNodeType {
 
   Expression,
 
+  AccessExpression,
+  AccessStructure,
+
   // Not for ast structure use.
   First = None,
   Last = Expression,
