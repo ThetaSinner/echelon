@@ -71,7 +71,7 @@ public:
   }
 
   std::list<EnhancedAstNode*>* getFunctions(std::string name) {
-    return functions.at(name);
+    return &functions.at(name);
   }
 
   void addModule(std::string name, EnhancedAstNode* enhancedAstNode) {

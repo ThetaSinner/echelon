@@ -373,8 +373,8 @@ void loadAstEnhancerDataInternal() {
           scope->addFunction(data, base);
         }
         else {
-          auto& functions = scope->getFunctions(data);
-          for (auto f : functions) {
+          auto functions = scope->getFunctions(data);
+          for (auto f : *functions) {
             if (AstEnhancerHelper::doFunctionSignaturesMatch(base, f)) {
               throw std::runtime_error("Redeclaration of function [" + data + "]");
             }
