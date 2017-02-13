@@ -111,6 +111,23 @@ TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node, Scope* scope
       throw std::runtime_error("Depends on variable which doesn't exist [" + node->getData() + "].");
     }
   }
+  else if (node->getNodeType() == EnhancedAstNodeType::AccessExpression) {
+    auto ae = nameResolver.resolve(node, scope);
+
+    if (ae != nullptr) {
+      if (ae->hasChild(EnhancedAstNodeType::TypeName)) {
+        typeNameResolve.setTypeName(ae->getChild(EnhancedAstNodeType::TypeName)->getData());
+      }
+      else {
+        // Missing type name.
+        throw std::runtime_error("Access expression does not have a type name");
+      }
+    }
+    else {
+      // Does not refer to a valid element.
+      throw std::runtime_error("Invalid access expression [" + to_string(node) + "]");
+    }
+  }
   else {
     throw std::runtime_error("failure: type resolution requested for unhandled node type");
   }

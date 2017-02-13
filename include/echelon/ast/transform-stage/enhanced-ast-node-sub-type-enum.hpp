@@ -29,7 +29,7 @@ enum class EnhancedAstNodeSubType {
 
   // Not for use in ast structure.
   First = Unspecified,
-  Last = Divide,
+  Last = FunctionCall,
 };
 
 #endif

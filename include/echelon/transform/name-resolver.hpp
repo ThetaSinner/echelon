@@ -12,7 +12,7 @@ class NameResolver {
   std::queue<std::string> toNameStructure(EnhancedAstNode* node);
   std::queue<std::string> toNameStructureFromNameStructureNode(EnhancedAstNode* node);
 
-  EnhancedAstNode* resolveInternal(EnhancedAstNode* unresolved, std::queue<std::string> nameStructure, Scope* scope);
+  EnhancedAstNode* resolveFromNameStructure(EnhancedAstNode* unresolved, std::queue<std::string> nameStructure, Scope* scope);
 public:
   EnhancedAstNode* resolve(EnhancedAstNode* unresolved, Scope* scope);
 };

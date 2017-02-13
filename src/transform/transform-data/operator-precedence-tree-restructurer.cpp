@@ -11,6 +11,9 @@ EnhancedAstNode* OperatorPrecedenceTreeRestructurer::restructureInternal(Enhance
   else if (node->getNodeType() == EnhancedAstNodeType::PrimitiveValue) {
     return node;
   }
+  else if (node->getNodeType() == EnhancedAstNodeType::AccessExpression) {
+    return node;
+  }
   if (node->getNodeType() == EnhancedAstNodeType::ExpressionGroup) {
     auto subExpression = node->getChild(0);
     node->removeChild(subExpression);

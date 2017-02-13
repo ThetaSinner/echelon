@@ -61,12 +61,12 @@ void loadAstEnhancerDataInternal() {
     base->setNodeType(EnhancedAstNodeType::AccessExpression);
 
     auto subInput = input;
-    input.setTargetNode(base);
-    input.setNodeToMap(nodeToMap->getChild(AstNodeType::AccessStructure));
+    subInput.setTargetNode(base);
+    subInput.setNodeToMap(nodeToMap->getChild(AstNodeType::AccessStructure));
 
     NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::AccessStructure)(subInput);
 
-    input.getTargetNode()->putChild(base);
+    outputData.getTargetNode()->putChild(base);
 
     return outputData;
   });
@@ -240,7 +240,7 @@ void loadAstEnhancerDataInternal() {
       NodeEnhancerLookup::getInstance()->getNodeEnhancer(nodeToMap->getChild(0)->getType())(subInput);
     }
 
-    input.getTargetNode()->putChildFront(base);
+    outputData.getTargetNode()->putChild(base);
 
     return outputData;
   });
@@ -260,6 +260,29 @@ void loadAstEnhancerDataInternal() {
     NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::FunctionCall)(subInput);
 
     input.getTargetNode()->putChildFront(base);
+
+    return outputData;
+  });
+
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::FunctionCall, [&nameResolver](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
+    AstNodeEnhancerOutputData outputData(input);
+
+    auto nodeToMap = input.getNodeToMap();
+
+    auto base = new EnhancedAstNode();
+    base->setNodeType(EnhancedAstNodeType::FunctionCall);
+    base->setData(nodeToMap->getData());
+
+    // TODO lookup the function to call.
+
+    if (nodeToMap->hasChild(AstNodeType::FunctionCallParams)) {
+      auto subInput = input;
+      subInput.setTargetNode(base);
+      subInput.setNodeToMap(nodeToMap->getChild(AstNodeType::FunctionCallParams));
+      NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::FunctionCallParams)(subInput);
+    }
+
+    input.getTargetNode()->putChild(base);
 
     return outputData;
   });

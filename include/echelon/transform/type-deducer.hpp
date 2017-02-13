@@ -12,6 +12,7 @@
 #include <echelon/ast/transform-stage/scope.hpp>
 #include <echelon/transform/type-rule-lookup.hpp>
 #include <echelon/transform/name-resolver.hpp>
+#include <echelon/util/to-string.hpp>
 
 class TypeResolve {
   std::string typeName;
