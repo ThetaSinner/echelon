@@ -505,6 +505,7 @@ void loadAstEnhancerDataInternal() {
     // Add module to scope.
     ScopePusher::push(input.getScope(), base);
 
+    // Map the module block.
     AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
 
     outputData.getTargetNode()->putChild(base);
@@ -517,6 +518,7 @@ void loadAstEnhancerDataInternal() {
     auto nodeToMap = input.getNodeToMap();
 
     auto base = new EnhancedAstBlockNode();
+    // TODO needs parent - base->setContext(new Context())
     base->setNodeType(EnhancedAstNodeType::Block);
 
     Scope* blockScope = ScopeHelper::createChildScope(input.getScope());

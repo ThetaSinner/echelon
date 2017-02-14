@@ -7,6 +7,7 @@
 
 #include <echelon/model/internal/enhanced-ast-node-type-enum.hpp>
 #include <echelon/model/internal/enhanced-ast-node-sub-type-enum.hpp>
+#include <echelon/model/context/context.hpp>
 
 #ifdef ECHELON_DEBUG
 
@@ -16,12 +17,14 @@
 #endif
 
 /**
- * \class
+ * Internal model node.
  */
 class EnhancedAstNode {
   EnhancedAstNodeType nodeType = EnhancedAstNodeType::None;
   EnhancedAstNodeSubType nodeSubType = EnhancedAstNodeSubType::Unspecified;
   std::string data;
+
+  Context* context;
 
   std::vector<EnhancedAstNode *> childList;
 public:
@@ -106,6 +109,24 @@ public:
 
   EnhancedAstNode* getLastChild() {
     return childList.at(childList.size() - 1);
+  }
+
+  /**
+   * Set the context for this node.
+   *
+   * @param context the context.
+   */
+  void setContext(Context* context) {
+    this->context = context;
+  }
+
+  /**
+   * Get the context for this node.
+   *
+   * @return the context.
+   */
+  Context* getContext() {
+    return context;
   }
 };
 

@@ -30,6 +30,7 @@ void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope* scope) {
 EnhancedAstNode *AstEnhancer::enhance(AstNode *node) {
   auto root = new EnhancedAstBlockNode(); // TODO is this okay?
   root->setNodeType(EnhancedAstNodeType::Program);
+  root->setContext(new Context(nullptr, new ContextItem("context-root")));
   root->setData(node->getData());
 
   Scope* scope = new Scope();
