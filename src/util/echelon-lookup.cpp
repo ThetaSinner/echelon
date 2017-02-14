@@ -1,10 +1,10 @@
 #include <echelon/util/echelon-lookup.hpp>
 
 #include <echelon/parser/token-type-enum.hpp>
-#include <echelon/ast/ast-node-type-enum.hpp>
+#include <echelon/model/ast/ast-node-type-enum.hpp>
 #include <echelon/parser/keyword-enum.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-node-type-enum.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-node-sub-type-enum.hpp>
+#include <echelon/model/internal/enhanced-ast-node-type-enum.hpp>
+#include <echelon/model/internal/enhanced-ast-node-sub-type-enum.hpp>
 
 #include <stdexcept>
 #include <echelon/parser/stage1/character-pattern-group-type-enum.hpp>

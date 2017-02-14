@@ -1,6 +1,6 @@
 #include <cxxtest/TestSuite.h>
-#include <echelon/ast/ast-node.hpp>
-#include <echelon/ast/ast-node-type-enum.hpp>
+#include <echelon/model/ast/ast-node.hpp>
+#include <echelon/model/ast/ast-node-type-enum.hpp>
 #include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/compiler/integrity-check.hpp>
 

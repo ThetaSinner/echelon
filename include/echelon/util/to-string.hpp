@@ -16,9 +16,9 @@
 #include <echelon/parser/stage2/token-pattern-group.hpp>
 #include <echelon/parser/stage2/token-pattern-element.hpp>
 #include <echelon/parser/stage2/enhanced-token.hpp>
-#include <echelon/ast/ast-node.hpp>
+#include <echelon/model/ast/ast-node.hpp>
 #include <echelon/parser/stage1/character-pattern-group.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
+#include <echelon/model/internal/enhanced-ast-node.hpp>
 
 std::string to_string(const Token *t);
 std::string to_string(const std::list<Token *> *tokens);

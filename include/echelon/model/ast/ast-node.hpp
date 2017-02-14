@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include <echelon/ast/ast-node-type-enum.hpp>
+#include <echelon/model/ast/ast-node-type-enum.hpp>
 
 class AstNode {
   AstNodeType type;

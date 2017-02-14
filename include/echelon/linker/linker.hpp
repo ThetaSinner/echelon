@@ -1,8 +1,8 @@
 #ifndef LINKER_HPP_INCLUDED
 #define LINKER_HPP_INCLUDED
 
-#include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-block-node.hpp>
+#include <echelon/model/echelon/enhanced-ast-node.hpp>
+#include <echelon/model/echelon/enhanced-ast-block-node.hpp>
 #include <echelon/ast/scope/scope-helper.hpp>
 #include <echelon/ast/scope/scope-pusher.hpp>
 

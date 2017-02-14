@@ -3,7 +3,7 @@
 
 #include <functional>
 
-#include <echelon/ast/ast-node.hpp>
+#include <echelon/model/ast/ast-node.hpp>
 #include <echelon/parser/stage2/ast-transform-data.hpp>
 
 class AstTransform {

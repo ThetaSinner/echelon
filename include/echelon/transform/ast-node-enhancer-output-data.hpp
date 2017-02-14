@@ -1,9 +1,9 @@
 #ifndef AST_NODE_ENHANCER_OUTPUT_DATA_HPP_INCLUDED
 #define AST_NODE_ENHANCER_OUTPUT_DATA_HPP_INCLUDED
 
-#include <echelon/ast/ast-node.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
-#include <echelon/ast/scope/scope.hpp>
+#include <echelon/model/ast/ast-node.hpp>
+#include <echelon/model/internal/enhanced-ast-node.hpp>
+#include <echelon/model/scope/scope.hpp>
 #include <echelon/transform/ast-node-enhancer-input-data.hpp>
 
 class AstNodeEnhancerOutputData {

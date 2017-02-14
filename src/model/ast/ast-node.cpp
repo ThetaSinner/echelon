@@ -1,4 +1,4 @@
-#include <echelon/ast/ast-node.hpp>
+#include <echelon/model/ast/ast-node.hpp>
 #include <stdexcept>
 
 #ifdef ECHELON_DEBUG

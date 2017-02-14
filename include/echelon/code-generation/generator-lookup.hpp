@@ -4,7 +4,7 @@
 #include <map>
 
 #include <echelon/code-generation/generator.hpp>
-#include <echelon/ast/ast-node-type-enum.hpp>
+#include <echelon/model/ast/ast-node-type-enum.hpp>
 
 class GeneratorLookup {
   static GeneratorLookup *instance;

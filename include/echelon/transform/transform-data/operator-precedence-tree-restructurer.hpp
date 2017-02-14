@@ -3,8 +3,8 @@
 
 #include <list>
 
-#include <echelon/ast/transform-stage/enhanced-ast-node-sub-type-enum.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
+#include <echelon/model/internal/enhanced-ast-node-sub-type-enum.hpp>
+#include <echelon/model/internal/enhanced-ast-node.hpp>
 
 class OperatorPrecedenceTreeRestructurer {
   static EnhancedAstNodeSubType nextOperator(EnhancedAstNodeSubType astNodeType);

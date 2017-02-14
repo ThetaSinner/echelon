@@ -1,7 +1,7 @@
 #ifndef ENHANCED_AST_FUNCTION_PROTOTYPE_NODE_INCLUDED
 #define ENHANCED_AST_FUNCTION_PROTOTYPE_NODE_INCLUDED
 
-#include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
+#include <echelon/model/internal/enhanced-ast-node.hpp>
 
 class EnhancedAstFunctionPrototypeNode : public EnhancedAstNode {
   EnhancedAstNode* impl = nullptr;

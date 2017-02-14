@@ -1,5 +1,5 @@
 #include <echelon/util/to-string.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-function-prototype-node.hpp>
+#include <echelon/model/internal/enhanced-ast-function-prototype-node.hpp>
 
 std::string to_string(const Token *t) {
   std::stringstream ss;

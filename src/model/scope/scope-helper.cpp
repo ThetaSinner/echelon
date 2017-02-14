@@ -1,4 +1,4 @@
-#include <echelon/ast/scope/scope-helper.hpp>
+#include <echelon/model/scope/scope-helper.hpp>
 
 Scope* ScopeHelper::createChildScope(Scope* scope) {
   Scope *newScope = new Scope();

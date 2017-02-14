@@ -1,4 +1,4 @@
-#include <echelon/ast/transform-stage/node-enhancer-lookup.hpp>
+#include <echelon/model/internal/node-enhancer-lookup.hpp>
 
 #ifdef ECHELON_DEBUG
 

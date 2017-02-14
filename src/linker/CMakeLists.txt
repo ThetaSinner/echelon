@@ -5,7 +5,7 @@ add_library(${linker_lib_name}
         ../ast/scope/scope-pusher.cpp)
 
 target_link_libraries(${linker_lib_name}
-  ${ast_lib_name}
+  ${model_lib_name}
 )
 
 # Disable prefixing library name with 'lib'

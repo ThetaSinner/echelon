@@ -3,7 +3,7 @@
 
 class Scope;
 
-#include <echelon/ast/scope/scope.hpp>
+#include <echelon/model/scope/scope.hpp>
 
 class ScopeHelper {
 public:

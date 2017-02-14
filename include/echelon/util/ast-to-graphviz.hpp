@@ -2,8 +2,8 @@
 #define AST_TO_GRAPHVIZ_HPP_INCLUDED
 
 #include <string>
-#include <echelon/ast/ast-node.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
+#include <echelon/model/ast/ast-node.hpp>
+#include <echelon/model/internal/enhanced-ast-node.hpp>
 
 std::string toGraphviz(AstNode *program);
 

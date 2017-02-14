@@ -5,8 +5,8 @@
 #include <string>
 #include <stdexcept>
 
-#include <echelon/ast/transform-stage/enhanced-ast-node-type-enum.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-node-sub-type-enum.hpp>
+#include <echelon/model/internal/enhanced-ast-node-type-enum.hpp>
+#include <echelon/model/internal/enhanced-ast-node-sub-type-enum.hpp>
 
 #ifdef ECHELON_DEBUG
 

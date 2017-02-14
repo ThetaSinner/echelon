@@ -1,4 +1,4 @@
-#include <echelon/ast/transform-stage/enhanced-ast-block-node.hpp>
+#include <echelon/model/internal/enhanced-ast-block-node.hpp>
 
 void EnhancedAstBlockNode::setScope(Scope* scope) {
   this->scope = scope;

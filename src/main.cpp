@@ -1,5 +1,5 @@
 #include <echelon/transform/type-rule-lookup.hpp>
-#include <echelon/ast/scope/scope.hpp>
+#include <echelon/model/scope/scope.hpp>
 #include <echelon/util/event/event-container.hpp>
 #include <echelon/util/logging/logger-shared-instance.hpp>
 #include <echelon/util/to-string.hpp>

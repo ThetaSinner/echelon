@@ -2,14 +2,14 @@
 
 #include <echelon/transform/ast-node-enhancer-input-data.hpp>
 #include <echelon/transform/ast-node-enhancer-output-data.hpp>
-#include <echelon/ast/transform-stage/node-enhancer-lookup.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-block-node.hpp>
+#include <echelon/model/internal/node-enhancer-lookup.hpp>
+#include <echelon/model/internal/enhanced-ast-block-node.hpp>
 #include <echelon/transform/transform-data/ast-enhancer-helper.hpp>
 #include <echelon/transform/name-resolver.hpp>
 #include <echelon/transform/type-deducer.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-function-prototype-node.hpp>
+#include <echelon/model/internal/enhanced-ast-function-prototype-node.hpp>
 #include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
-#include <echelon/ast/scope/scope-helper.hpp>
+#include <echelon/model/scope/scope-helper.hpp>
 
 // TODO what was I intending to be the difference between sourceNode and nodeToMap?
 

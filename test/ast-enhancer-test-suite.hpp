@@ -4,8 +4,8 @@
 #include <echelon/parser/parser-data/parser-stage-1-data-load.hpp>
 #include <echelon/parser/parser-data/parser-stage-2-data-load.hpp>
 #include <echelon/compiler/echelon-compiler.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-block-node.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-function-prototype-node.hpp>
+#include <echelon/model/echelon/enhanced-ast-block-node.hpp>
+#include <echelon/model/echelon/enhanced-ast-function-prototype-node.hpp>
 
 class AstEnhancerTestSuite : public CxxTest::TestSuite {
 private:

@@ -8,7 +8,7 @@
 #include <echelon/parser/stage1/token.hpp>
 #include <echelon/parser/stage2/parser.hpp>
 #include <echelon/parser/token-type-enum.hpp>
-#include <echelon/ast/ast-node-type-enum.hpp>
+#include <echelon/model/ast/ast-node-type-enum.hpp>
 #include <echelon/parser/stage1/tokenizer.hpp>
 #include <echelon/compiler/echelon-compiler.hpp>
 #include <echelon/util/to-string.hpp>

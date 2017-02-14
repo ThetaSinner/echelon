@@ -2,11 +2,11 @@
 
 #include <functional>
 
-#include <echelon/ast/scope/scope.hpp>
+#include <echelon/model/scope/scope.hpp>
 #include <echelon/transform/ast-node-enhancer-input-data.hpp>
 #include <echelon/transform/ast-node-enhancer-output-data.hpp>
-#include <echelon/ast/transform-stage/node-enhancer-lookup.hpp>
-#include <echelon/ast/transform-stage/enhanced-ast-block-node.hpp>
+#include <echelon/model/internal/node-enhancer-lookup.hpp>
+#include <echelon/model/internal/enhanced-ast-block-node.hpp>
 
 void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope* scope) {
   auto working_target = target;
