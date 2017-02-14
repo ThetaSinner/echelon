@@ -1,8 +1,8 @@
 #ifndef SCOPE_PUSHER_HPP_INCLUDED
 #define SCOPE_PUSHER_HPP_INCLUDED
 
-#include <echelon/ast/scope/scope.hpp>
-#include <echelon/model/echelon/enhanced-ast-node.hpp>
+#include <echelon/model/scope/scope.hpp>
+#include <echelon/model/internal/enhanced-ast-node.hpp>
 #include <echelon/transform/transform-data/ast-enhancer-helper.hpp>
 
 class ScopePusher {

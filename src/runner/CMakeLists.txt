@@ -7,8 +7,10 @@ add_library(${runner_lib_name}
 # Disable prefixing library name with 'lib'
 set_target_properties(${runner_lib_name} PROPERTIES PREFIX "")
 
+# C++11 features.
 target_compile_features(${runner_lib_name} PRIVATE cxx_range_for cxx_strong_enums)
 
+# Forward debug definition to this lib.
 if (SPIDERMONKEY_DIR)
   target_compile_definitions(${runner_lib_name} PUBLIC DEBUG WITH_SPIDER_MONKEY_RUNNER)
 endif()

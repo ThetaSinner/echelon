@@ -1,4 +1,4 @@
-#include <echelon/ast/scope/scope-pusher.hpp>
+#include <echelon/model/scope/scope-pusher.hpp>
 
 void ScopePusher::push(Scope* scope, EnhancedAstNode* node) {
   // TODO implement event triggering.

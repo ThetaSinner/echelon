@@ -3,12 +3,15 @@ cmake_minimum_required (VERSION 3.2.0)
 # Set the project name and version.
 project(echelon VERSION 0.0.1)
 
+# Set names for the output binaries.
 set(project_binary_name ${PROJECT_NAME})
 set(project_test_binary_name "test-${PROJECT_NAME}")
 
+# Specify root source files.
 set(project_source_files "src/main.cpp")
 file(GLOB project_test_source_files "${CMAKE_CURRENT_SOURCE_DIR}/test/*.hpp")
 
+# Set names for the libs to build.
 set(parser_lib_name "${PROJECT_NAME}_lib_parser")
 set(model_lib_name "${PROJECT_NAME}_lib_model")
 set(transform_lib_name "${PROJECT_NAME}_lib_transform")
@@ -39,6 +42,7 @@ if (SPIDERMONKEY_DIR)
   link_libraries(${spider_monkey_lib_directory})
 endif()
 
+# Trigger the lib builds.
 add_subdirectory(src/parser)
 add_subdirectory(src/model)
 add_subdirectory(src/transform)
@@ -51,6 +55,7 @@ add_subdirectory(src/util)
 # Create an executable from the main file.
 add_executable(${project_binary_name} ${project_source_files})
 
+# Link the libs to the main executable.
 target_link_libraries(${project_binary_name}
   ${parser_lib_name}
   ${model_lib_name}
@@ -62,6 +67,7 @@ target_link_libraries(${project_binary_name}
   ${util_lib_name}
 )
 
+# Link to spider monkey if a spider monkey installation forler is specified.
 if (SPIDERMONKEY_DIR)
   target_link_libraries(${project_binary_name} mozjs-45 m z dl)
 endif()
@@ -70,6 +76,7 @@ endif()
 target_compile_features(${project_binary_name} PRIVATE cxx_range_for)
 target_compile_features(${project_binary_name} PRIVATE cxx_nullptr)
 
+# Forward debug definition to the main executable.
 if (CMAKE_BUILD_TYPE MATCHES Debug)
   target_compile_definitions(${project_binary_name} PUBLIC ECHELON_DEBUG)
 endif()

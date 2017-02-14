@@ -1,13 +1,10 @@
 #ifndef LINKER_HPP_INCLUDED
 #define LINKER_HPP_INCLUDED
 
-#include <echelon/model/echelon/enhanced-ast-node.hpp>
-#include <echelon/model/echelon/enhanced-ast-block-node.hpp>
-#include <echelon/ast/scope/scope-helper.hpp>
-#include <echelon/ast/scope/scope-pusher.hpp>
-
-class Scope;
-#include <echelon/ast/scope/scope.hpp>
+#include <echelon/model/internal/enhanced-ast-node.hpp>
+#include <echelon/model/internal/enhanced-ast-block-node.hpp>
+#include <echelon/model/scope/scope-helper.hpp>
+#include <echelon/model/scope/scope-pusher.hpp>
 
 /**
  * Linker for echelon programs.

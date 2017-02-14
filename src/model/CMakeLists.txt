@@ -8,9 +8,10 @@ add_library(${model_lib_name}
   internal/enhanced-ast-function-prototype-node.cpp
 
   scope/scope-helper.cpp
+  scope/scope-pusher.cpp
 )
 
-# Declare depency libs
+# Declare depency libs.
 target_link_libraries(${model_lib_name}
   ${transform_lib_name}
 )
@@ -18,8 +19,10 @@ target_link_libraries(${model_lib_name}
 # Disable prefixing library name with 'lib'
 set_target_properties(${model_lib_name} PROPERTIES PREFIX "")
 
+# C++11 features.
 target_compile_features(${model_lib_name} PRIVATE cxx_range_for cxx_strong_enums)
 
+# Forward debug definition to this lib.
 if (CMAKE_BUILD_TYPE MATCHES Debug)
   target_compile_definitions(${model_lib_name} PUBLIC ECHELON_DEBUG)
 endif ()
