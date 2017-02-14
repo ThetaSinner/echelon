@@ -9,7 +9,7 @@ add_library(${model_lib_name}
 
   scope/scope-helper.cpp
   scope/scope-pusher.cpp
-)
+  context/context-item.cpp context/context.cpp)
 
 # Declare depency libs.
 target_link_libraries(${model_lib_name}

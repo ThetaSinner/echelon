@@ -1,5 +1,7 @@
 #include <echelon/transform/transform-data/ast-enhancer-data.hpp>
 
+#include <echelon/model/scope/scope-helper.hpp>
+#include <echelon/model/scope/scope-pusher.hpp>
 #include <echelon/transform/ast-node-enhancer-input-data.hpp>
 #include <echelon/transform/ast-node-enhancer-output-data.hpp>
 #include <echelon/model/internal/node-enhancer-lookup.hpp>
@@ -9,7 +11,6 @@
 #include <echelon/transform/type-deducer.hpp>
 #include <echelon/model/internal/enhanced-ast-function-prototype-node.hpp>
 #include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
-#include <echelon/model/scope/scope-helper.hpp>
 
 // TODO what was I intending to be the difference between sourceNode and nodeToMap?
 
@@ -497,17 +498,12 @@ void loadAstEnhancerDataInternal() {
 
     auto nodeToMap = input.getNodeToMap();
 
-    auto data = nodeToMap->getData();
     auto base = new EnhancedAstNode();
     base->setNodeType(EnhancedAstNodeType::Module);
-    base->setData(data);
+    base->setData(nodeToMap->getData());
 
-    if (!input.getScope()->hasModule(data)) {
-      input.getScope()->addModule(data, base);
-    }
-    else {
-      throw std::runtime_error("Error, module " + data + "] already exists.");
-    }
+    // Add module to scope.
+    ScopePusher::push(input.getScope(), base);
 
     AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
 

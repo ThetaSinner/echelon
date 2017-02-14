@@ -17,5 +17,8 @@ void Linker::linkPartial(EnhancedAstNode* target, EnhancedAstNode* partial) {
     // Add the new item to the scope. If there is a clash then the compiler will exit.
     // Otherwise, events on the new item should be triggered somehow..
     ScopePusher::push(scope, partial);
+
+    // if partial.hasUndetermined values
+    // then partial.triggerContextChange
   }
 }

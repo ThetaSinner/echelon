@@ -92,6 +92,8 @@ TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node, Scope* scope
       case EnhancedAstNodeSubType::Decimal:
         typeNameResolve.setTypeName("decimal");
         break;
+      default:
+        throw std::runtime_error("Unrecognised primitive value type");
     }
   }
   else if (node->getNodeType() == EnhancedAstNodeType::VariableValue) {
@@ -103,6 +105,7 @@ TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node, Scope* scope
       }
       else {
         // Missing type name.
+        // TODO listen for var to change.
         throw std::runtime_error("Depends on variable with missing type name.");
       }
     }

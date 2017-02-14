@@ -7,6 +7,7 @@
 #include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
 #include <echelon/util/ast-to-graphviz.hpp>
 #include <echelon/runner/spidermonkey-runner.hpp>
+#include <echelon/model/context/context.hpp>
 
 void gv_out(EnhancedAstNode* e) {
   std::ofstream f("main-ast-out.gv", std::ios::out);
@@ -51,9 +52,16 @@ int main(int argc, char **args) {
     // TODO fixed, should fail to find oops variable, not accessible. Extract test.
     // auto out = compiler.enhance("module ModuleOne {\ndecimal oops = 0.5\n\ntype MyType {\n  integer my_type_var\n  function get_my_type_var() -> integer\n}\n}\n\nmodule ModuleTwo {\nfunction ModuleOne::MyType::get_my_type_var() {\n  oops + my_type_var\n}\n}");
 
-    auto out = compiler.enhance("type MyType {function get_val() -> integer {5}} myinstance = MyType.create() myinstance.get_val()");
+    // TODO I need the linker (partial) for this part, because I am generating a constructor and linking it to MyType
+    /*auto out = compiler.enhance("type MyType {function get_val() -> integer {5}} myinstance = MyType.create() myinstance.get_val()");
     gv_out(out);
-    log->at(Level::Info) << to_string(out) << "\n";
+    log->at(Level::Info) << to_string(out) << "\n";*/
+
+    auto context = new Context(nullptr, new ContextItem("MyTestContextModule"));
+    auto subContext = new Context(context, new ContextItem("MyTestSubContextType"));
+
+    std::cout << context->toString() << "\n";
+    std::cout << subContext->toString() << "\n";
 
     RunnerData runnerData;
     runnerData.setScript("function tf() {return 'test string'} tf()");
