@@ -2,7 +2,7 @@
 
 #include <functional>
 
-#include <echelon/ast/transform-stage/scope.hpp>
+#include <echelon/ast/scope/scope.hpp>
 #include <echelon/transform/ast-node-enhancer-input-data.hpp>
 #include <echelon/transform/ast-node-enhancer-output-data.hpp>
 #include <echelon/ast/transform-stage/node-enhancer-lookup.hpp>

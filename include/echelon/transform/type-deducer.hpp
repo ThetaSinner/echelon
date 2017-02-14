@@ -9,7 +9,7 @@
 #include <echelon/ast/ast-node.hpp>
 #include <echelon/util/event/event-container.hpp>
 #include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
-#include <echelon/ast/transform-stage/scope.hpp>
+#include <echelon/ast/scope/scope.hpp>
 #include <echelon/transform/type-rule-lookup.hpp>
 #include <echelon/transform/name-resolver.hpp>
 #include <echelon/util/to-string.hpp>

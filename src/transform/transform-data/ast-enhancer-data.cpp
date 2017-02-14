@@ -9,7 +9,7 @@
 #include <echelon/transform/type-deducer.hpp>
 #include <echelon/ast/transform-stage/enhanced-ast-function-prototype-node.hpp>
 #include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
-#include <echelon/transform/scope-helper.hpp>
+#include <echelon/ast/scope/scope-helper.hpp>
 
 // TODO what was I intending to be the difference between sourceNode and nodeToMap?
 

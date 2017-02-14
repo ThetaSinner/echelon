@@ -45,7 +45,7 @@ public:
     this->data = data;
   }
 
-  std::string &getData() {
+  std::string& getData() {
     return data;
   }
 

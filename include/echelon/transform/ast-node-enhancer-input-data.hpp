@@ -3,7 +3,7 @@
 
 #include <echelon/ast/ast-node.hpp>
 #include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
-#include <echelon/ast/transform-stage/scope.hpp>
+#include <echelon/ast/scope/scope.hpp>
 
 class AstNodeEnhancerInputData {
   AstNode *source;

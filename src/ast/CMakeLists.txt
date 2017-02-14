@@ -4,6 +4,10 @@ add_library(${ast_lib_name}
   ast-node.cpp
   transform-stage/node-enhancer-lookup.cpp transform-stage/enhanced-ast-block-node.cpp transform-stage/enhanced-ast-function-prototype-node.cpp)
 
+target_link_libraries(${ast_lib_name}
+  ${transform_lib_name}
+)
+
 # Disable prefixing library name with 'lib'
 set_target_properties(${ast_lib_name} PROPERTIES PREFIX "")
 

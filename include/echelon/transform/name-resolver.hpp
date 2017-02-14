@@ -6,7 +6,7 @@
 
 #include <echelon/ast/transform-stage/enhanced-ast-block-node.hpp>
 #include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
-#include <echelon/ast/transform-stage/scope.hpp>
+#include <echelon/ast/scope/scope.hpp>
 
 class NameResolver {
   std::queue<std::string> toNameStructure(EnhancedAstNode* node);

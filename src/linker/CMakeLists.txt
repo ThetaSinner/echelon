@@ -2,11 +2,10 @@
 # otherwise it is output to CMAKE_LIBRARY_OUTPUT_DIRECTORY
 add_library(${linker_lib_name}
   linker.cpp
-  scope-pusher.cpp)
+        ../ast/scope/scope-pusher.cpp)
 
 target_link_libraries(${linker_lib_name}
   ${ast_lib_name}
-  ${util_lib_name}
 )
 
 # Disable prefixing library name with 'lib'

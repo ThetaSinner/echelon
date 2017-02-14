@@ -1,4 +1,4 @@
-#include <echelon/transform/scope-helper.hpp>
+#include <echelon/ast/scope/scope-helper.hpp>
 
 Scope* ScopeHelper::createChildScope(Scope* scope) {
   Scope *newScope = new Scope();
@@ -7,8 +7,12 @@ Scope* ScopeHelper::createChildScope(Scope* scope) {
 }
 
 void ScopeHelper::linkScopes(Scope* target, Scope* toBeLinked) {
-  // Only linker to the target scope, don't inherit any parents of the linker.
+  // Only link to the target scope, don't inherit any parents of the link.
   toBeLinked->setParentScope(nullptr);
 
   target->pushLinkedScope(toBeLinked);
+}
+
+void ScopeHelper::makeParentOf(Scope *child, Scope *parent) {
+  child->setParentScope(parent);
 }

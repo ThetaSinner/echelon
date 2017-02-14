@@ -2,7 +2,7 @@
 #define ENHANCED_AST_BLOCK_NODE_HPP_INCLUDED
 
 #include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
-#include <echelon/ast/transform-stage/scope.hpp>
+#include <echelon/ast/scope/scope.hpp>
 
 class EnhancedAstBlockNode : public EnhancedAstNode {
   Scope* scope;

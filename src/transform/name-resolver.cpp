@@ -2,7 +2,10 @@
 #include <echelon/transform/transform-data/ast-enhancer-helper.hpp>
 
 EnhancedAstNode* NameResolver::resolve(EnhancedAstNode* unresolved, Scope* scope) {
-  if (unresolved->getNodeType() == EnhancedAstNodeType::NameStructure || unresolved->hasChild(EnhancedAstNodeType::NameStructure)) {
+  if (unresolved->getNodeType() == EnhancedAstNodeType::AccessExpression) {
+    // TODO resolve from access expression.
+  }
+  else {
     auto nameStructure = toNameStructure(unresolved);
 
     auto resolved = resolveFromNameStructure(unresolved, nameStructure, scope);
@@ -24,9 +27,6 @@ EnhancedAstNode* NameResolver::resolve(EnhancedAstNode* unresolved, Scope* scope
     // TODO would it make sense to check linked scopes on each parent? Just something to bear in mind.
 
     return resolved;
-  }
-  else if (unresolved->getNodeType() == EnhancedAstNodeType::AccessExpression) {
-    // TODO resolve from access expression.
   }
 
   return nullptr;

@@ -3,12 +3,13 @@
 
 class Scope;
 
-#include <echelon/ast/transform-stage/scope.hpp>
+#include <echelon/ast/scope/scope.hpp>
 
 class ScopeHelper {
 public:
   static Scope* createChildScope(Scope* scope);
   static void linkScopes(Scope* target, Scope* toBeLinked);
+  static void makeParentOf(Scope* child, Scope* parent);
 };
 
 #endif

@@ -8,7 +8,7 @@
 class ScopeHelper;
 
 #include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
-#include <echelon/transform/scope-helper.hpp>
+#include <echelon/ast/scope/scope-helper.hpp>
 
 class Scope {
   std::map<std::string, EnhancedAstNode*> variables;

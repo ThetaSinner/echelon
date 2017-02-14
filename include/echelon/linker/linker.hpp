@@ -3,7 +3,11 @@
 
 #include <echelon/ast/transform-stage/enhanced-ast-node.hpp>
 #include <echelon/ast/transform-stage/enhanced-ast-block-node.hpp>
-#include <echelon/transform/scope-helper.hpp>
+#include <echelon/ast/scope/scope-helper.hpp>
+#include <echelon/ast/scope/scope-pusher.hpp>
+
+class Scope;
+#include <echelon/ast/scope/scope.hpp>
 
 /**
  * Linker for echelon programs.
