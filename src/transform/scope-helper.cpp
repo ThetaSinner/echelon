@@ -7,7 +7,7 @@ Scope* ScopeHelper::createChildScope(Scope* scope) {
 }
 
 void ScopeHelper::linkScopes(Scope* target, Scope* toBeLinked) {
-  // Only link to the target scope, don't inherit any parents of the link.
+  // Only linker to the target scope, don't inherit any parents of the linker.
   toBeLinked->setParentScope(nullptr);
 
   target->pushLinkedScope(toBeLinked);

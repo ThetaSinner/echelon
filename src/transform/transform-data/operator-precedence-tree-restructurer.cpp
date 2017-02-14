@@ -84,10 +84,10 @@ EnhancedAstNode* OperatorPrecedenceTreeRestructurer::restructureInternal(Enhance
 
     // TODO check for two of the same operator adjacent.
 
-    // break top link.
+    // break top linker.
     highOperator->removeChild(extractRoot);
 
-    // break bottom link.
+    // break bottom linker.
     lowParent->removeChild(lowOperator);
 
     // grab the value from the bottom operator to associate it to the tree being pushed down.
