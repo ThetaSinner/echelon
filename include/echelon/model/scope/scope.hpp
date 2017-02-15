@@ -9,6 +9,7 @@ class ScopeHelper;
 
 #include <echelon/model/internal/enhanced-ast-node.hpp>
 #include <echelon/model/scope/scope-helper.hpp>
+#include <echelon/model/context/context.hpp>
 
 class Scope {
   std::map<std::string, EnhancedAstNode*> variables;
@@ -21,6 +22,8 @@ class Scope {
 
   Scope* parentScope;
   std::list<Scope*> linkedScopes;
+
+  Context* context;
 
   friend ScopeHelper;
 protected:
@@ -120,6 +123,24 @@ public:
 
   Scope* getParentScope() {
     return parentScope;
+  }
+
+  /**
+   * Set the context of this scope.
+   *
+   * @param context the context.
+   */
+  void setContext(Context* context) {
+    this->context = context;
+  }
+
+  /**
+   * Get the context.
+   *
+   * @return the context.
+   */
+  Context* getContext() {
+    return context;
   }
 
   // TODO [[deprecated]]

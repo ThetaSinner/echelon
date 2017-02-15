@@ -8,6 +8,9 @@
 /**
  * Container for a list of context items.
  * For example, store ["MyModule", "MyType", "myVar"]
+ *
+ * The context should be attached to each scope level (scope on block node).
+ * Also to each element which needs a context path (variable, function, logic statement).
  */
 class Context {
   Context* parentContext;
