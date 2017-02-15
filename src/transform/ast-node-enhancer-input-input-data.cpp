@@ -31,3 +31,11 @@ Scope* AstNodeEnhancerInputData::getScope() {
 void AstNodeEnhancerInputData::setScope(Scope* scope) {
   this->scope = scope;
 }
+
+void AstNodeEnhancerInputData::setUpdatedContext(Context *context) {
+  this->context = context;
+}
+
+Context* AstNodeEnhancerInputData::getUpdatedContext() {
+  return context;
+}

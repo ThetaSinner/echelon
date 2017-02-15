@@ -46,6 +46,10 @@ int main(int argc, char **args) {
   // auto out = compiler.parse("type MyType {\n  toString(integer t) -> string\n}");
 
   try {
+    RunnerData runnerData;
+    runnerData.setScript("function tf() {return 'test string'} tf()");
+    runner(runnerData);
+
     // TODO Need private variables to try to implement anything here.. so it's context time.
     //auto out = compiler.enhance("behaviour ToString {\n  function toString() -> string\n}\n\ntype BigInteger {\n}");
 
@@ -57,15 +61,21 @@ int main(int argc, char **args) {
     gv_out(out);
     log->at(Level::Info) << to_string(out) << "\n";*/
 
-    auto context = new Context(nullptr, new ContextItem("MyTestContextModule"));
+    // TODO test this...
+    /*auto context = new Context(nullptr, new ContextItem("MyTestContextModule"));
     auto subContext = new Context(context, new ContextItem("MyTestSubContextType"));
 
     std::cout << context->toString() << "\n";
-    std::cout << subContext->toString() << "\n";
+    std::cout << subContext->toString() << "\n";*/
 
-    RunnerData runnerData;
-    runnerData.setScript("function tf() {return 'test string'} tf()");
-    runner(runnerData);
+    auto out = compiler.enhance("module MyModule {module MySubModule {// hello comment\n}}");
+    log->at(Level::Info) << to_string(out) << "\n";
+    log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getContext()->toString() << "\n";
+    log->at(Level::Info) << ((EnhancedAstBlockNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block))->getScope()->getContext()->toString() << "\n";
+    log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getContext()->toString() << "\n";
+    log->at(Level::Info) << ((EnhancedAstBlockNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block))->getScope()->getContext()->toString() << "\n";
+
+    // TODO the above is printing correctly. Don't change anything until you've extracted a test!
   }
   catch (const std::runtime_error &e) {
     LoggerSharedInstance::get()->at(Level::Fatal) << "dev run failed [" << e.what() << "]";

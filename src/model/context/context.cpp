@@ -14,5 +14,5 @@ Context* Context::getParentContext() {
 }
 
 std::string Context::toString(bool recursive) {
-  return (recursive ? "" : "cp:") + contextItem->getName() + (parentContext == nullptr ? "" : "/" + parentContext->toString(true));
+  return (recursive ? "" : "cp:/") + (parentContext == nullptr ? "" : parentContext->toString(true) + "/") + contextItem->getName();
 }

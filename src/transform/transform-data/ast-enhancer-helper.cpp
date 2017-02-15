@@ -6,6 +6,11 @@ void AstEnhancerHelper::mapBlockIfPresent(AstNode* nodeToMap, EnhancedAstNode* t
     subInput.setTargetNode(target);
     subInput.setNodeToMap(nodeToMap->getChild(AstNodeType::Block));
 
+    // Pass the updated context to the block we're about to map.
+    if (target->getContext() != nullptr) {
+      subInput.setUpdatedContext(target->getContext());
+    }
+
     NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::Block)(subInput);
   }
 }

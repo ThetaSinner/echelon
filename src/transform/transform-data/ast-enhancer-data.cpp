@@ -505,6 +505,8 @@ void loadAstEnhancerDataInternal() {
     // Add module to scope.
     ScopePusher::push(input.getScope(), base);
 
+    base->setContext(new Context(input.getScope()->getContext(), new ContextItem(base->getData())));
+
     // Map the module block.
     AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
 
@@ -518,11 +520,22 @@ void loadAstEnhancerDataInternal() {
     auto nodeToMap = input.getNodeToMap();
 
     auto base = new EnhancedAstBlockNode();
-    // TODO needs parent - base->setContext(new Context())
     base->setNodeType(EnhancedAstNodeType::Block);
 
     Scope* blockScope = ScopeHelper::createChildScope(input.getScope());
     base->setScope(blockScope);
+
+    if (input.getUpdatedContext() != nullptr) {
+      // Map the updated context which includes the the path to the current block owner.
+      blockScope->setContext(input.getUpdatedContext());
+      // Explicitly wipe the updated context. The input is default copy constructed and passed down
+      // so don't risk it being used again incorrectly.
+      input.setUpdatedContext(nullptr);
+    }
+    else {
+      // TODO this can throw once contexts are implemented to prevent future breakages
+      // throw std::runtime_error("Compiler failure: no updated context to map to block scope");
+    }
 
     AstNodeEnhancerInputData subInput = input;
     subInput.setTargetNode(base);
