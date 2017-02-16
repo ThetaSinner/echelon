@@ -102,3 +102,21 @@ EnhancedAstNode* NameResolver::resolveFromNameStructure(EnhancedAstNode* unresol
 
   return found;
 }
+
+std::string NameResolver::toNameStructureString(EnhancedAstNode *node) {
+  std::stringstream ss;
+  auto q = toNameStructure(node);
+
+  if (q.size()) {
+    ss << q.front();
+    q.pop();
+  }
+
+  while (q.size()) {
+    ss << "_";
+    ss << q.front();
+    q.pop();
+  }
+
+  return ss.str();
+}

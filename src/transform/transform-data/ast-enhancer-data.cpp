@@ -340,6 +340,34 @@ void loadAstEnhancerDataInternal() {
 
     // Map the block if there is one and handle scope logic.
     if (nodeToMap->hasChild(AstNodeType::Block)) {
+
+      // Create a unique context name for this function.
+      std::stringstream contextNameStream;
+      if (hasNameStructure) {
+        auto nameStructureString = nameResolver.toNameStructureString(base);
+        contextNameStream << nameStructureString;
+
+        int funcImplNum = 1;
+        if (scope->hasFunctionImplementation(nameStructureString)) {
+          funcImplNum += scope->getFunctionImplementations(nameStructureString)->size();
+        }
+
+        contextNameStream << "-" << funcImplNum;
+      }
+      else {
+        contextNameStream << data;
+
+        int funcNum = 1;
+        if (scope->hasFunction(data)) {
+          funcNum += scope->getFunctions(data)->size();
+        }
+
+        contextNameStream << "-" << funcNum;
+      }
+
+      // Create the new context path and set it on the base node.
+      base->setContext(new Context(input.getScope()->getContext(), new ContextItem(contextNameStream.str())));
+
       AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
       auto blockScope = ((EnhancedAstBlockNode*) base->getChild(EnhancedAstNodeType::Block))->getScope();
 
@@ -368,6 +396,21 @@ void loadAstEnhancerDataInternal() {
             throw std::runtime_error("Re-implementing function [" + base->getData() + "]");
           }
         }
+
+        auto nameStructureString = nameResolver.toNameStructureString(base);
+        if (!scope->hasFunctionImplementation(nameStructureString)) {
+          scope->addFunctionImplementation(nameStructureString, base);
+        }
+        else {
+          auto functionImplementations = scope->getFunctionImplementations(nameStructureString);
+          for (auto fi : *functionImplementations) {
+            if (AstEnhancerHelper::doFunctionSignaturesMatch(base, fi)) {
+              throw std::runtime_error("Redeclaration of function implementation [" + data + "]");
+            }
+          }
+
+          scope->addFunctionImplementation(nameStructureString, base);
+        }
       }
       else {
         if (!scope->hasFunction(data)) {
@@ -390,6 +433,22 @@ void loadAstEnhancerDataInternal() {
     }
     else {
       // Prototypes don't have name structures.
+
+      {
+        // Create the context name and add it to the base node.
+        std::stringstream contextNameStream;
+        contextNameStream << data;
+
+        int prototypeNum = 1;
+        if (scope->hasParamDefinition(data)) {
+          prototypeNum += scope->getPrototypes(data)->size();
+        }
+
+        contextNameStream << "-" << prototypeNum;
+
+        // Create the new context path and set it on the base node.
+        base->setContext(new Context(input.getScope()->getContext(), new ContextItem(contextNameStream.str())));
+      }
 
       // The prototype is a special node, construct it now.
       base = new EnhancedAstFunctionPrototypeNode(base);
@@ -575,11 +634,11 @@ void loadAstEnhancerDataInternal() {
     base->setNodeType(EnhancedAstNodeType::CustomType);
     base->setData(nodeToMap->getData());
 
+    base->setContext(new Context(input.getScope()->getContext(), new ContextItem(base->getData())));
+
     input.getScope()->addType(nodeToMap->getData(), base);
 
     AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
-
-
 
     outputData.getTargetNode()->putChild(base);
     return outputData;

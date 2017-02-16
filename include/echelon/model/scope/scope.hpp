@@ -17,7 +17,7 @@ class Scope {
   std::map<std::string, EnhancedAstNode*> modules;
   std::map<std::string, EnhancedAstNode*> types;
   std::map<std::string, std::list<EnhancedAstNode*>> functions;
-  std::map<std::string, EnhancedAstNode*> functionImplementations;
+  std::map<std::string, std::list<EnhancedAstNode*>> functionImplementations;
   std::map<std::string, std::list<EnhancedAstNode*>> prototypes;
 
   Scope* parentScope;
@@ -143,15 +143,39 @@ public:
     return context;
   }
 
-  // TODO [[deprecated]]
-  bool hasFunctionImplementation(std::string functionHash) {
-    return functionImplementations.find(functionHash) != functionImplementations.end();
+  /**
+   * These are foreign functions being implemented in the current scope.
+   * They are not accessible to the current scope but they do need to be tracked here.
+   *
+   * @param nameWithNameStructure the name of the foreign function with its name structure.
+   * @return whether there is a function implementation with the given name at the specified name structure.
+   */
+  bool hasFunctionImplementation(std::string nameWithNameStructure) {
+    return functionImplementations.find(nameWithNameStructure) != functionImplementations.end();
   }
 
-  // TODO [[deprecated]]
-  void addFunctionImplementation(std::string functionHash, EnhancedAstNode* enhancedAstNode) {
-    // TODO do the other function types need lists or would hashing work nicely?
-    functionImplementations.insert({functionHash, enhancedAstNode});
+  /**
+   * Add a new foreign function implementation.
+   *
+   * @param nameWithNameStructure the name of the foreign function with its name structure.
+   * @param enhancedAstNode the model node for the function implementation.
+   */
+  void addFunctionImplementation(std::string nameWithNameStructure, EnhancedAstNode* enhancedAstNode) {
+    if (!hasFunctionImplementation(nameWithNameStructure)) {
+      functionImplementations.insert({nameWithNameStructure, std::list<EnhancedAstNode*>()});
+    }
+
+    functionImplementations.at(nameWithNameStructure).push_back(enhancedAstNode);
+  }
+
+  /**
+   * Get the function implementations stored under the given name with name structure.
+   *
+   * @param nameWithNameStructure the name with name structure to look up.
+   * @return the list of matching function implementations.
+   */
+  std::list<EnhancedAstNode*>* getFunctionImplementations(std::string nameWithNameStructure) {
+    return &functionImplementations.at(nameWithNameStructure);
   }
 };
 
