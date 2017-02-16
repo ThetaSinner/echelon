@@ -68,14 +68,18 @@ int main(int argc, char **args) {
     std::cout << context->toString() << "\n";
     std::cout << subContext->toString() << "\n";*/
 
-    auto out = compiler.enhance("module MyModule {module MySubModule {// hello comment\n}}");
+    auto out = compiler.enhance("module MyModule {integer testVar = 5 function ibble() -> integer {5} module MySubModule {// hello comment\n}}");
     log->at(Level::Info) << to_string(out) << "\n";
     log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getContext()->toString() << "\n";
     log->at(Level::Info) << ((EnhancedAstBlockNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block))->getScope()->getContext()->toString() << "\n";
+
+    log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Variable)->getContext()->toString() << "\n";
+
     log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getContext()->toString() << "\n";
     log->at(Level::Info) << ((EnhancedAstBlockNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block))->getScope()->getContext()->toString() << "\n";
 
     // TODO the above is printing correctly. Don't change anything until you've extracted a test!
+    // and how do functions of the same name work? numbered?
   }
   catch (const std::runtime_error &e) {
     LoggerSharedInstance::get()->at(Level::Fatal) << "dev run failed [" << e.what() << "]";

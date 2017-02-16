@@ -450,6 +450,9 @@ void loadAstEnhancerDataInternal() {
     base->setNodeType(EnhancedAstNodeType::Variable);
     base->setData(data);
 
+    // Add a context path to the variable.
+    base->setContext(new Context(input.getScope()->getContext(), new ContextItem(data)));
+
     if (nodeToMap->hasChild(AstNodeType::TypeName)) {
       AstNodeEnhancerInputData subInput = input;
       subInput.setNodeToMap(nodeToMap->getChild(AstNodeType::TypeName));
@@ -458,7 +461,7 @@ void loadAstEnhancerDataInternal() {
       NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::TypeName)(subInput);
     }
 
-    // This is the value to assign. Not a very nice way to access it.
+    // This is the value to assign.
     if (nodeToMap->hasChild(AstNodeType::Expression)) {
       AstNodeEnhancerInputData subInput = input;
       subInput.setNodeToMap(nodeToMap->getChild(AstNodeType::Expression));
