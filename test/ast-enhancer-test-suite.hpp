@@ -5,7 +5,7 @@
 #include <echelon/parser/parser-data/parser-stage-2-data-load.hpp>
 #include <echelon/compiler/echelon-compiler.hpp>
 #include <echelon/model/internal/enhanced-ast-block-node.hpp>
-#include <echelon/model/internal/enhanced-ast-function-prototype-node.hpp>
+#include <echelon/model/internal/enhanced-ast-function-node.hpp>
 
 class AstEnhancerTestSuite : public CxxTest::TestSuite {
 private:
@@ -130,7 +130,7 @@ public:
     TS_ASSERT_EQUALS("getValue", func->getData());
     TS_ASSERT_EQUALS(EnhancedAstNodeSubType::Prototype, func->getNodeSubType());
 
-    auto prototype = (EnhancedAstFunctionPrototypeNode*) func;
+    auto prototype = (EnhancedAstFunctionNode*) func;
     TS_ASSERT_EQUALS(ast->getChild(EnhancedAstNodeType::Function), prototype->getImpl());
   }
 
@@ -225,7 +225,7 @@ public:
 
     TS_ASSERT_EQUALS("integer", func_type_name->getData());
 
-    TS_ASSERT_DIFFERS(nullptr, ((EnhancedAstFunctionPrototypeNode*) func)->getImpl());
+    TS_ASSERT_DIFFERS(nullptr, ((EnhancedAstFunctionNode*) func)->getImpl());
 
     TS_ASSERT(ast->hasChild(EnhancedAstNodeType::Function));
     auto func_impl = ast->getChild(EnhancedAstNodeType::Function);
