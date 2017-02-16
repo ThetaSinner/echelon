@@ -7,6 +7,11 @@
 #include <echelon/model/ast/ast-node.hpp>
 #include <echelon/model/internal/enhanced-ast-node.hpp>
 #include <echelon/model/internal/node-enhancer-lookup.hpp>
+#include <echelon/model/internal/enhanced-ast-context-aware-node.hpp>
+#include <echelon/model/internal/enhanced-ast-variable-node.hpp>
+#include <echelon/model/internal/enhanced-ast-function-node.hpp>
+#include <echelon/model/internal/enhanced-ast-custom-type-node.hpp>
+#include <echelon/model/internal/enhanced-ast-module-node.hpp>
 
 class AstEnhancerHelper {
 public:
@@ -19,6 +24,8 @@ public:
   static std::string computeFunctionHash(EnhancedAstNode* enhancedAstNode);
 
   static void mapChildIfPresent(EnhancedAstNode* target, AstNode* nodeToMap, const AstNodeEnhancerInputData& input, AstNodeType astNodeType);
+
+  static EnhancedAstContextAwareNode* getContextAwareNode(EnhancedAstNode* node);
 };
 
 #endif

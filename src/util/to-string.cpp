@@ -1,5 +1,5 @@
 #include <echelon/util/to-string.hpp>
-#include <echelon/model/internal/enhanced-ast-function-prototype-node.hpp>
+#include <echelon/model/internal/enhanced-ast-function-node.hpp>
 
 std::string to_string(const Token *t) {
   std::stringstream ss;
@@ -130,7 +130,7 @@ std::string to_string_internal(EnhancedAstNode *enhancedAstNode, int dump_level)
      << "sub_type=[" << EchelonLookup::toString(enhancedAstNode->getNodeSubType()) << "]";
 
   if (enhancedAstNode->getNodeType() == EnhancedAstNodeType::Function && enhancedAstNode->getNodeSubType() == EnhancedAstNodeSubType::Prototype) {
-    auto impl = ((EnhancedAstFunctionPrototypeNode*) enhancedAstNode)->getImpl();
+    auto impl = ((EnhancedAstFunctionNode*) enhancedAstNode)->getImpl();
 
     if (impl == nullptr) {
       ss << ", no impl";

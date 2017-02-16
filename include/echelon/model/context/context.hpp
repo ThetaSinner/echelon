@@ -13,8 +13,8 @@
  * Also to each element which needs a context path (variable, function, logic statement).
  */
 class Context {
-  Context* parentContext;
-  ContextItem* contextItem;
+  Context* parentContext = nullptr;
+  ContextItem* contextItem = nullptr;
 
 public:
   /**

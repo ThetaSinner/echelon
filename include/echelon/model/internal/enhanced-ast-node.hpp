@@ -110,24 +110,6 @@ public:
   EnhancedAstNode* getLastChild() {
     return childList.at(childList.size() - 1);
   }
-
-  /**
-   * Set the context for this node.
-   *
-   * @param context the context.
-   */
-  void setContext(Context* context) {
-    this->context = context;
-  }
-
-  /**
-   * Get the context for this node.
-   *
-   * @return the context.
-   */
-  Context* getContext() {
-    return context;
-  }
 };
 
 #endif

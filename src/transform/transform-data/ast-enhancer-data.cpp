@@ -9,8 +9,11 @@
 #include <echelon/transform/transform-data/ast-enhancer-helper.hpp>
 #include <echelon/transform/name-resolver.hpp>
 #include <echelon/transform/type-deducer.hpp>
-#include <echelon/model/internal/enhanced-ast-function-prototype-node.hpp>
 #include <echelon/transform/transform-data/operator-precedence-tree-restructurer.hpp>
+#include <echelon/model/internal/enhanced-ast-function-node.hpp>
+#include <echelon/model/internal/enhanced-ast-custom-type-node.hpp>
+#include <echelon/model/internal/enhanced-ast-module-node.hpp>
+#include <echelon/model/internal/enhanced-ast-variable-node.hpp>
 
 // TODO what was I intending to be the difference between sourceNode and nodeToMap?
 
@@ -294,7 +297,7 @@ void loadAstEnhancerDataInternal() {
     auto nodeToMap = input.getNodeToMap();
 
     // Create the base node for the function.
-    auto base = new EnhancedAstNode();
+    auto base = new EnhancedAstFunctionNode();
     base->setNodeType(EnhancedAstNodeType::Function);
     auto data = nodeToMap->getData();
     base->setData(data);
@@ -387,7 +390,7 @@ void loadAstEnhancerDataInternal() {
           throw std::runtime_error("Error [" + base->getData() + "] does not implement a prototype");
         }
         else {
-          auto resolvedPrototype = (EnhancedAstFunctionPrototypeNode*) resolved;
+          auto resolvedPrototype = (EnhancedAstFunctionNode*) resolved;
           if (resolvedPrototype->getImpl() == nullptr) {
             // Attach the implementation to its prototype.
             resolvedPrototype->setImpl(base);
@@ -450,9 +453,6 @@ void loadAstEnhancerDataInternal() {
         base->setContext(new Context(input.getScope()->getContext(), new ContextItem(contextNameStream.str())));
       }
 
-      // The prototype is a special node, construct it now.
-      base = new EnhancedAstFunctionPrototypeNode(base);
-
       if (!scope->hasPrototype(data)) {
         scope->addPrototype(data, base);
       }
@@ -505,7 +505,7 @@ void loadAstEnhancerDataInternal() {
     auto nodeToMap = input.getNodeToMap();
 
     auto data = nodeToMap->getData();
-    auto base = new EnhancedAstNode();
+    auto base = new EnhancedAstVariableNode();
     base->setNodeType(EnhancedAstNodeType::Variable);
     base->setData(data);
 
@@ -560,7 +560,7 @@ void loadAstEnhancerDataInternal() {
 
     auto nodeToMap = input.getNodeToMap();
 
-    auto base = new EnhancedAstNode();
+    auto base = new EnhancedAstModuleNode();
     base->setNodeType(EnhancedAstNodeType::Module);
     base->setData(nodeToMap->getData());
 
@@ -630,7 +630,7 @@ void loadAstEnhancerDataInternal() {
 
     auto nodeToMap = input.getNodeToMap();
 
-    auto base = new EnhancedAstNode();
+    auto base = new EnhancedAstCustomTypeNode();
     base->setNodeType(EnhancedAstNodeType::CustomType);
     base->setData(nodeToMap->getData());
 

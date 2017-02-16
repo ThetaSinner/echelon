@@ -7,8 +7,9 @@ void AstEnhancerHelper::mapBlockIfPresent(AstNode* nodeToMap, EnhancedAstNode* t
     subInput.setNodeToMap(nodeToMap->getChild(AstNodeType::Block));
 
     // Pass the updated context to the block we're about to map.
-    if (target->getContext() != nullptr) {
-      subInput.setUpdatedContext(target->getContext());
+    auto contextAware = AstEnhancerHelper::getContextAwareNode(target);
+    if (contextAware != nullptr) {
+      subInput.setUpdatedContext(contextAware->getContext());
     }
 
     NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::Block)(subInput);
@@ -118,4 +119,33 @@ void AstEnhancerHelper::mapChildIfPresent(EnhancedAstNode* target, AstNode* node
 
     NodeEnhancerLookup::getInstance()->getNodeEnhancer(astNodeType)(subInput);
   }
+}
+
+EnhancedAstContextAwareNode* AstEnhancerHelper::getContextAwareNode(EnhancedAstNode* node) {
+  switch (node->getNodeType()) {
+    case EnhancedAstNodeType::Variable:
+      {
+        auto variable = (EnhancedAstVariableNode*) node;
+        return (EnhancedAstContextAwareNode*) variable;
+      }
+    case EnhancedAstNodeType::Function:
+      {
+        auto function = (EnhancedAstFunctionNode*) node;
+        return (EnhancedAstContextAwareNode*) function;
+      }
+    case EnhancedAstNodeType::Module:
+      {
+        auto module = (EnhancedAstModuleNode*) node;
+        return (EnhancedAstContextAwareNode*) module;
+      }
+    case EnhancedAstNodeType::CustomType:
+      {
+        auto customType = (EnhancedAstCustomTypeNode*) node;
+        return (EnhancedAstContextAwareNode*) customType;
+      }
+    default:
+      break;
+  }
+
+  return nullptr;
 }

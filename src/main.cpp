@@ -8,6 +8,10 @@
 #include <echelon/util/ast-to-graphviz.hpp>
 #include <echelon/runner/spidermonkey-runner.hpp>
 #include <echelon/model/context/context.hpp>
+#include <echelon/model/internal/enhanced-ast-variable-node.hpp>
+#include <echelon/model/internal/enhanced-ast-module-node.hpp>
+#include <echelon/model/internal/enhanced-ast-custom-type-node.hpp>
+#include <echelon/model/internal/enhanced-ast-function-node.hpp>
 
 void gv_out(EnhancedAstNode* e) {
   std::ofstream f("main-ast-out.gv", std::ios::out);
@@ -85,29 +89,29 @@ int main(int argc, char **args) {
     ss << "}"; // my module.
     auto out = compiler.enhance(ss.str());
     log->at(Level::Info) << to_string(out) << "\n";
-    log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getContext()->toString() << "\n";
+    log->at(Level::Info) << ((EnhancedAstModuleNode*) out->getChild(EnhancedAstNodeType::Module))->getContext()->toString() << "\n";
     log->at(Level::Info) << ((EnhancedAstBlockNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block))->getScope()->getContext()->toString() << "\n";
 
-    log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Variable)->getContext()->toString() << "\n";
+    log->at(Level::Info) << ((EnhancedAstVariableNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Variable))->getContext()->toString() << "\n";
 
-    log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(1)->getContext()->toString() << "\n";
-    log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(2)->getContext()->toString() << "\n";
-    log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(3)->getContext()->toString() << "\n";
+    log->at(Level::Info) << ((EnhancedAstFunctionNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(1))->getContext()->toString() << "\n";
+    log->at(Level::Info) << ((EnhancedAstFunctionNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(2))->getContext()->toString() << "\n";
+    log->at(Level::Info) << ((EnhancedAstFunctionNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(3))->getContext()->toString() << "\n";
 
-    log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getContext()->toString() << "\n";
+    log->at(Level::Info) << ((EnhancedAstModuleNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module))->getContext()->toString() << "\n";
     log->at(Level::Info) << ((EnhancedAstBlockNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block))->getScope()->getContext()->toString() << "\n";
 
-    log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(0)->getContext()->toString() << "\n";
-    log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(1)->getContext()->toString() << "\n";
+    log->at(Level::Info) << ((EnhancedAstFunctionNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(0))->getContext()->toString() << "\n";
+    log->at(Level::Info) << ((EnhancedAstFunctionNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(1))->getContext()->toString() << "\n";
 
-    log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::CustomType)->getContext()->toString() << "\n";
+    log->at(Level::Info) << ((EnhancedAstCustomTypeNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::CustomType))->getContext()->toString() << "\n";
     log->at(Level::Info) << ((EnhancedAstBlockNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::CustomType)->getChild(EnhancedAstNodeType::Block))->getScope()->getContext()->toString() << "\n";
 
-    log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::CustomType)->getChild(EnhancedAstNodeType::Block)->getChild(0)->getContext()->toString() << "\n";
+    log->at(Level::Info) << ((EnhancedAstFunctionNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::CustomType)->getChild(EnhancedAstNodeType::Block)->getChild(0))->getContext()->toString() << "\n";
 
-    log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(5)->getContext()->toString() << "\n";
+    log->at(Level::Info) << ((EnhancedAstFunctionNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(5))->getContext()->toString() << "\n";
     log->at(Level::Info) << ((EnhancedAstBlockNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(5)->getChild(EnhancedAstNodeType::Block))->getScope()->getContext()->toString() << "\n";
-    log->at(Level::Info) << out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(5)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Variable)->getContext()->toString() << "\n";
+    log->at(Level::Info) << ((EnhancedAstVariableNode*) out->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(5)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Variable))->getContext()->toString() << "\n";
 
     // TODO want a custom node for nodes which can have a context. otherwise it's null almost everywhere.
 

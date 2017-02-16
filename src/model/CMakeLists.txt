@@ -5,7 +5,6 @@ add_library(${model_lib_name}
 
   internal/node-enhancer-lookup.cpp
   internal/enhanced-ast-block-node.cpp
-  internal/enhanced-ast-function-prototype-node.cpp
 
   scope/scope-helper.cpp
   scope/scope-pusher.cpp
