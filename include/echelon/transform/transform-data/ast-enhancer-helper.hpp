@@ -12,6 +12,7 @@
 #include <echelon/model/internal/enhanced-ast-function-node.hpp>
 #include <echelon/model/internal/enhanced-ast-custom-type-node.hpp>
 #include <echelon/model/internal/enhanced-ast-module-node.hpp>
+#include <echelon/model/internal/enhanced-ast-package-node.hpp>
 
 class AstEnhancerHelper {
 public:

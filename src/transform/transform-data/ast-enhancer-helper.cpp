@@ -143,6 +143,11 @@ EnhancedAstContextAwareNode* AstEnhancerHelper::getContextAwareNode(EnhancedAstN
         auto customType = (EnhancedAstCustomTypeNode*) node;
         return (EnhancedAstContextAwareNode*) customType;
       }
+    case EnhancedAstNodeType::Package:
+      {
+        auto package = (EnhancedAstPackageNode*) node;
+        return (EnhancedAstContextAwareNode*) package;
+      }
     default:
       break;
   }

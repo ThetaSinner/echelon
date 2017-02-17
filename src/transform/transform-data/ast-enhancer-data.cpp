@@ -14,6 +14,7 @@
 #include <echelon/model/internal/enhanced-ast-custom-type-node.hpp>
 #include <echelon/model/internal/enhanced-ast-module-node.hpp>
 #include <echelon/model/internal/enhanced-ast-variable-node.hpp>
+#include <echelon/model/internal/enhanced-ast-package-node.hpp>
 
 // TODO what was I intending to be the difference between sourceNode and nodeToMap?
 
@@ -479,10 +480,16 @@ void loadAstEnhancerDataInternal() {
 
     auto nodeToMap = input.getNodeToMap();
 
-    auto base = new EnhancedAstNode();
+    auto base = new EnhancedAstPackageNode();
     base->setNodeType(EnhancedAstNodeType::Package);
     base->setData(nodeToMap->getData());
+    base->setContext(new Context(input.getScope()->getContext(), new ContextItem(base->getData())));
     outputData.getTargetNode()->putChild(base);
+
+    // directly update on the current scope.
+    // Here's another reason the package declaration has to be the first thing in any scope.
+    // Otherwise everything already on the scope would have to be manually updated.
+    input.getScope()->setContext(new Context(input.getScope()->getContext(), new ContextItem(base->getData())));
 
     if (nodeToMap->getChildCount() > 0) {
       AstNodeEnhancerInputData subInput(input);
