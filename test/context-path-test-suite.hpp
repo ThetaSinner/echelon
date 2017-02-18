@@ -70,14 +70,20 @@ public:
     auto quibble = mySubModuleBlock->getChild(1);
     TS_ASSERT_EQUALS("cp:/context-root/MyProject/MyPackage/MyModule/MySubModule/quibble-1", AstEnhancerHelper::getContextAwareNode(quibble)->getContext()->toString());
 
-    /*
-    log->at(Level::Info) << ((EnhancedAstCustomTypeNode*) myPackagePackage->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::CustomType))->getContext()->toString() << "\n";
-    log->at(Level::Info) << ((EnhancedAstBlockNode*) myPackagePackage->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::CustomType)->getChild(EnhancedAstNodeType::Block))->getScope()->getContext()->toString() << "\n";
+    auto myType = mySubModuleBlock->getChild(EnhancedAstNodeType::CustomType);
+    TS_ASSERT_EQUALS("cp:/context-root/MyProject/MyPackage/MyModule/MySubModule/MyType", AstEnhancerHelper::getContextAwareNode(myType)->getContext()->toString());
+    auto myTypeBlock = myType->getChild(EnhancedAstNodeType::Block);
+    TS_ASSERT_EQUALS("cp:/context-root/MyProject/MyPackage/MyModule/MySubModule/MyType", ((EnhancedAstBlockNode*) myTypeBlock)->getScope()->getContext()->toString());
 
-    log->at(Level::Info) << ((EnhancedAstFunctionNode*) myPackagePackage->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::CustomType)->getChild(EnhancedAstNodeType::Block)->getChild(0))->getContext()->toString() << "\n";
+    auto typeFunction = myTypeBlock->getChild(EnhancedAstNodeType::Function);
+    TS_ASSERT_EQUALS("cp:/context-root/MyProject/MyPackage/MyModule/MySubModule/MyType/typeFunction-1", AstEnhancerHelper::getContextAwareNode(typeFunction)->getContext()->toString());
 
-    log->at(Level::Info) << ((EnhancedAstFunctionNode*) myPackagePackage->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(5))->getContext()->toString() << "\n";
-    log->at(Level::Info) << ((EnhancedAstBlockNode*) myPackagePackage->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(5)->getChild(EnhancedAstNodeType::Block))->getScope()->getContext()->toString() << "\n";
-    log->at(Level::Info) << ((EnhancedAstVariableNode*) myPackagePackage->getChild(EnhancedAstNodeType::Module)->getChild(EnhancedAstNodeType::Block)->getChild(5)->getChild(EnhancedAstNodeType::Block)->getChild(EnhancedAstNodeType::Variable))->getContext()->toString() << "\n";*/
+    auto typeFunctionImpl = myModuleBlock->getChild(5);
+    TS_ASSERT_EQUALS("cp:/context-root/MyProject/MyPackage/MyModule/MySubModule_MyType_typeFunction-1", AstEnhancerHelper::getContextAwareNode(typeFunctionImpl)->getContext()->toString());
+    auto typeFunctionImplBlock = typeFunctionImpl->getChild(EnhancedAstNodeType::Block);
+    TS_ASSERT_EQUALS("cp:/context-root/MyProject/MyPackage/MyModule/MySubModule_MyType_typeFunction-1", ((EnhancedAstBlockNode*) typeFunctionImplBlock)->getScope()->getContext()->toString());
+
+    auto someNumber = typeFunctionImplBlock->getChild(EnhancedAstNodeType::Variable);
+    TS_ASSERT_EQUALS("cp:/context-root/MyProject/MyPackage/MyModule/MySubModule_MyType_typeFunction-1/someNumber", AstEnhancerHelper::getContextAwareNode(someNumber)->getContext()->toString());
   }
 };
