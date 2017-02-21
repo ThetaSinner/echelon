@@ -3,17 +3,15 @@
 // TODO this doesn't belong under transform-data
 
 EnhancedAstNode* OperatorPrecedenceTreeRestructurer::restructureInternal(EnhancedAstNode* node, EnhancedAstNodeSubType nodeSubType) {
-  // TODO needs to allow integer float... etc so change to check for children.
-  if (node->getNodeType() == EnhancedAstNodeType::VariableValue) {
+  // update the operator to process,
+  nodeSubType = nextOperator(nodeSubType);
+
+  // This is the base case. There are no more operator types to process.
+  if (nodeSubType == EnhancedAstNodeSubType::Last) {
     return node;
   }
-  // TODO again, this isn't ideal, see todo above.
-  else if (node->getNodeType() == EnhancedAstNodeType::PrimitiveValue) {
-    return node;
-  }
-  else if (node->getNodeType() == EnhancedAstNodeType::AccessExpression) {
-    return node;
-  }
+
+  // Expression groups must be treated as a sub-problem starting from the top level again.
   if (node->getNodeType() == EnhancedAstNodeType::ExpressionGroup) {
     auto subExpression = node->getChild(0);
     node->removeChild(subExpression);
@@ -22,25 +20,29 @@ EnhancedAstNode* OperatorPrecedenceTreeRestructurer::restructureInternal(Enhance
   }
 
   auto newRootNode = node; // alternate return value if the root node changes.
-  nodeSubType = nextOperator(nodeSubType);
 
   std::list<std::pair<EnhancedAstNode*, EnhancedAstNode*>> operList;
 
   EnhancedAstNode *parent = nullptr;
   auto oper = node;
   while (oper->getChildCount() > 0) {
+    // find all binary operators of type nodeSubType.
     if (oper->getNodeType() == EnhancedAstNodeType::BinaryOperator && oper->getNodeSubType() == nodeSubType) {
       operList.push_back(std::make_pair(oper, parent));
     }
+    // The current node becomes the parent.
     parent = oper;
+    // Move on to the next operator to process.
     if (oper->hasChild(EnhancedAstNodeType::BinaryOperator)) {
       oper = oper->getChild(1);
     }
     else {
+      // There are no more operators to process, exit.
       break;
     }
   }
 
+  // There are no operators of this type, shortcut to the next operator.
   if (operList.empty()) {
     return restructureInternal(node, nodeSubType);
   }
