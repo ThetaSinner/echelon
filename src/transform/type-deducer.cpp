@@ -22,6 +22,11 @@ void TypeDeducer::deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, Enh
 
     // TODO trigger events.
   }
+  else if (typeResolve.getMissingDependencyNodes().size()) {
+    for (auto& missing : typeResolve.getMissingDependencyNodes()) {
+      TypeEvents::registerRefersToMissingFunction(missing, expressionNode, scope, target, transformWorkingData);
+    }
+  }
   /*else if () {
     eventContainer->addEventListener("type-name-added:" + ((EnhancedAstVariableNode*) var)->getContext()->toString(), [&eventContainer](EventKey& eventKey, void* data) -> void {
       std::cout << ((EnhancedAstNode*) data)->getData() << "\n";
@@ -47,19 +52,28 @@ TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNo
 
   if (expressionNode->getChildCount() == 2) {
     // Try to resolve the left and right children.
-    auto typeNameResolveLeft = resolveTypeFromExpression(expressionNode->getChild(0), scope, eventContainer);
-    auto typeNameResolveRight = resolveTypeFromExpression(expressionNode->getChild(1), scope, eventContainer);
+    auto typeResolveLeft = resolveTypeFromExpression(expressionNode->getChild(0), scope, eventContainer);
+    auto typeResolveRight = resolveTypeFromExpression(expressionNode->getChild(1), scope, eventContainer);
 
-    if (typeNameResolveLeft.isResolved() && typeNameResolveRight.isResolved()) {
-      if (TypeRuleLookup::getInstance()->hasRule(expressionNode->getNodeSubType(), typeNameResolveLeft.getTypeName(), typeNameResolveRight.getTypeName())) {
-        typeResolve.setTypeName(TypeRuleLookup::getInstance()->lookup(expressionNode->getNodeSubType(), typeNameResolveLeft.getTypeName(), typeNameResolveRight.getTypeName()));
+    if (typeResolveLeft.isResolved() && typeResolveRight.isResolved()) {
+      if (TypeRuleLookup::getInstance()->hasRule(expressionNode->getNodeSubType(), typeResolveLeft.getTypeName(), typeResolveRight.getTypeName())) {
+        typeResolve.setTypeName(TypeRuleLookup::getInstance()->lookup(expressionNode->getNodeSubType(), typeResolveLeft.getTypeName(), typeResolveRight.getTypeName()));
       }
       else {
         // TODO error message.
         throw std::runtime_error("Missing type rule.");
       }
     }
-    // else map dependencies.
+    else {
+      if (typeResolveLeft.getMissingDependencyNodes().size()) {
+        typeResolve.pushMissingDependency(typeResolveLeft.getMissingDependencyNodes().front());
+      }
+      if (typeResolveRight.getMissingDependencyNodes().size()) {
+        typeResolve.pushMissingDependency(typeResolveRight.getMissingDependencyNodes().front());
+      }
+
+      // TODO map context paths when node is found but has no type.
+    }
   }
   else {
     auto typeNameResolve = resolveTypeName(expressionNode, scope);
@@ -67,7 +81,9 @@ TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNo
     if (typeNameResolve.isResolved()) {
       typeResolve.setTypeName(typeNameResolve.getTypeName());
     }
-    // else map dependencies.
+    else if (typeNameResolve.isRefersToMissing()) {
+      typeResolve.pushMissingDependency(typeNameResolve.getRefersToMissingNode());
+    }
   }
 
   return typeResolve;
@@ -121,6 +137,24 @@ TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node, Scope* scope
     else {
       // Does not refer to a valid element.
       throw std::runtime_error("Invalid access expression [" + to_string(node) + "]");
+    }
+  }
+  else if (node->getNodeType() == EnhancedAstNodeType::FunctionCall) {
+    auto func = nameResolver.resolve(node, scope);
+
+    if (func != nullptr) {
+      if (func->hasChild(EnhancedAstNodeType::TypeName)) {
+        typeNameResolve.setTypeName(func->getChild(EnhancedAstNodeType::TypeName)->getData());
+      }
+      else {
+        // Missing type name.
+        // TODO events.
+        throw std::runtime_error("Function to call does not have a type name");
+      }
+    }
+    else {
+      // The function doesn't exist yet, mark this node as missing a dependency.
+      typeNameResolve.setRefersToMissingNode(node);
     }
   }
   else {

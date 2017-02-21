@@ -15,12 +15,13 @@
 #include <echelon/util/to-string.hpp>
 #include <echelon/transform/transform-working-data.hpp>
 #include <echelon/model/internal/enhanced-ast-variable-node.hpp>
+#include <echelon/transform/type-events.hpp>
 
 class TypeResolve {
   std::string typeName;
   bool resolved = false;
 
-  std::list<EnhancedAstNode*> dependencyNodes;
+  std::list<EnhancedAstNode*> missingDependencyNodes;
 public:
   void setTypeName(std::string typeName) {
     this->typeName = typeName;
@@ -35,8 +36,12 @@ public:
     return resolved;
   }
 
-  void pushDependency(EnhancedAstNode* node) {
-    dependencyNodes.push_back(node);
+  void pushMissingDependency(EnhancedAstNode* node) {
+    missingDependencyNodes.push_back(node);
+  }
+
+  std::list<EnhancedAstNode*> getMissingDependencyNodes() {
+    return missingDependencyNodes;
   }
 };
 
@@ -46,6 +51,9 @@ class TypeNameResolve {
 
   std::string contextPath;
   bool contextPathFound = false;
+
+  EnhancedAstNode* refersToMissingNode;
+  bool refersToMissing = false;
 
 public:
   void setTypeName(std::string typeName) {
@@ -72,6 +80,19 @@ public:
 
   bool isContextPathFound() {
     return contextPathFound;
+  }
+
+  void setRefersToMissingNode(EnhancedAstNode* refersToMissingNode) {
+    this->refersToMissingNode = refersToMissingNode;
+    refersToMissing = true;
+  }
+
+  EnhancedAstNode* getRefersToMissingNode() {
+    return refersToMissingNode;
+  }
+
+  bool isRefersToMissing() {
+    return refersToMissing;
   }
 };
 

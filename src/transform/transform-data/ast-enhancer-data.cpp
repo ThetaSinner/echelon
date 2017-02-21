@@ -430,10 +430,12 @@ void loadAstEnhancerDataInternal() {
 
           scope->addFunction(data, base);
         }
+
       }
 
       // Get the return statement and use it to find the return type.
       TypeDeducer::deduceTypes(base->getChild(EnhancedAstNodeType::Block)->getLastChild(), blockScope, base, input.getTransformWorkingData());
+      TypeEvents::triggerFunctionAdded(base, input.getTransformWorkingData());
     }
     else {
       // Prototypes don't have name structures.

@@ -78,6 +78,22 @@ EnhancedAstNode* NameResolver::resolveFromNameStructure(EnhancedAstNode* unresol
   else if (scope->hasType(name)) {
     found = scope->getType(name);
   }
+  else if (scope->hasFunction(name)) {
+    auto functions = scope->getFunctions(name);
+
+    // TODO temp, no matching done...
+    if (functions->size() == 1) {
+      found = functions->front();
+      functions->pop_back();
+    }
+
+    for (auto f : *functions) {
+      if (AstEnhancerHelper::doFunctionSignaturesMatch(unresolved, f)) {
+        found = f;
+        break;
+      }
+    }
+  }
   else if (scope->hasPrototype(name)) {
     auto prototypes = scope->getPrototypes(name);
     // TODO really want to do a "best match" here.

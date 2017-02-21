@@ -13,7 +13,7 @@ add_library(${transform_lib_name}
   transform-data/ast-enhancer-helper.cpp
   transform-data/operator-precedence-tree-restructurer.cpp
   transform-data/type-rule-data-load.cpp
-)
+  type-events.cpp)
 
 # Declare dependency libs.
 target_link_libraries(${transform_lib_name}

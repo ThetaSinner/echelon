@@ -31,12 +31,12 @@ public:
 
   void triggerEvent(std::string eventId, void* eventData) {
     if (eventListeners.find(eventId) != eventListeners.end()) {
-      auto iter = eventListeners.at(eventId).begin();
-      auto tempList = eventListeners.at(eventId);
-      for (auto i = tempList.begin(); i != tempList.end(); i++, iter++) {
+      auto events = eventListeners.at(eventId);
+      for (int i = 0; i < events.size(); i++) {
         // TODO catch exceptions here? Not really necessary but might be nice to log here.
+        auto iter = std::next(events.begin(), i);
         EventKey eventKey(eventId, iter);
-        (*i)(eventKey, eventData);
+        (*iter)(eventKey, eventData);
       }
     }
   }
