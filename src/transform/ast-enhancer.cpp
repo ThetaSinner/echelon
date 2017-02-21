@@ -5,10 +5,11 @@
 #include <echelon/model/scope/scope.hpp>
 #include <echelon/transform/ast-node-enhancer-input-data.hpp>
 #include <echelon/transform/ast-node-enhancer-output-data.hpp>
+#include <echelon/transform/transform-working-data.hpp>
 #include <echelon/model/internal/node-enhancer-lookup.hpp>
 #include <echelon/model/internal/enhanced-ast-block-node.hpp>
 
-void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope* scope) {
+void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope* scope, TransformWorkingData* transformWorkingData) {
   auto working_target = target;
 
   for (unsigned i = 0; i < node->getChildCount(); i++) {
@@ -19,6 +20,7 @@ void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope* scope) {
     input.setNodeToMap(node->getChild(i));
     input.setTargetNode(working_target);
     input.setScope(scope);
+    input.setTransformWorkingData(transformWorkingData);
 
     auto output = nodeEnhancer(input);
 
@@ -31,12 +33,14 @@ EnhancedAstNode *AstEnhancer::enhance(AstNode *node) {
   Scope* scope = new Scope();
   scope->setContext(new Context(nullptr, new ContextItem("context-root")));
 
+  TransformWorkingData *transformWorkingData = new TransformWorkingData();
+
   auto root = new EnhancedAstBlockNode(); // TODO is this okay?
   root->setNodeType(EnhancedAstNodeType::Program);
   root->setData(node->getData());
   root->setScope(scope);
 
-  enhanceInternal(node, root, scope);
+  enhanceInternal(node, root, scope, transformWorkingData);
 
   return root;
 }

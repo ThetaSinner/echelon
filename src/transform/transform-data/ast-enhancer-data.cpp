@@ -433,7 +433,7 @@ void loadAstEnhancerDataInternal() {
       }
 
       // Get the return statement and use it to find the return type.
-      TypeDeducer::deduceTypes(base->getChild(EnhancedAstNodeType::Block)->getLastChild(), blockScope, base);
+      TypeDeducer::deduceTypes(base->getChild(EnhancedAstNodeType::Block)->getLastChild(), blockScope, base, input.getTransformWorkingData());
     }
     else {
       // Prototypes don't have name structures.
@@ -545,7 +545,7 @@ void loadAstEnhancerDataInternal() {
       // Determine the type from the value assigned.
       if (base->hasChild(EnhancedAstNodeType::Expression)) {
         auto expression = base->getChild(EnhancedAstNodeType::Expression)->getChild(0);
-        TypeDeducer::deduceTypes(expression, input.getScope(), base);
+        TypeDeducer::deduceTypes(expression, input.getScope(), base, input.getTransformWorkingData());
       }
     }
     else {

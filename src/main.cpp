@@ -64,6 +64,9 @@ int main(int argc, char **args) {
     /*auto out = compiler.enhance("type MyType {function get_val() -> integer {5}} myinstance = MyType.create() myinstance.get_val()");
     gv_out(out);
     log->at(Level::Info) << to_string(out) << "\n";*/
+
+    // TODO to test the type deducer with events I need something which doesn't resolve immediately.
+    // TODO this means that I need to determine a type from a function which doesn't exist yet, or similar. Neither of which are implemented yet.
     
     // TODO, once the compiler figures out what code calls what functions the name can be mangled
     // so that overloading is invisible to the code generator.

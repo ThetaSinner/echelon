@@ -2,12 +2,12 @@
 
 NameResolver TypeDeducer::nameResolver;
 
-void TypeDeducer::deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, EnhancedAstNode* target) {
+void TypeDeducer::deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, EnhancedAstNode* target, TransformWorkingData* transformWorkingData) {
   // need a node to work from. expression or bool expr etc.
   // scope pointer,
   // a target to map the type onto
 
-  auto typeResolve = resolveTypeFromExpression(expressionNode, scope);
+  auto typeResolve = resolveTypeFromExpression(expressionNode, scope, &transformWorkingData->getEventContainer());
   // register listeners for each type we don't have.
   // if all listeners complete then figure out this type.
 
@@ -18,45 +18,37 @@ void TypeDeducer::deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, Enh
 
   if (typeResolve.isResolved()) {
     auto resolvedTypeName = typeResolve.getTypeName();
-
-    if (target->hasChild(EnhancedAstNodeType::TypeName)) {
-      auto& data = target->getChild(EnhancedAstNodeType::TypeName)->getData();
-
-      if (resolvedTypeName != data) {
-        throw std::runtime_error("attempt to assign type [" + resolvedTypeName + "] to type [" + data + "]");
-        // TODO type casting.
-      }
-    }
-    else {
-      EnhancedAstNode* typeName = new EnhancedAstNode();
-      typeName->setNodeType(EnhancedAstNodeType::TypeName);
-      typeName->setData(resolvedTypeName);
-      target->putChild(typeName);
-    }
+    TypeDeducer::mapTypeName(target, resolvedTypeName);
 
     // TODO trigger events.
   }
+  /*else if () {
+    eventContainer->addEventListener("type-name-added:" + ((EnhancedAstVariableNode*) var)->getContext()->toString(), [&eventContainer](EventKey& eventKey, void* data) -> void {
+      std::cout << ((EnhancedAstNode*) data)->getData() << "\n";
+      eventContainer->removeEventListener(eventKey);
+    });
+  }*/
   else {
     throw std::runtime_error("type name cannot be resolved immediately, this is not supported");
   }
 }
 
-TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope) {
+TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope, EventContainer* eventContainer) {
   // grab operator and call resolve on left and right.
   // use rules to determine the result i.e. *, integer, decimal -> decimal
   // either return the type or an object describing what's missing.
 
   // Fine to resolve to the type of an expression, but we don't care about the node itself, start from its data.
   if (expressionNode->getNodeType() == EnhancedAstNodeType::Expression) {
-    return resolveTypeFromExpression(expressionNode->getChild(0), scope);
+    return resolveTypeFromExpression(expressionNode->getChild(0), scope, eventContainer);
   }
 
   TypeResolve typeResolve;
 
   if (expressionNode->getChildCount() == 2) {
     // Try to resolve the left and right children.
-    auto typeNameResolveLeft = resolveTypeFromExpression(expressionNode->getChild(0), scope);
-    auto typeNameResolveRight = resolveTypeFromExpression(expressionNode->getChild(1), scope);
+    auto typeNameResolveLeft = resolveTypeFromExpression(expressionNode->getChild(0), scope, eventContainer);
+    auto typeNameResolveRight = resolveTypeFromExpression(expressionNode->getChild(1), scope, eventContainer);
 
     if (typeNameResolveLeft.isResolved() && typeNameResolveRight.isResolved()) {
       if (TypeRuleLookup::getInstance()->hasRule(expressionNode->getNodeSubType(), typeNameResolveLeft.getTypeName(), typeNameResolveRight.getTypeName())) {
@@ -105,12 +97,12 @@ TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node, Scope* scope
       }
       else {
         // Missing type name.
-        // TODO listen for var to change.
-        throw std::runtime_error("Depends on variable with missing type name.");
+        typeNameResolve.setContextPath(((EnhancedAstVariableNode*) var)->getContext()->toString());
       }
     }
     else {
       // Variable doesn't exist.
+      // The compiler probably shouldn't try to solve this problem. It makes the language too complex.
       throw std::runtime_error("Depends on variable which doesn't exist [" + node->getData() + "].");
     }
   }
@@ -136,4 +128,21 @@ TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node, Scope* scope
   }
 
   return typeNameResolve;
+}
+
+void TypeDeducer::mapTypeName(EnhancedAstNode *target, std::string typeNameData) {
+  if (target->hasChild(EnhancedAstNodeType::TypeName)) {
+    auto& data = target->getChild(EnhancedAstNodeType::TypeName)->getData();
+
+    if (typeNameData != data) {
+      throw std::runtime_error("attempt to assign type [" + typeNameData + "] to type [" + data + "]");
+      // TODO type casting.
+    }
+  }
+  else {
+    EnhancedAstNode* typeName = new EnhancedAstNode();
+    typeName->setNodeType(EnhancedAstNodeType::TypeName);
+    typeName->setData(typeNameData);
+    target->putChild(typeName);
+  }
 }

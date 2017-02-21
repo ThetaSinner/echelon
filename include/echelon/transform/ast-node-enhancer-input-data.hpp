@@ -5,6 +5,7 @@
 #include <echelon/model/internal/enhanced-ast-node.hpp>
 #include <echelon/model/scope/scope.hpp>
 #include <echelon/model/context/context.hpp>
+#include <echelon/transform/transform-working-data.hpp>
 
 class AstNodeEnhancerInputData {
   AstNode *source;
@@ -12,6 +13,7 @@ class AstNodeEnhancerInputData {
   EnhancedAstNode *target;
   Scope *scope;
   Context* context;
+  TransformWorkingData* transformWorkingData;
 
 public:
   AstNode* getSourceNode();
@@ -39,6 +41,24 @@ public:
    * @return the updated context.
    */
   Context* getUpdatedContext();
+
+  /**
+   * Set the transform working data.
+   *
+   * @param transformWorkingData the transform working data.
+   */
+  void setTransformWorkingData(TransformWorkingData* transformWorkingData) {
+    this->transformWorkingData = transformWorkingData;
+  }
+
+  /**
+   * Get the transform working data.
+   *
+   * @return the transform working data.
+   */
+  TransformWorkingData* getTransformWorkingData() {
+    return transformWorkingData;
+  }
 };
 
 #endif
