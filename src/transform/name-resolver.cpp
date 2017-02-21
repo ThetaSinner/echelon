@@ -80,15 +80,9 @@ EnhancedAstNode* NameResolver::resolveFromNameStructure(EnhancedAstNode* unresol
   }
   else if (scope->hasFunction(name)) {
     auto functions = scope->getFunctions(name);
-
-    // TODO temp, no matching done...
-    if (functions->size() == 1) {
-      found = functions->front();
-      functions->pop_back();
-    }
-
+    // TODO again, get best match.
     for (auto f : *functions) {
-      if (AstEnhancerHelper::doFunctionSignaturesMatch(unresolved, f)) {
+      if (AstEnhancerHelper::doesCallMatchFunction(unresolved, f)) {
         found = f;
         break;
       }

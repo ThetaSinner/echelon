@@ -22,6 +22,8 @@ public:
 
   static bool doFunctionSignaturesMatch(EnhancedAstNode *left, EnhancedAstNode *right);
 
+  static bool doesCallMatchFunction(EnhancedAstNode* functionCall, EnhancedAstNode* function);
+
   static std::string computeFunctionHash(EnhancedAstNode* enhancedAstNode);
 
   static void mapChildIfPresent(EnhancedAstNode* target, AstNode* nodeToMap, const AstNodeEnhancerInputData& input, AstNodeType astNodeType);

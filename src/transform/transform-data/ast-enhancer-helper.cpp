@@ -111,6 +111,18 @@ bool AstEnhancerHelper::doFunctionSignaturesMatch(EnhancedAstNode *left, Enhance
   return match;
 }
 
+bool AstEnhancerHelper::doesCallMatchFunction(EnhancedAstNode* functionCall, EnhancedAstNode* function) {
+#ifdef ECHELON_DEBUG
+  if (functionCall->getNodeType() != EnhancedAstNodeType::FunctionCall || function->getNodeType() != EnhancedAstNodeType::Function) {
+    return false;
+  }
+#endif
+
+  // TODO function calls aren't enhanced completely yet, so this can't be finished
+
+  return false;
+}
+
 void AstEnhancerHelper::mapChildIfPresent(EnhancedAstNode* target, AstNode* nodeToMap, const AstNodeEnhancerInputData& input, AstNodeType astNodeType) {
   if (nodeToMap->hasChild(astNodeType)) {
     auto subInput = input;

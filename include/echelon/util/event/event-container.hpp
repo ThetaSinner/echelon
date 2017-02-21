@@ -31,7 +31,7 @@ public:
 
   void triggerEvent(std::string eventId, void* eventData) {
     if (eventListeners.find(eventId) != eventListeners.end()) {
-      auto events = eventListeners.at(eventId);
+      auto& events = eventListeners.at(eventId);
       for (int i = 0; i < events.size(); i++) {
         // TODO catch exceptions here? Not really necessary but might be nice to log here.
         auto iter = std::next(events.begin(), i);
