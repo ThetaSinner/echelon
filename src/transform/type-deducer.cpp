@@ -23,8 +23,11 @@ void TypeDeducer::deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, Enh
     // TODO trigger events.
   }
   else if (typeResolve.getMissingDependencyNodes().size()) {
+    auto typeEventData = new TypeEventData();
+    typeEventData->setEventGroupSize((int) typeResolve.getMissingDependencyNodes().size());
+
     for (auto& missing : typeResolve.getMissingDependencyNodes()) {
-      TypeEvents::registerRefersToMissingFunction(missing, expressionNode, scope, target, transformWorkingData);
+      TypeEvents::registerRefersToMissingFunction(missing, typeEventData, expressionNode, scope, target, transformWorkingData);
     }
   }
   /*else if () {
@@ -66,10 +69,14 @@ TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNo
     }
     else {
       if (typeResolveLeft.getMissingDependencyNodes().size()) {
-        typeResolve.pushMissingDependency(typeResolveLeft.getMissingDependencyNodes().front());
+        for (auto i : typeResolveLeft.getMissingDependencyNodes()) {
+          typeResolve.pushMissingDependency(i);
+        }
       }
       if (typeResolveRight.getMissingDependencyNodes().size()) {
-        typeResolve.pushMissingDependency(typeResolveRight.getMissingDependencyNodes().front());
+        for (auto i : typeResolveRight.getMissingDependencyNodes()) {
+          typeResolve.pushMissingDependency(i);
+        }
       }
 
       // TODO map context paths when node is found but has no type.

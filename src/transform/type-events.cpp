@@ -1,6 +1,6 @@
 #include <echelon/transform/type-events.hpp>
 
-void TypeEvents::registerRefersToMissingFunction(EnhancedAstNode* dependsOnMissing, EnhancedAstNode* expressionNode, Scope* scope, EnhancedAstNode* target, TransformWorkingData* transformWorkingData) {
+void TypeEvents::registerRefersToMissingFunction(EnhancedAstNode* dependsOnMissing, TypeEventData* typeEventData, EnhancedAstNode* expressionNode, Scope* scope, EnhancedAstNode* target, TransformWorkingData* transformWorkingData) {
   #ifdef ECHELON_DEBUG
   if (dependsOnMissing->getNodeType() != EnhancedAstNodeType::FunctionCall) {
     throw std::runtime_error("TypeEvents: Error node should be a function call.");
@@ -9,14 +9,21 @@ void TypeEvents::registerRefersToMissingFunction(EnhancedAstNode* dependsOnMissi
 
   auto eventContainer = &transformWorkingData->getEventContainer();
 
-  eventContainer->addEventListener("function-name-added:" + dependsOnMissing->getData(), [=](EventKey& eventKey, void* data) -> void {
+  eventContainer->addEventListener("function-name-added:" + dependsOnMissing->getData(), [=](void* data) -> EventListenerResult {
+    EventListenerResult eventListenerResult;
+
     auto added = (EnhancedAstNode*) data;
     if (added->getNodeType() != EnhancedAstNodeType::Function) {
-      return;
+      return eventListenerResult;
     }
 
-    TypeDeducer::deduceTypes(expressionNode, scope, target, transformWorkingData);
-    eventContainer->removeEventListener(eventKey);
+    typeEventData->setEventGroupSize(typeEventData->getEventGroupSize() - 1);
+    if (typeEventData->getEventGroupSize() == 0) {
+      TypeDeducer::deduceTypes(expressionNode, scope, target, transformWorkingData);
+    }
+
+    eventListenerResult.setRemoveListener(true);
+    return eventListenerResult;
   });
 }
 

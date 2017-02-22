@@ -29,21 +29,6 @@ int main(int argc, char **args) {
   log->at(Level::Info) << "This is a release build.\n";
 #endif
 
-  EventContainer eventContainer;
-
-  eventContainer.addEventListener("event_id", [&eventContainer](EventKey& eventKey, void* data) {
-    std::cout << "event handler\n";
-    std::cout << ((EnhancedAstNode*) data)->getData() << "\n";
-    eventContainer.removeEventListener(eventKey);
-  });
-
-  EnhancedAstNode* eventData = new EnhancedAstNode();
-  eventData->setData("trick or treat");
-  eventContainer.triggerEvent("event_id", eventData);
-  eventContainer.triggerEvent("event_id", nullptr);
-
-  LoggerSharedInstance::get()->setLevel(levelToInt(Level::Debug));
-
   EchelonCompiler compiler;
 
   // TODO can actually detect this error and report it. "Did you forget the function keyword?"
@@ -65,7 +50,8 @@ int main(int argc, char **args) {
     gv_out(out);
     log->at(Level::Info) << to_string(out) << "\n";*/
 
-    auto out = compiler.enhance("val = foo() + bar() function foo() {5} function bar() {2}");
+    auto out = compiler.enhance("val = foo() * foo() + bar() * bar() function foo() {5} function bar() {2}");
+    log->at(Level::Debug) << out->getChild(EnhancedAstNodeType::Variable)->getChild(EnhancedAstNodeType::TypeName)->getData();
     gv_out(out);
     log->at(Level::Info) << to_string(out) << "\n";
     

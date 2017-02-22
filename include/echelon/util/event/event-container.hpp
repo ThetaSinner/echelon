@@ -6,11 +6,10 @@
 #include <queue>
 #include <functional>
 
-class EventKey;
-typedef std::function<void(EventKey&, void*)> EventListener;
-typedef std::list<EventListener>::iterator EventListenerIterator;
+#include <echelon/util/event/event-listener-result.hpp>
 
-#include <echelon/util/event/event-key.hpp>
+typedef std::function<EventListenerResult(void*)> EventListener;
+typedef std::list<EventListener>::iterator EventListenerIterator;
 
 class EventContainer {
   std::map<std::string, std::list<EventListener>> eventListeners;
@@ -24,19 +23,27 @@ public:
     }
   }
 
-  void removeEventListener(EventKey& eventKey) {
-    eventListeners.at(eventKey.getEventId()).erase(eventKey.getEventListenerIterator());
-    // Iterator is now invalid.
-  }
-
   void triggerEvent(std::string eventId, void* eventData) {
     if (eventListeners.find(eventId) != eventListeners.end()) {
       auto& events = eventListeners.at(eventId);
-      for (int i = 0; i < events.size(); i++) {
+      auto numEvents = events.size();
+
+      std::queue<int> toRemove;
+      for (int i = 0; i < numEvents; i++) {
         // TODO catch exceptions here? Not really necessary but might be nice to log here.
         auto iter = std::next(events.begin(), i);
-        EventKey eventKey(eventId, iter);
-        (*iter)(eventKey, eventData);
+        auto eventListenerResult = (*iter)(eventData);
+
+        if (eventListenerResult.isRemoveListener()) {
+          toRemove.push(i);
+        }
+      }
+
+      int offset = 0;
+      while (toRemove.size()) {
+        events.erase(std::next(events.begin(), toRemove.front() - offset));
+        offset--;
+        toRemove.pop();
       }
     }
   }

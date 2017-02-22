@@ -16,6 +16,7 @@
 #include <echelon/transform/transform-working-data.hpp>
 #include <echelon/model/internal/enhanced-ast-variable-node.hpp>
 #include <echelon/transform/type-events.hpp>
+#include <echelon/transform/type-event-data.hpp>
 
 class TypeResolve {
   std::string typeName;

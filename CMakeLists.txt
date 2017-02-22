@@ -8,7 +8,7 @@ set(project_binary_name ${PROJECT_NAME})
 set(project_test_binary_name "test-${PROJECT_NAME}")
 
 # Specify root source files.
-set(project_source_files "src/main.cpp")
+set(project_source_files "src/main.cpp" include/echelon/transform/type-event-data.hpp)
 file(GLOB project_test_source_files "${CMAKE_CURRENT_SOURCE_DIR}/test/*.hpp")
 
 # Set names for the libs to build.
