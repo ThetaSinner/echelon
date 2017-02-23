@@ -42,6 +42,13 @@ EnhancedAstNode *AstEnhancer::enhance(AstNode *node) {
 
   enhanceInternal(node, root, scope, transformWorkingData);
 
+  if (transformWorkingData->getEventContainer().hasListeners()) {
+    // At some point this will be allowed, provided the resulting program is going to the linker.
+    // This check can then go in the compiler? check if the programs integrity is okay.
+
+    //throw std::runtime_error("There are unresolved references, program is invalid.");
+  }
+
   return root;
 }
 

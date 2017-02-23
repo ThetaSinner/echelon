@@ -47,6 +47,10 @@ public:
       }
     }
   }
+
+  bool hasListeners() {
+    return !eventListeners.empty();
+  }
 };
 
 #endif

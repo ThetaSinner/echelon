@@ -119,9 +119,14 @@ bool AstEnhancerHelper::doesCallMatchFunction(EnhancedAstNode* functionCall, Enh
 #endif
 
   // If the function takes no parameters and the call passes none then allow the match.
-  if (!function->hasChild(EnhancedAstNodeType::FunctionParamDefinitions) && !functionCall->hasChild(EnhancedAstNodeType::FunctionCallParams)) {
-    return true;
+  if (!function->hasChild(EnhancedAstNodeType::FunctionParamDefinitions)) {
+    return !functionCall->hasChild(EnhancedAstNodeType::FunctionCallParams);
   }
+  else if (!functionCall->hasChild(EnhancedAstNodeType::FunctionCallParams)) {
+    return !function->hasChild(EnhancedAstNodeType::FunctionParamDefinitions);
+  }
+
+
 
   // TODO function calls aren't enhanced completely yet, so this can't be finished
 
