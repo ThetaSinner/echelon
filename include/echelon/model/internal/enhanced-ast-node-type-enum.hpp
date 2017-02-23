@@ -36,10 +36,11 @@ enum class EnhancedAstNodeType {
 
   FunctionCall,
   FunctionCallParams,
+  FunctionCallParam,
 
   // Not for ast structure use.
   First = None,
-  Last = FunctionCallParams,
+  Last = FunctionCallParam,
 };
 
 #endif

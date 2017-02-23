@@ -428,22 +428,24 @@ void loadTransformers() {
   AstTransformLookup::getInstance()->addAstTransform("expression_function_call", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
         // Start with the function call node.
-        AstNode *base = new AstNode();
+        AstNode *base = nullptr;
 
         auto nested = astTransformData->getNestedAstNodes();
-        if (nested != nullptr && nested->size() == 3) {
-          auto left = nested->front()->getChild(0);
-          nested->pop();
-          base = nested->front()->getChild(0);
-          nested->pop();
-          auto right = nested->front()->getChild(0);
-          nested->pop();
+        if (nested != nullptr) {
+          if (nested->size() == 3) {
+            auto left = nested->front()->getChild(0);
+            nested->pop();
+            base = nested->front()->getChild(0);
+            nested->pop();
+            auto right = nested->front()->getChild(0);
+            nested->pop();
 
-          base->putChild(left);
-          base->putChild(right);
-        } else {
-          base->setType(AstNodeType::FunctionCall);
-          base->setData(astTransformData->getNestedAstNodes()->front()->getChild(0)->getData());
+            base->putChild(left);
+            base->putChild(right);
+          }
+          else if (nested->size() == 1) {
+            base = nested->front()->getChild(0);
+          }
         }
 
         return base;
@@ -689,31 +691,30 @@ void loadTransformers() {
         return base;
       }));
 
-  AstTransformLookup::getInstance()->addAstTransform("function_call_params", new AstTransform(
-      [](AstTransformData *astTransformData) -> AstNode * {
-        AstNode *base = new AstNode();
-        base->setType(AstNodeType::FunctionCallParams);
+  AstTransformLookup::getInstance()->addAstTransform("function_call_params", new AstTransform([](AstTransformData *astTransformData) -> AstNode * {
+    AstNode *base = new AstNode();
+    base->setType(AstNodeType::FunctionCallParams);
 
-        // Map the new function call param.
-        auto nestedAstNodes = astTransformData->getNestedAstNodes();
-        if (!nestedAstNodes->empty()) {
-          auto callParam = new AstNode();
-          callParam->setType(AstNodeType::FunctionCallParam);
-          callParam->putChild(nestedAstNodes->front()->getChild(0));
-          base->putChild(callParam);
-          nestedAstNodes->pop();
-        }
+    // Map the new function call param.
+    auto nestedAstNodes = astTransformData->getNestedAstNodes();
+    if (!nestedAstNodes->empty()) {
+      auto callParam = new AstNode();
+      callParam->setType(AstNodeType::FunctionCallParam);
+      callParam->putChild(nestedAstNodes->front()->getChild(0));
+      base->putChild(callParam);
+      nestedAstNodes->pop();
+    }
 
-        while (!nestedAstNodes->empty()) {
-          auto callParams = nestedAstNodes->front()->getChild(0);
-          for (unsigned i = 0; i < callParams->getChildCount(); i++) {
-            base->putChild(callParams->getChild(i));
-          }
-          nestedAstNodes->pop();
-        }
+    while (!nestedAstNodes->empty()) {
+      auto callParams = nestedAstNodes->front()->getChild(0);
+      for (unsigned i = 0; i < callParams->getChildCount(); i++) {
+        base->putChild(callParams->getChild(i));
+      }
+      nestedAstNodes->pop();
+    }
 
-        return base;
-      }));
+    return base;
+  }));
 
   AstTransformLookup::getInstance()->addAstTransform("comment", new AstTransform(
       [](AstTransformData *astTransformData) -> AstNode * {
@@ -731,11 +732,6 @@ void loadTransformers() {
         base->setData(astTransformData->getTokens()->front()->getData());
 
         return base;
-      }));
-
-  AstTransformLookup::getInstance()->addAstTransform("top_level_function_call", new AstTransform(
-      [](AstTransformData *astTransformData) -> AstNode * {
-        return astTransformData->getNestedAstNodes()->front()->getChild(0);
       }));
 
   AstTransformLookup::getInstance()->addAstTransform("function", new AstTransform(
@@ -1316,12 +1312,6 @@ void loadPatterns() {
   TokenPatternLookup::getInstance()->addTokenPattern(
       "function_prototype",
       "[access_specifier] kwd_function identifier parenthesis_open [parameter_definitions] parenthesis_close [forward_arrow_operator type_name]"
-  );
-
-  // TODO this is covered by expressions.
-  TokenPatternLookup::getInstance()->addTokenPattern(
-      "top_level_function_call",
-      "function_call"
   );
 
   TokenPatternLookup::getInstance()->addTokenPattern(

@@ -292,6 +292,48 @@ void loadAstEnhancerDataInternal() {
     return outputData;
   });
 
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::FunctionCallParams, [&nameResolver](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
+    AstNodeEnhancerOutputData outputData(input);
+
+    auto nodeToMap = input.getNodeToMap();
+
+    auto base = new EnhancedAstNode();
+    base->setNodeType(EnhancedAstNodeType::FunctionCallParams);
+
+    auto subInput = input;
+    subInput.setTargetNode(base);
+    for (unsigned i = 0; i < nodeToMap->getChildCount(); i++) {
+      subInput.setNodeToMap(nodeToMap->getChild(i));
+      NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::FunctionCallParam)(subInput);
+    }
+
+    input.getTargetNode()->putChild(base);
+
+    return outputData;
+  });
+
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::FunctionCallParam, [&nameResolver](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
+    AstNodeEnhancerOutputData outputData(input);
+
+    auto nodeToMap = input.getNodeToMap();
+
+    auto base = new EnhancedAstNode();
+    base->setNodeType(EnhancedAstNodeType::FunctionCallParam);
+
+    {
+      auto subNodeToMap = nodeToMap->getChild(0);
+
+      auto subInput = input;
+      subInput.setTargetNode(base);
+      subInput.setNodeToMap(subNodeToMap); // assume there is an expression node.
+      NodeEnhancerLookup::getInstance()->getNodeEnhancer(subNodeToMap->getType())(subInput);
+    }
+
+    input.getTargetNode()->putChild(base);
+
+    return outputData;
+  });
+
   NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::Function, [&nameResolver](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
     AstNodeEnhancerOutputData outputData(input);
 

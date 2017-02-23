@@ -459,7 +459,10 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
     TS_ASSERT_EQUALS(1, ast->getChildCount());
 
-    auto function_call = ast->getChild(0);
+    auto expr = ast->getChild(0);
+    TS_ASSERT(expr->hasChild(AstNodeType::FunctionCall));
+
+    auto function_call = expr->getChild(0);
     TS_ASSERT_EQUALS("my_func", function_call->getData());
     TS_ASSERT_EQUALS(AstNodeType::FunctionCall, function_call->getType());
     TS_ASSERT_EQUALS(0, function_call->getChildCount());
@@ -472,7 +475,10 @@ public:
     TS_ASSERT_EQUALS(AstNodeType::Program, ast->getType());
     TS_ASSERT_EQUALS(1, ast->getChildCount());
 
-    auto function_call = ast->getChild(0);
+    TS_ASSERT(ast->hasChild(AstNodeType::Expression));
+    auto expr = ast->getChild(AstNodeType::Expression);
+
+    auto function_call = expr->getChild(0);
     TS_ASSERT_EQUALS("my_func", function_call->getData());
     TS_ASSERT_EQUALS(AstNodeType::FunctionCall, function_call->getType());
     TS_ASSERT_EQUALS(1, function_call->getChildCount());
