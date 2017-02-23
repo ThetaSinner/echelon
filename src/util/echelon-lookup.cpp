@@ -315,6 +315,8 @@ std::string EchelonLookup::toString(EnhancedAstNodeType t) {
       return "access expression";
     case EnhancedAstNodeType::FunctionCall:
       return "function call";
+    case EnhancedAstNodeType ::FunctionCallParams:
+      return "function call params";
     case EnhancedAstNodeType::AccessStructure:
       return "access structure";
   }

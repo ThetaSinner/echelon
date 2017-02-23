@@ -51,10 +51,10 @@ int main(int argc, char **args) {
     log->at(Level::Info) << to_string(out) << "\n";*/
 
     auto out = compiler.enhance("val = foo() * foo() + bar() * bar() function foo() {5} function bar() {2}");
-    log->at(Level::Debug) << out->getChild(EnhancedAstNodeType::Variable)->getChild(EnhancedAstNodeType::TypeName)->getData();
     gv_out(out);
     log->at(Level::Info) << to_string(out) << "\n";
-    
+    log->at(Level::Debug) << "It worked! integer == " << out->getChild(EnhancedAstNodeType::Variable)->getChild(EnhancedAstNodeType::TypeName)->getData();
+
     // TODO to test the type deducer with events I need something which doesn't resolve immediately.
     // TODO this means that I need to determine a type from a function which doesn't exist yet, or similar. Neither of which are implemented yet.
     

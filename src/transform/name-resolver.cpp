@@ -80,13 +80,26 @@ EnhancedAstNode* NameResolver::resolveFromNameStructure(EnhancedAstNode* unresol
   }
   else if (scope->hasFunction(name)) {
     auto functions = scope->getFunctions(name);
-    // TODO again, get best match.
-    for (auto f : *functions) {
-      if (AstEnhancerHelper::doesCallMatchFunction(unresolved, f)) {
-        found = f;
-        break;
+    if (unresolved->getNodeType() == EnhancedAstNodeType::FunctionCall) {
+      // TODO again, get best match.
+      for (auto f : *functions) {
+        if (AstEnhancerHelper::doesCallMatchFunction(unresolved, f)) {
+          found = f;
+          break;
+        }
       }
     }
+    else {
+      // TODO again, get best match.
+      for (auto f : *functions) {
+        if (AstEnhancerHelper::doFunctionSignaturesMatch(unresolved, f)) {
+          found = f;
+          break;
+        }
+      }
+    }
+
+
   }
   else if (scope->hasPrototype(name)) {
     auto prototypes = scope->getPrototypes(name);
