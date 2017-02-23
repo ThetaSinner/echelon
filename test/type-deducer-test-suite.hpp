@@ -89,4 +89,16 @@ public:
     TS_ASSERT(function->hasChild(EnhancedAstNodeType::TypeName));
     TS_ASSERT_EQUALS("integer", function->getChild(EnhancedAstNodeType::TypeName)->getData());
   }
+
+  void testDeduceTypeFromFunctionCallWithFunctionsNotDeclaredYet() {
+    auto ast = compiler.enhance("val = foo() * foo() + bar() * bar() function foo() {5} function bar() {2}");
+
+    TS_ASSERT(ast->hasChild(EnhancedAstNodeType::Variable));
+    auto variable = ast->getChild(EnhancedAstNodeType::Variable);
+
+    TS_ASSERT(variable->hasChild(EnhancedAstNodeType::TypeName));
+    auto typeName = variable->getChild(EnhancedAstNodeType::TypeName);
+
+    TS_ASSERT_EQUALS("integer", typeName->getData());
+  }
 };
