@@ -15,7 +15,7 @@ public:
   }
 
   void testAddThenSubtract() {
-    auto expr = compiler.enhance("x + y - z");
+    auto expr = compiler.enhance("x + y - z")->getEnhancedAstNode();
     auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     TS_ASSERT_EQUALS(EnhancedAstNodeType::BinaryOperator, result->getNodeType());
@@ -39,7 +39,7 @@ public:
   }
 
   void testAddThenAddThenSubtract() {
-    auto expr = compiler.enhance("w + x + y - z");
+    auto expr = compiler.enhance("w + x + y - z")->getEnhancedAstNode();
     auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     TS_ASSERT_EQUALS(EnhancedAstNodeType::BinaryOperator, result->getNodeType());
@@ -71,7 +71,7 @@ public:
   }
 
   void testSubtractAddSubtract() {
-    auto expr = compiler.enhance("w - x + y - z");
+    auto expr = compiler.enhance("w - x + y - z")->getEnhancedAstNode();
     auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     auto top_subtract = result;
@@ -104,7 +104,7 @@ public:
   }
 
   void testSubtractMultiplyAdd() {
-    auto expr = compiler.enhance("w - x * y + z");
+    auto expr = compiler.enhance("w - x * y + z")->getEnhancedAstNode();
     auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     auto subtract = result;
@@ -137,7 +137,7 @@ public:
   }
 
   void testMultiplyDivide() {
-    auto expr = compiler.enhance("x / y * z");
+    auto expr = compiler.enhance("x / y * z")->getEnhancedAstNode();
     auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     auto multiply = result;
@@ -162,7 +162,7 @@ public:
   }
 
   void testMultiplyExpressionGroup() {
-    auto expr = compiler.enhance("a * (b + c - d)");
+    auto expr = compiler.enhance("a * (b + c - d)")->getEnhancedAstNode();
     auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     auto multiply = result;
@@ -198,7 +198,7 @@ public:
   }
 
   void testMultiplyExpressionGroups() {
-    auto expr = compiler.enhance("(a - b + c) * (d + e - f)");
+    auto expr = compiler.enhance("(a - b + c) * (d + e - f)")->getEnhancedAstNode();
     auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     auto multiply = result;
@@ -253,7 +253,7 @@ public:
   }
 
   void testTopLevelExpressionGroup() {
-    auto expr = compiler.enhance("(a + b - c)");
+    auto expr = compiler.enhance("(a + b - c)")->getEnhancedAstNode();
     auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     auto expression_group = result;
@@ -281,7 +281,7 @@ public:
   }
 
   void testMultipleExpressionGroups() {
-    auto expr = compiler.enhance("(a + b - c) / (d + e - f) * (g + h - i)");
+    auto expr = compiler.enhance("(a + b - c) / (d + e - f) * (g + h - i)")->getEnhancedAstNode();
     auto result = expr->getChild(0)->getChild(0); // skip the program node and the expression node.
 
     auto multiply = result;

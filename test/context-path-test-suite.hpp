@@ -36,7 +36,7 @@ public:
     ss << "function MySubModule::MyType::typeFunction() -> integer {integer someNumber = 1 someNumber + 15}";
     ss << "}"; // my module.
 
-    auto out = compiler.enhance(ss.str());
+    auto out = compiler.enhance(ss.str())->getEnhancedAstNode();
 
     auto rootScope = ((EnhancedAstBlockNode*) out)->getScope();
     TS_ASSERT_EQUALS("cp:/context-root/MyProject/MyPackage", rootScope->getContext()->toString());

@@ -19,7 +19,7 @@ public:
 
   // TODO create test for declare without assign.
   void testVariableDeclareAndAssign(void) {
-    auto enhanced = compiler.enhance("integer x = 2\nx = 3");
+    auto enhanced = compiler.enhance("integer x = 2\nx = 3")->getEnhancedAstNode();
 
     TS_ASSERT_EQUALS("root", enhanced->getData());
     TS_ASSERT_EQUALS(EnhancedAstNodeType::Program, enhanced->getNodeType());
@@ -65,7 +65,7 @@ public:
   }
 
   void testEnhancePackage() {
-    auto ast = compiler.enhance("package Test::Package::Name\ninteger x = 5");
+    auto ast = compiler.enhance("package Test::Package::Name\ninteger x = 5")->getEnhancedAstNode();
 
     // Notice that we need something else working so we can check the rest of the program is attached at the bottom of the
     // package structure.
@@ -88,7 +88,7 @@ public:
   }
 
   void testBlockScope() {
-    auto ast = compiler.enhance("package PackageName\ninteger u\nmodule TestModule {\ninteger v = 12\ninteger w = 15\n}");
+    auto ast = compiler.enhance("package PackageName\ninteger u\nmodule TestModule {\ninteger v = 12\ninteger w = 15\n}")->getEnhancedAstNode();
 
     auto scope = ((EnhancedAstBlockNode*) ast)->getScope();
     TS_ASSERT(scope != nullptr);
@@ -118,7 +118,7 @@ public:
   }
 
   void testAttachImplementationToMethod() {
-    auto ast = compiler.enhance("type MyType {\n  function getValue()\n}\nfunction MyType::getValue() {\n  5\n}");
+    auto ast = compiler.enhance("type MyType {\n  function getValue()\n}\nfunction MyType::getValue() {\n  5\n}")->getEnhancedAstNode();
 
     TS_ASSERT(ast->hasChild(EnhancedAstNodeType::CustomType));
     auto custom_type = ast->getChild(EnhancedAstNodeType::CustomType);
@@ -135,7 +135,7 @@ public:
   }
 
   void testUseFunctionParametersAsVariables() {
-    auto ast = compiler.enhance("function larp(integer i, decimal d) {\n  x = i + d\n  x * x + i\n}");
+    auto ast = compiler.enhance("function larp(integer i, decimal d) {\n  x = i + d\n  x * x + i\n}")->getEnhancedAstNode();
 
     TS_ASSERT(ast->hasChild(EnhancedAstNodeType::Function));
 
@@ -198,7 +198,7 @@ public:
   }
 
   void testUseCustomTypeFieldsWithPrototypeAndImplMethod() {
-    auto ast = compiler.enhance("type MyType {\n  integer my_type_var\n  function get_my_type_var() -> integer\n}\n\nfunction MyType::get_my_type_var() {\n  my_type_var\n}");
+    auto ast = compiler.enhance("type MyType {\n  integer my_type_var\n  function get_my_type_var() -> integer\n}\n\nfunction MyType::get_my_type_var() {\n  my_type_var\n}")->getEnhancedAstNode();
 
     TS_ASSERT(ast->hasChild(EnhancedAstNodeType::CustomType));
     auto custom_type = ast->getChild(EnhancedAstNodeType::CustomType);
@@ -248,11 +248,4 @@ public:
 
     TS_ASSERT_EQUALS("my_type_var", func_impl_var->getData());
   }
-
-  // TODO this isn't ready yet. Need to be able to map the block and type or determine the type from the block.
-  /*
-    // example of overloaded functions.
-    std::string func_test = "string get_string() {//gay\n} string get_string(integer t) {//af\n}";
-    auto enhanced = compiler.enhance(func_test);
-  */
 };

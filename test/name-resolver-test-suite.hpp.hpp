@@ -22,7 +22,7 @@ public:
   }
 
   void testReturnVariableFromOtherModule() {
-    auto model = compiler.enhance("module ModuleOne {\n  integer x = 5\n}\nmodule ModuleTwo {\n  function getX() {\n    ModuleOne::x\n  }\n}");
+    auto model = compiler.enhance("module ModuleOne {\n  integer x = 5\n}\nmodule ModuleTwo {\n  function getX() {\n    ModuleOne::x\n  }\n}")->getEnhancedAstNode();
 
     TS_ASSERT_EQUALS(2, model->getChildCount());
     auto moduleTwo = model->getChild(1)->getChild(EnhancedAstNodeType::Block);

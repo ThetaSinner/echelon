@@ -29,7 +29,7 @@ void enhanceInternal(AstNode *node, EnhancedAstNode *target, Scope* scope, Trans
   }
 }
 
-EnhancedAstNode *AstEnhancer::enhance(AstNode *node) {
+AstEnhancerOutput* AstEnhancer::enhance(AstNode *node) {
   Scope* scope = new Scope();
   scope->setContext(new Context(nullptr, new ContextItem("context-root")));
 
@@ -42,13 +42,10 @@ EnhancedAstNode *AstEnhancer::enhance(AstNode *node) {
 
   enhanceInternal(node, root, scope, transformWorkingData);
 
-  if (transformWorkingData->getEventContainer().hasListeners()) {
-    // At some point this will be allowed, provided the resulting program is going to the linker.
-    // This check can then go in the compiler? check if the programs integrity is okay.
+  AstEnhancerOutput *astEnhancerOutput = new AstEnhancerOutput();
+  astEnhancerOutput->setEnhancedAstNode(root);
+  astEnhancerOutput->setTransformWorkingData(transformWorkingData);
 
-    //throw std::runtime_error("There are unresolved references, program is invalid.");
-  }
-
-  return root;
+  return astEnhancerOutput;
 }
 

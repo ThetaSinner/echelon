@@ -51,8 +51,13 @@ int main(int argc, char **args) {
     log->at(Level::Info) << to_string(out) << "\n";*/
 
     auto out = compiler.enhance("function callMe(integer r) {r + 5} x = callMe(1)");
-    gv_out(out);
-    log->at(Level::Info) << to_string(out) << "\n";
+    gv_out(out->getEnhancedAstNode());
+    log->at(Level::Info) << to_string(out->getEnhancedAstNode()) << "\n";
+    if (out->getTransformWorkingData()->getEventContainer().hasListeners()) {
+      // At some point this will be allowed, provided the resulting program is going to the linker.
+      // This check can then go in the compiler? check if the programs integrity is okay.
+      throw std::runtime_error("There are unresolved references, program is invalid.");
+    }
 
     // TODO, once the compiler figures out what code calls what functions the name can be mangled
     // so that overloading is invisible to the code generator.

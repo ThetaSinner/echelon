@@ -22,7 +22,7 @@ public:
   }
 
   void testReturnSumOfTwoIntegers() {
-    auto program = compiler.enhance("function get_two_plus_two() {\n  2 + 2}");
+    auto program = compiler.enhance("function get_two_plus_two() {\n  2 + 2}")->getEnhancedAstNode();
 
     TS_ASSERT(program->hasChild(EnhancedAstNodeType::Function));
     auto function = program->getChild(EnhancedAstNodeType::Function);
@@ -32,7 +32,7 @@ public:
   }
 
   void testAssignSumOfTwoIntegers() {
-    auto program = compiler.enhance("my_test_variable = 5 + 1");
+    auto program = compiler.enhance("my_test_variable = 5 + 1")->getEnhancedAstNode();
 
     TS_ASSERT(program->hasChild(EnhancedAstNodeType::Variable));
     auto function = program->getChild(EnhancedAstNodeType::Variable);
@@ -42,7 +42,7 @@ public:
   }
 
   void testAssignSumOfIntegerAndDecimal() {
-    auto program = compiler.enhance("my_test_variable = 5 + 1.5");
+    auto program = compiler.enhance("my_test_variable = 5 + 1.5")->getEnhancedAstNode();
 
     TS_ASSERT(program->hasChild(EnhancedAstNodeType::Variable));
     auto variable = program->getChild(EnhancedAstNodeType::Variable);
@@ -52,7 +52,7 @@ public:
   }
 
   void testAssignSumOfIntegerAndTypedVariable() {
-    auto program = compiler.enhance("integer variable_one = 5\nvariable_one_plus_five = 5 + variable_one");
+    auto program = compiler.enhance("integer variable_one = 5\nvariable_one_plus_five = 5 + variable_one")->getEnhancedAstNode();
 
     TS_ASSERT(program->hasChild(EnhancedAstNodeType::Variable));
     TS_ASSERT_EQUALS(2, program->getChildCount());
@@ -63,7 +63,7 @@ public:
   }
 
   void testAssignSumOfIntegerAndDeterminedTypedVariable() {
-    auto program = compiler.enhance("variable_one = 5\nvariable_one_plus_five = 5 + variable_one");
+    auto program = compiler.enhance("variable_one = 5\nvariable_one_plus_five = 5 + variable_one")->getEnhancedAstNode();
 
     TS_ASSERT(program->hasChild(EnhancedAstNodeType::Variable));
     TS_ASSERT_EQUALS(2, program->getChildCount());
@@ -80,7 +80,7 @@ public:
   }
 
   void testReturnProductOfIntegerAndVariableFromHigherScope() {
-    auto program = compiler.enhance("integer x = 3\nfunction getFiveTimesX() {\n  5 * x\n}");
+    auto program = compiler.enhance("integer x = 3\nfunction getFiveTimesX() {\n  5 * x\n}")->getEnhancedAstNode();
 
     TS_ASSERT(program->hasChild(EnhancedAstNodeType::Variable));
     TS_ASSERT(program->hasChild(EnhancedAstNodeType::Function));
@@ -91,7 +91,7 @@ public:
   }
 
   void testDeduceTypeFromFunctionCallWithFunctionsNotDeclaredYet() {
-    auto ast = compiler.enhance("val = foo() * foo() + bar() * bar() function foo() {5} function bar() {2}");
+    auto ast = compiler.enhance("val = foo() * foo() + bar() * bar() function foo() {5} function bar() {2}")->getEnhancedAstNode();
 
     TS_ASSERT(ast->hasChild(EnhancedAstNodeType::Variable));
     auto variable = ast->getChild(EnhancedAstNodeType::Variable);

@@ -3,10 +3,11 @@
 
 #include <echelon/model/ast/ast-node.hpp>
 #include <echelon/model/internal/enhanced-ast-node.hpp>
+#include <echelon/transform/ast-enhancer-output.hpp>
 
 class AstEnhancer {
 public:
-  EnhancedAstNode *enhance(AstNode *node);
+  AstEnhancerOutput* enhance(AstNode *node);
 };
 
 #endif
