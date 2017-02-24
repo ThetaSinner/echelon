@@ -36,6 +36,10 @@ protected:
     this->parentScope = parentScope;
   }
 
+  std::map<std::string, EnhancedAstNode*> getParamDefinitions() {
+    return paramDefinitions;
+  };
+
 public:
   void addVariable(std::string name, EnhancedAstNode *enhancedAstNode) {
     variables.insert({name, enhancedAstNode});

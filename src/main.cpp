@@ -50,7 +50,7 @@ int main(int argc, char **args) {
     gv_out(out);
     log->at(Level::Info) << to_string(out) << "\n";*/
 
-    auto out = compiler.enhance("function callMe(integer r) {r + 5} x = callMe(1)");
+    auto out = compiler.enhance("function callMe(integer r, integer s) {r + 5} function callMe(integer r, string f) {f} x = callMe(1)");
     gv_out(out->getEnhancedAstNode());
     log->at(Level::Info) << to_string(out->getEnhancedAstNode()) << "\n";
     if (out->getTransformWorkingData()->getEventContainer().hasListeners()) {

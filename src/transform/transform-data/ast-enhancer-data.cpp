@@ -359,6 +359,7 @@ void loadAstEnhancerDataInternal() {
     auto scope = input.getScope();
 
     // Map the parameter definitions.
+    Scope *paramScope = new Scope();
     if (nodeToMap->hasChild(AstNodeType::FunctionParamDefinitions)) {
       AstNodeEnhancerInputData subInput = input;
       subInput.setTargetNode(base);
@@ -368,11 +369,11 @@ void loadAstEnhancerDataInternal() {
 
       auto paramDefinitions = base->getChild(EnhancedAstNodeType::FunctionParamDefinitions);
       for (auto paramDef : *paramDefinitions->getChildList()) {
-        if (scope->hasParamDefinition(paramDef->getData())) {
+        if (paramScope->hasParamDefinition(paramDef->getData())) {
           throw std::runtime_error("more than one param with the same name");
         }
 
-        scope->addParamDefinition(paramDef->getData(), paramDef);
+        paramScope->addParamDefinition(paramDef->getData(), paramDef);
       }
     }
 
@@ -414,7 +415,14 @@ void loadAstEnhancerDataInternal() {
       // Create the new context path and set it on the base node.
       base->setContext(new Context(input.getScope()->getContext(), new ContextItem(contextNameStream.str())));
 
-      AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, input);
+      // Creates a sub input so that the parameter definitions can be visible in the block,
+      // but are not visible in the same scope as the function.
+      auto subInput = input;
+      auto scopeClone = new Scope(*input.getScope());
+      ScopeHelper::moveTempScopeToScope(paramScope, scopeClone);
+      subInput.setScope(scopeClone);
+
+      AstEnhancerHelper::mapBlockIfPresent(nodeToMap, base, subInput);
       auto blockScope = ((EnhancedAstBlockNode*) base->getChild(EnhancedAstNodeType::Block))->getScope();
 
       if (hasNameStructure) {

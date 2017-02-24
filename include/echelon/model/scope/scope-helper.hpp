@@ -10,6 +10,7 @@ public:
   static Scope* createChildScope(Scope* scope);
   static void linkScopes(Scope* target, Scope* toBeLinked);
   static void makeParentOf(Scope* child, Scope* parent);
+  static void moveTempScopeToScope(Scope* temp, Scope* scope);
 };
 
 #endif
