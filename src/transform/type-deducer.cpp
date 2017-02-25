@@ -7,7 +7,7 @@ void TypeDeducer::deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, Enh
   // scope pointer,
   // a target to map the type onto
 
-  auto typeResolve = resolveTypeFromExpression(expressionNode, scope, &transformWorkingData->getEventContainer());
+  auto typeResolve = resolveTypeFromExpression(expressionNode, scope, transformWorkingData);
   // register listeners for each type we don't have.
   // if all listeners complete then figure out this type.
 
@@ -41,22 +41,22 @@ void TypeDeducer::deduceTypes(EnhancedAstNode* expressionNode, Scope* scope, Enh
   }
 }
 
-TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope, EventContainer* eventContainer) {
+TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope, TransformWorkingData* transformWorkingData) {
   // grab operator and call resolve on left and right.
   // use rules to determine the result i.e. *, integer, decimal -> decimal
   // either return the type or an object describing what's missing.
 
   // Fine to resolve to the type of an expression, but we don't care about the node itself, start from its data.
   if (expressionNode->getNodeType() == EnhancedAstNodeType::Expression) {
-    return resolveTypeFromExpression(expressionNode->getChild(0), scope, eventContainer);
+    return resolveTypeFromExpression(expressionNode->getChild(0), scope, transformWorkingData);
   }
 
   TypeResolve typeResolve;
 
   if (expressionNode->getChildCount() == 2) {
     // Try to resolve the left and right children.
-    auto typeResolveLeft = resolveTypeFromExpression(expressionNode->getChild(0), scope, eventContainer);
-    auto typeResolveRight = resolveTypeFromExpression(expressionNode->getChild(1), scope, eventContainer);
+    auto typeResolveLeft = resolveTypeFromExpression(expressionNode->getChild(0), scope, transformWorkingData);
+    auto typeResolveRight = resolveTypeFromExpression(expressionNode->getChild(1), scope, transformWorkingData);
 
     if (typeResolveLeft.isResolved() && typeResolveRight.isResolved()) {
       if (TypeRuleLookup::getInstance()->hasRule(expressionNode->getNodeSubType(), typeResolveLeft.getTypeName(), typeResolveRight.getTypeName())) {
@@ -83,7 +83,7 @@ TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNo
     }
   }
   else {
-    auto typeNameResolve = resolveTypeName(expressionNode, scope);
+    auto typeNameResolve = resolveTypeName(expressionNode, scope, transformWorkingData);
 
     if (typeNameResolve.isResolved()) {
       typeResolve.setTypeName(typeNameResolve.getTypeName());
@@ -96,7 +96,7 @@ TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNo
   return typeResolve;
 }
 
-TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node, Scope* scope) {
+TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node, Scope* scope, TransformWorkingData* transformWorkingData) {
   TypeNameResolve typeNameResolve;
 
   if (node->getNodeType() == EnhancedAstNodeType::PrimitiveValue) {
@@ -147,6 +147,18 @@ TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node, Scope* scope
     }
   }
   else if (node->getNodeType() == EnhancedAstNodeType::FunctionCall) {
+    if (node->hasChild(EnhancedAstNodeType::FunctionCallParams)) {
+      auto paramDefinitions = node->getChild(EnhancedAstNodeType::FunctionCallParams);
+      for (unsigned i = 0; i < paramDefinitions->getChildCount(); i++) {
+        auto callParam = paramDefinitions->getChild(i);
+        TypeDeducer::deduceTypes(callParam->getChild(0), scope, callParam, transformWorkingData);
+
+        if (!callParam->hasChild(EnhancedAstNodeType::TypeName)) {
+          throw std::runtime_error("Cannot immediately determine type of parameter + [" + EchelonLookup::toString(i) + "]");
+        }
+      }
+    }
+
     auto func = nameResolver.resolve(node, scope);
 
     if (func != nullptr) {

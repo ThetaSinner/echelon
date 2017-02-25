@@ -6,6 +6,7 @@
 #include <echelon/model/internal/enhanced-ast-node-type-enum.hpp>
 #include <echelon/model/internal/enhanced-ast-node-sub-type-enum.hpp>
 
+#include <sstream>
 #include <stdexcept>
 #include <echelon/parser/stage1/character-pattern-group-type-enum.hpp>
 
@@ -33,6 +34,13 @@ void EchelonLookup::addKeyword(std::string keyword) {
 
 bool EchelonLookup::isKeyword(std::string str) {
   return keywordSet.find(str) != keywordSet.end();
+}
+
+template<>
+std::string EchelonLookup::toString(unsigned i) {
+  std::stringstream ss;
+  ss << i;
+  return ss.str();
 }
 
 template<>

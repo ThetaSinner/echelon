@@ -50,7 +50,7 @@ int main(int argc, char **args) {
     gv_out(out);
     log->at(Level::Info) << to_string(out) << "\n";*/
 
-    auto out = compiler.enhance("function callMe(integer r, integer s) {r + 5} function callMe(integer r, string f) {f} x = callMe(1)");
+    auto out = compiler.enhance("function callMe(integer r, integer s) {r + 5} function callMe(integer r, string f) {f} x = callMe(1, 5)");
     gv_out(out->getEnhancedAstNode());
     log->at(Level::Info) << to_string(out->getEnhancedAstNode()) << "\n";
     if (out->getTransformWorkingData()->getEventContainer().hasListeners()) {
@@ -58,6 +58,9 @@ int main(int argc, char **args) {
       // This check can then go in the compiler? check if the programs integrity is okay.
       throw std::runtime_error("There are unresolved references, program is invalid.");
     }
+
+    // TODO need to resolve in local scope first. Then when there is nothing more to find, in any scope.
+    // TODO then allow non-perfect matches (cast types).
 
     // TODO, once the compiler figures out what code calls what functions the name can be mangled
     // so that overloading is invisible to the code generator.

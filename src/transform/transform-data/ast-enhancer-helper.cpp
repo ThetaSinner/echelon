@@ -126,11 +126,23 @@ bool AstEnhancerHelper::doesCallMatchFunction(EnhancedAstNode* functionCall, Enh
     return !function->hasChild(EnhancedAstNodeType::FunctionParamDefinitions);
   }
 
+  auto callParams = functionCall->getChild(EnhancedAstNodeType::FunctionCallParams);
+  auto funcParams = function->getChild(EnhancedAstNodeType::FunctionParamDefinitions);
 
+  // Number of parameters passed doesn't match number of parameters expected.
+  if (callParams->getChildCount() != funcParams->getChildCount()) {
+    return false;
+  }
 
-  // TODO function calls aren't enhanced completely yet, so this can't be finished
+  for (unsigned i = 0; i < callParams->getChildCount(); i++) {
+    std::string& callType = callParams->getChild(i)->getChild(EnhancedAstNodeType::TypeName)->getData();
+    std::string& funcType = funcParams->getChild(i)->getChild(EnhancedAstNodeType::TypeName)->getData();
+    if (callType != funcType) {
+      return false;
+    }
+  }
 
-  return false;
+  return true;
 }
 
 void AstEnhancerHelper::mapChildIfPresent(EnhancedAstNode* target, AstNode* nodeToMap, const AstNodeEnhancerInputData& input, AstNodeType astNodeType) {

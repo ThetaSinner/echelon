@@ -100,8 +100,8 @@ public:
 class TypeDeducer {
   static NameResolver nameResolver;
 
-  static TypeResolve resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope, EventContainer* eventContainer);
-  static TypeNameResolve resolveTypeName(EnhancedAstNode* node, Scope* scope);
+  static TypeResolve resolveTypeFromExpression(EnhancedAstNode* expressionNode, Scope* scope, TransformWorkingData* transformWorkingData);
+  static TypeNameResolve resolveTypeName(EnhancedAstNode* node, Scope* scope, TransformWorkingData* transformWorkingData);
   static void mapTypeName(EnhancedAstNode* target, std::string data);
 public:
 
