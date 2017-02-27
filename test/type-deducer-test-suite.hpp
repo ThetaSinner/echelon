@@ -101,4 +101,28 @@ public:
 
     TS_ASSERT_EQUALS("integer", typeName->getData());
   }
+
+  void testDeduceTypeFromFunctionCallWIthParameters() {
+    auto out = compiler.enhance("function callMe(integer r, integer s) {r + 5} function callMe(integer r, string f) {f} x = callMe(1, 5)");
+    auto model = out->getEnhancedAstNode();
+
+    TS_ASSERT(model->hasChild(EnhancedAstNodeType::Variable));
+    auto var = model->getChild(EnhancedAstNodeType::Variable);
+    TS_ASSERT_EQUALS("x", var->getData());
+
+    TS_ASSERT(var->hasChild(EnhancedAstNodeType::TypeName));
+    auto typeName = var->getChild(EnhancedAstNodeType::TypeName);
+    TS_ASSERT_EQUALS("integer", typeName->getData());
+
+    auto out2 = compiler.enhance("function callMe(integer r, integer s) {r + 5} function callMe(integer r, string f) {f} x = callMe(1, \"str\")");
+    auto model2 = out2->getEnhancedAstNode();
+
+    TS_ASSERT(model2->hasChild(EnhancedAstNodeType::Variable));
+    auto var2 = model2->getChild(EnhancedAstNodeType::Variable);
+    TS_ASSERT_EQUALS("x", var2->getData());
+
+    TS_ASSERT(var2->hasChild(EnhancedAstNodeType::TypeName));
+    auto typeName2 = var2->getChild(EnhancedAstNodeType::TypeName);
+    TS_ASSERT_EQUALS("string", typeName2->getData());
+  }
 };

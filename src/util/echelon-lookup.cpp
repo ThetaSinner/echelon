@@ -345,6 +345,8 @@ std::string EchelonLookup::toString(EnhancedAstNodeSubType t) {
       return "integer";
     case EnhancedAstNodeSubType::Decimal:
       return "decimal";
+    case EnhancedAstNodeSubType::String:
+      return "string";
     case EnhancedAstNodeSubType::IntegerType:
       return "integer type";
     case EnhancedAstNodeSubType::Unspecified:

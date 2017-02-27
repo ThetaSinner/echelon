@@ -10,6 +10,7 @@ enum class EnhancedAstNodeSubType {
   // Primitive Value
   Integer,
   Decimal,
+  String,
 
   // Type
   IntegerType,

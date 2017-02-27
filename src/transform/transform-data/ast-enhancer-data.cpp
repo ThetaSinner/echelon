@@ -45,6 +45,18 @@ void loadAstEnhancerDataInternal() {
     return outputData;
   });
 
+  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::String, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
+    AstNodeEnhancerOutputData outputData(input);
+
+    auto base = new EnhancedAstNode();
+    base->setNodeType(EnhancedAstNodeType::PrimitiveValue);
+    base->setNodeSubType(EnhancedAstNodeSubType::String);
+    base->setData(input.getNodeToMap()->getData());
+    input.getTargetNode()->putChild(base);
+
+    return outputData;
+  });
+
   NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::Decimal, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
     AstNodeEnhancerOutputData outputData(input);
 

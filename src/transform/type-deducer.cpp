@@ -107,6 +107,9 @@ TypeNameResolve TypeDeducer::resolveTypeName(EnhancedAstNode* node, Scope* scope
       case EnhancedAstNodeSubType::Decimal:
         typeNameResolve.setTypeName("decimal");
         break;
+      case EnhancedAstNodeSubType::String:
+        typeNameResolve.setTypeName("string");
+        break;
       default:
         throw std::runtime_error("Unrecognised primitive value type");
     }
