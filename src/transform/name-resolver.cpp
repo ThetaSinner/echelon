@@ -2,7 +2,7 @@
 #include <echelon/transform/transform-data/ast-enhancer-helper.hpp>
 
 EnhancedAstNode* NameResolver::resolve(EnhancedAstNode* unresolved, Scope* scope) {
-  if (unresolved->getNodeType() == EnhancedAstNodeType::AccessExpression) {
+  if (unresolved->getNodeType() == EnhancedAstNodeType::AccessStructure) {
     // TODO resolve from access expression.
   }
   else {

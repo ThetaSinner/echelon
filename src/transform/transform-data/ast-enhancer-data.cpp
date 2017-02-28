@@ -69,25 +69,6 @@ void loadAstEnhancerDataInternal() {
     return outputData;
   });
 
-  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::AccessExpression, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
-    AstNodeEnhancerOutputData outputData(input);
-
-    auto nodeToMap = input.getNodeToMap();
-
-    auto base = new EnhancedAstNode();
-    base->setNodeType(EnhancedAstNodeType::AccessExpression);
-
-    auto subInput = input;
-    subInput.setTargetNode(base);
-    subInput.setNodeToMap(nodeToMap->getChild(AstNodeType::AccessStructure));
-
-    NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::AccessStructure)(subInput);
-
-    outputData.getTargetNode()->putChild(base);
-
-    return outputData;
-  });
-
   NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::BinaryOperatorAdd, [](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
     AstNodeEnhancerOutputData outputData(input);
 
@@ -262,25 +243,6 @@ void loadAstEnhancerDataInternal() {
     return outputData;
   });
 
-  NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::AccessStructureFunctionCall, [&nameResolver](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
-    AstNodeEnhancerOutputData outputData(input);
-
-    auto nodeToMap = input.getNodeToMap();
-
-    auto base = new EnhancedAstNode();
-    base->setNodeType(EnhancedAstNodeType::AccessStructure);
-    base->setNodeSubType(EnhancedAstNodeSubType::FunctionCall);
-
-    auto subInput = input;
-    subInput.setTargetNode(base);
-    subInput.setNodeToMap(nodeToMap->getChild(AstNodeType::FunctionCall));
-    NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::FunctionCall)(subInput);
-
-    input.getTargetNode()->putChildFront(base);
-
-    return outputData;
-  });
-
   NodeEnhancerLookup::getInstance()->addNodeEnhancer(AstNodeType::FunctionCall, [&nameResolver](AstNodeEnhancerInputData input) -> AstNodeEnhancerOutputData {
     AstNodeEnhancerOutputData outputData(input);
 
@@ -289,6 +251,8 @@ void loadAstEnhancerDataInternal() {
     auto base = new EnhancedAstNode();
     base->setNodeType(EnhancedAstNodeType::FunctionCall);
     base->setData(nodeToMap->getData());
+
+    AstEnhancerHelper::mapChildIfPresent(base, nodeToMap, input, AstNodeType::AccessStructure);
 
     // TODO lookup the function to call.
 
@@ -600,6 +564,7 @@ void loadAstEnhancerDataInternal() {
       NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::Expression)(subInput);
     }
 
+    // TODO access structures don't work here.
     // This is the first time we've seen this variable in this scope, add it.
     auto scope = input.getScope();
     if (!scope->hasVariable(data)) {
@@ -618,6 +583,8 @@ void loadAstEnhancerDataInternal() {
         std::string message = "Error, redeclaration of variable [" + data + "].";
         throw std::runtime_error(message.c_str());
       }
+
+      AstEnhancerHelper::mapChildIfPresent(base, nodeToMap, input, AstNodeType::AccessStructure);
 
       base->setNodeSubType(EnhancedAstNodeSubType::Assign);
     }

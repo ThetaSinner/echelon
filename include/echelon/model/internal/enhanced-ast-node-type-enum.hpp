@@ -31,7 +31,6 @@ enum class EnhancedAstNodeType {
 
   Expression,
 
-  AccessExpression,
   AccessStructure,
 
   FunctionCall,

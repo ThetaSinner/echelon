@@ -54,13 +54,11 @@ enum class AstNodeType {
   AccessSpecifierPublic,
   NameStructure,
   Expression,
-  AccessExpression,
   AccessStructure,
-  AccessStructureFunctionCall,
 
   // These are not for program structure.
   First = Program,
-  Last = Expression,
+  Last = AccessStructure,
 };
 
 #endif
