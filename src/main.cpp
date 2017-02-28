@@ -46,17 +46,14 @@ int main(int argc, char **args) {
     // auto out = compiler.enhance("module ModuleOne {\ndecimal oops = 0.5\n\ntype MyType {\n  integer my_type_var\n  function get_my_type_var() -> integer\n}\n}\n\nmodule ModuleTwo {\nfunction ModuleOne::MyType::get_my_type_var() {\n  oops + my_type_var\n}\n}");
 
     // TODO I need the linker (partial) for this part, because I am generating a constructor and linking it to MyType
-    /*auto out = compiler.enhance("type MyType {function get_val() -> integer {5}} myinstance = MyType.create() myinstance.get_val()");
-    gv_out(out);
-    log->at(Level::Info) << to_string(out) << "\n";*/
-
-    auto out = compiler.enhance("function callMe(integer r, integer s) {r + 5} function callMe(integer r, string f) {f} x = callMe(1, 5)");
-    gv_out(out->getEnhancedAstNode());
-    log->at(Level::Info) << to_string(out->getEnhancedAstNode()) << "\n";
+    auto out = compiler.enhance("type MyType {integer val function create() {self.val = 12} function get_val() -> integer {5}} myinstance = MyType.create() myinstance.get_val()");
+    // TODO automatically insert -> MyType on create methods?
+    // TODO on create self must be allocated and passed.
+    auto model = out->getEnhancedAstNode();
+    gv_out(model);
+    log->at(Level::Info) << to_string(model) << "\n";
     if (out->getTransformWorkingData()->getEventContainer().hasListeners()) {
-      // At some point this will be allowed, provided the resulting program is going to the linker.
-      // This check can then go in the compiler? check if the programs integrity is okay.
-      throw std::runtime_error("There are unresolved references, program is invalid.");
+      log->at(Level::Warn) << "Source is incomplete.\n";
     }
 
     // TODO need to resolve in local scope first. Then when there is nothing more to find, in any scope.
