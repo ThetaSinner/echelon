@@ -9,6 +9,7 @@
  */
 class EnhancedAstBlockNode : public EnhancedAstNode {
   Scope* scope;
+  EnhancedAstNode* owner;
 
 public:
   /**
@@ -23,6 +24,24 @@ public:
    * @return the scope.
    */
   Scope* getScope();
+
+  /**
+   * Set the owner of this block node.
+   *
+   * @param owner the owner.
+   */
+  void setOwner(EnhancedAstNode* owner) {
+    this->owner;
+  }
+
+  /**
+   * Get the owner of this block node.
+   *
+   * @return the owner.
+   */
+  EnhancedAstNode* getOwner() {
+    return owner;
+  }
 };
 
 #endif

@@ -358,7 +358,9 @@ std::string EchelonLookup::toString(EnhancedAstNodeSubType t) {
     case EnhancedAstNodeSubType::Divide:
       return "divide";
     case EnhancedAstNodeSubType::FunctionCall:
-      return "function call";
+      return "function call"; // TODO remove
+    case EnhancedAstNodeSubType::Self:
+      return "self";
   }
 
   throw std::runtime_error("Missing to string case for enhanced ast node sub type.");

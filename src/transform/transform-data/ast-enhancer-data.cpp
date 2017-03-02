@@ -353,6 +353,47 @@ void loadAstEnhancerDataInternal() {
       }
     }
 
+    // If this is a method, need to pass self.
+    bool addSelfParam = false;
+    std::string customTypeName = "";
+    if (input.getTargetNode()->getNodeType() == EnhancedAstNodeType::Block) {
+      auto block = ((EnhancedAstBlockNode*) input.getTargetNode());
+
+      if (block->getOwner() != nullptr && block->getOwner()->getNodeType() == EnhancedAstNodeType::CustomType) {
+        customTypeName = block->getOwner()->getData();
+        addSelfParam = true;
+      }
+    }
+    else if (hasNameStructure) {
+      // Check if the name structure points to a custom type.
+      auto resolved = nameResolver.resolve(base, scope);
+      if (resolved != nullptr) {
+        if (resolved->getNodeType() == EnhancedAstNodeType::CustomType) {
+          customTypeName = resolved->getData();
+          addSelfParam = true;
+        }
+      }
+      else {
+        throw std::runtime_error("name structure not found, cannot determine whether self param is required.");
+      }
+    }
+
+    // Add the self parameter to the param scope if required.
+    if (addSelfParam) {
+      auto self = new EnhancedAstNode();
+      self->setNodeType(EnhancedAstNodeType::Variable);
+      self->setNodeSubType(EnhancedAstNodeSubType::Self);
+      self->setData("self");
+
+      auto selfTypeName = new EnhancedAstNode();
+      selfTypeName->setNodeType(EnhancedAstNodeType::TypeName);
+      selfTypeName->setData(customTypeName);
+
+      self->putChild(selfTypeName);
+
+      paramScope->addParamDefinition(self->getData(), self);
+    }
+
     if (nodeToMap->hasChild(AstNodeType::TypeName)) {
       AstNodeEnhancerInputData subInput = input;
       subInput.setTargetNode(base);
@@ -621,6 +662,10 @@ void loadAstEnhancerDataInternal() {
 
     auto base = new EnhancedAstBlockNode();
     base->setNodeType(EnhancedAstNodeType::Block);
+
+    // This isn't perfect but blocks should be attached to a top level item, meaning that this
+    // really does point at the owner.
+    base->setOwner(input.getTargetNode());
 
     Scope* blockScope = ScopeHelper::createChildScope(input.getScope());
     base->setScope(blockScope);

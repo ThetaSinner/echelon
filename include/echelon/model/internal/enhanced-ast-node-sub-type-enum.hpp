@@ -26,11 +26,14 @@ enum class EnhancedAstNodeSubType {
   Divide,
 
   // Access structure
-  FunctionCall,
+  FunctionCall, // TODO remove.
+
+  // function parameter definition.
+  Self,
 
   // Not for use in ast structure.
   First = Unspecified,
-  Last = FunctionCall,
+  Last = Self,
 };
 
 #endif

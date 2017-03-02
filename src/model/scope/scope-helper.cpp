@@ -1,4 +1,5 @@
 #include <echelon/model/scope/scope-helper.hpp>
+#include <echelon/model/ast/ast-node.hpp>
 
 Scope* ScopeHelper::createChildScope(Scope* scope) {
   Scope *newScope = new Scope();
@@ -20,5 +21,9 @@ void ScopeHelper::makeParentOf(Scope *child, Scope *parent) {
 void ScopeHelper::moveTempScopeToScope(Scope *temp, Scope *scope) {
   for (auto pd : temp->getParamDefinitions()) {
     scope->addParamDefinition(pd.first, pd.second);
+  }
+
+  for (auto v : temp->getVariables()) {
+    scope->addVariable(v.first, v.second);
   }
 }

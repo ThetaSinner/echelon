@@ -40,6 +40,10 @@ protected:
     return paramDefinitions;
   };
 
+  std::map<std::string, EnhancedAstNode*> getVariables() {
+    return variables;
+  };
+
 public:
   void addVariable(std::string name, EnhancedAstNode *enhancedAstNode) {
     variables.insert({name, enhancedAstNode});
