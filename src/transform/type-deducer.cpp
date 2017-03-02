@@ -53,7 +53,16 @@ TypeResolve TypeDeducer::resolveTypeFromExpression(EnhancedAstNode* expressionNo
 
   TypeResolve typeResolve;
 
-  if (expressionNode->getChildCount() == 2) {
+  if (expressionNode->getNodeType() == EnhancedAstNodeType::Variable) {
+    if (expressionNode->hasChild(EnhancedAstNodeType::TypeName)) {
+      typeResolve.setTypeName(expressionNode->getChild(EnhancedAstNodeType::TypeName)->getData());
+    }
+    else {
+      // TODO create dependency on this node completing.
+      throw std::runtime_error("cannot determine result type from incomplete variable (not implemented)");
+    }
+  }
+  else if (expressionNode->getChildCount() == 2) {
     // Try to resolve the left and right children.
     auto typeResolveLeft = resolveTypeFromExpression(expressionNode->getChild(0), scope, transformWorkingData);
     auto typeResolveRight = resolveTypeFromExpression(expressionNode->getChild(1), scope, transformWorkingData);

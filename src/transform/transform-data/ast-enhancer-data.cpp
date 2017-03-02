@@ -605,10 +605,17 @@ void loadAstEnhancerDataInternal() {
       NodeEnhancerLookup::getInstance()->getNodeEnhancer(AstNodeType::Expression)(subInput);
     }
 
-    // TODO access structures don't work here.
+    bool hasAccessStructure = nodeToMap->hasChild(AstNodeType::AccessStructure);
+    if (hasAccessStructure) {
+      auto& eventContainer = input.getTransformWorkingData()->getEventContainer();
+      eventContainer.addEventListener("check-access-structures", [](void*) -> EventListenerResult {
+        throw std::runtime_error("check access structures not implemented");
+      });
+    }
+
     // This is the first time we've seen this variable in this scope, add it.
     auto scope = input.getScope();
-    if (!scope->hasVariable(data)) {
+    if (!hasAccessStructure && !scope->hasVariable(data)) {
       base->setNodeSubType(EnhancedAstNodeSubType::Declaration);
       scope->addVariable(data, base);
 

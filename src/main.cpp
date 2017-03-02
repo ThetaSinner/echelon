@@ -56,6 +56,14 @@ int main(int argc, char **args) {
       log->at(Level::Warn) << "Source is incomplete.\n";
     }
 
+    // To allow access expressions, we need to check types as we go. So that self.val find a variable called self, then
+    // checks that self has a type, then checks that type for a visible variable called val. The type of val then needs
+    // to be checked against the value assigned or returned.
+    // While self is likely to exist, a field which is typed with another custom type may not have been found yet...
+    // A reference to a foreign custom type such as this may not be resolvable until link time.
+    // Would it be best to assume that the access expression is valid and create an event to check it later? That way
+    // everything which is going to be available will be available.
+
     // TODO need to resolve in local scope first. Then when there is nothing more to find, in any scope.
     // TODO then allow non-perfect matches (cast types).
 
