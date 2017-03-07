@@ -6,3 +6,5 @@ release.tar.gz
 .idea
 cmake-build-debug
 cmake-build-release
+
+diagrams/*.svg
