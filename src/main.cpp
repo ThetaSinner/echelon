@@ -46,7 +46,7 @@ int main(int argc, char **args) {
     // auto out = compiler.enhance("module ModuleOne {\ndecimal oops = 0.5\n\ntype MyType {\n  integer my_type_var\n  function get_my_type_var() -> integer\n}\n}\n\nmodule ModuleTwo {\nfunction ModuleOne::MyType::get_my_type_var() {\n  oops + my_type_var\n}\n}");
 
     // TODO I need the linker (partial) for this part, because I am generating a constructor and linking it to MyType
-    auto out = compiler.enhance("type MyType {integer val function create() {self.val = 12} function get_val() -> integer {5}} myinstance = MyType.create() myinstance.get_val()");
+    auto out = compiler.enhance("type MyType {integer val function create() {self.val = 12 0} function get_val() -> integer {5}} myinstance = MyType.create() myinstance.get_val()");
     // TODO automatically insert -> MyType on create methods?
     // TODO on create self must be allocated and passed.
     auto model = out->getEnhancedAstNode();
